@@ -24,6 +24,8 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;background:var(--bg);}
 body{font-family:'Barlow',sans-serif;color:var(--tx);position:fixed;inset:0;}
+body.summary-mode .bnav,
+body.summary-mode .fab{display:none;}
 ::-webkit-scrollbar{display:none;}
 textarea,input{-webkit-user-select:text;user-select:text;}
 
@@ -407,7 +409,7 @@ textarea.inp{resize:none;line-height:1.5;}
 .tr-vals{font-size:11px;color:var(--mu);margin-top:1px;}
 .tr-delta{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;padding:3px 9px;border-radius:8px;}
 .tr-delta.up{background:rgba(34,197,94,.12);color:var(--grn);}
-.tr-delta.dn{background:rgba(239,68,68,.12);color:var(--red);}
+.tr-delta.down{background:rgba(239,68,68,.12);color:var(--red);}
 
 /* ═══════════════════════════════════
    DEPTH CHART
@@ -423,10 +425,10 @@ textarea.inp{resize:none;line-height:1.5;}
 .depth-slot{display:flex;align-items:center;gap:11px;padding:11px 14px;border-bottom:1px solid var(--bdr);cursor:pointer;transition:background .15s;user-select:none;position:relative;}
 .depth-slot:last-child{border-bottom:none;}
 .depth-slot:active{background:var(--s2);}
-.dn{width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:900;flex-shrink:0;}
-.dn.d1{background:var(--or);color:#fff;}
-.dn.d2{background:var(--s3);color:var(--mu);border:1px solid var(--bdr);}
-.dn.d3{background:var(--s3);color:var(--mu2);border:1px solid var(--bdr);}
+.depth-num{width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:900;flex-shrink:0;}
+.depth-num.d1{background:var(--or);color:#fff;}
+.depth-num.d2{background:var(--s3);color:var(--mu);border:1px solid var(--bdr);}
+.depth-num.d3{background:var(--s3);color:var(--mu2);border:1px solid var(--bdr);}
 .pos-abbr{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:1px;padding:2px 7px;border-radius:6px;flex-shrink:0;}
 .pos-abbr.off{background:rgba(59,130,246,.12);color:var(--blu);}
 .pos-abbr.def{background:rgba(239,68,68,.12);color:var(--red);}
@@ -915,15 +917,15 @@ textarea.inp{resize:none;line-height:1.5;}
 <div class="screen" id="sRosterUpload">
   <div class="nav">
     <button class="nav-back" onclick="back('tHome')">←</button>
-    <div class="nav-info"><div class="nav-title">Upload Roster</div><div class="nav-sub">Import players from CSV or Excel</div></div>
+    <div class="nav-info"><div class="nav-title">Upload Roster</div><div class="nav-sub">Import players from CSV</div></div>
   </div>
   <div class="sb p">
     <div class="upload-zone" onclick="document.getElementById('rosterFileInput').click()">
       <div class="upload-zone-ico">📁</div>
       <div class="upload-zone-title">Tap to Upload Roster</div>
-      <div class="upload-zone-sub">CSV or Excel file · Name, Position, Age, Grade<br>Fields auto-detected on import</div>
+      <div class="upload-zone-sub">CSV file · Name, Position, Age, Grade<br>Fields auto-detected on import</div>
     </div>
-    <input type="file" id="rosterFileInput" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleRosterUpload(event)">
+    <input type="file" id="rosterFileInput" accept=".csv,text/csv" style="display:none" onchange="handleRosterUpload(event)">
 
     <!-- Sample CSV download -->
     <button class="btn ghost" style="margin-bottom:14px" onclick="downloadSampleCSV()">⬇ Download Sample CSV</button>
@@ -988,7 +990,7 @@ textarea.inp{resize:none;line-height:1.5;}
 <!-- SESSION SUMMARY SCREEN -->
 <div class="screen no-nav" id="sSessionSummary">
   <div class="ss-hero">
-    <div class="ss-icon">🏆</div>
+    <div class="ss-icon" id="ssIcon">🏆</div>
     <div class="ss-title">Session Complete!</div>
     <div class="ss-player" id="ssSummaryLine">Great work today</div>
   </div>
@@ -1007,7 +1009,7 @@ textarea.inp{resize:none;line-height:1.5;}
     <div style="height:12px"></div>
   </div>
   <div style="padding:12px 14px;border-top:1px solid var(--bdr);background:var(--s1);display:flex;flex-direction:column;gap:8px;padding-bottom:calc(var(--sb)+12px)">
-    <button class="ss-share-btn" onclick="shareSessionSummary()">📤 Send to Parent</button>
+    <button class="ss-share-btn" id="ssShareBtn" onclick="shareSessionSummary()">📤 Send to Parent</button>
     <button class="btn ghost" onclick="goTab('tHome');screenStack=[]">Done</button>
   </div>
 </div>
@@ -1107,7 +1109,7 @@ textarea.inp{resize:none;line-height:1.5;}
     <div style="position:absolute;top:0;right:0;width:160px;height:100%;background:radial-gradient(ellipse at 100% 50%,rgba(249,115,22,.07) 0%,transparent 70%);pointer-events:none"></div>
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:3px">
       <div class="nav-title" id="aiTabName" style="font-size:22px">Court<span style="color:var(--or)">IQ</span></div>
-      <div style="font-size:10px;color:var(--mu2);text-align:right;margin-top:4px;line-height:1.4">Powered by<br>Groq × LLaMA 3.3</div>
+      <div style="font-size:10px;color:var(--mu2);text-align:right;margin-top:4px;line-height:1.4">Ready for<br>AI Proxy</div>
     </div>
     <div style="font-size:12px;color:var(--mu)">AI coaching intelligence · analyzing your squad</div>
   </div>
@@ -1526,6 +1528,7 @@ function getDepthChart(){ return DB.get('fb_depth')||{}; }
 //  NAVIGATION
 // ═══════════════════════════════════════════════════════
 function goTab(id){
+  document.body.classList.remove('summary-mode');
   document.querySelectorAll('.screen.tab-root').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   document.querySelectorAll('.bni').forEach(b=>b.classList.remove('act'));
@@ -1541,6 +1544,7 @@ function goTab(id){
 }
 
 function push(id){
+  if(id==='sSessionSummary') document.body.classList.add('summary-mode');
   document.querySelectorAll('.screen:not(.tab-root)').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   screenStack.push(id);
@@ -1548,6 +1552,7 @@ function push(id){
 
 function back(fallback){
   const last=screenStack.pop();
+  if(last==='sSessionSummary') document.body.classList.remove('summary-mode');
   if(last) document.getElementById(last).classList.remove('active');
   if(screenStack.length) document.getElementById(screenStack[screenStack.length-1]).classList.add('active');
   else goTab(fallback||currentTab);
@@ -1562,6 +1567,38 @@ function closeModal(id){ document.getElementById(id).classList.remove('show'); }
 function showToast(id,txt){ const t=document.getElementById(id);t.textContent=txt;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200); }
 function fmtTs(ts){ const d=new Date(ts); const now=new Date(); const diff=Math.floor((now-d)/1000); if(diff<60) return'Just now'; if(diff<3600) return Math.floor(diff/60)+'m ago'; if(diff<86400) return Math.floor(diff/3600)+'h ago'; const days=Math.floor(diff/86400); if(days<7) return days+'d ago'; return d.toLocaleDateString('en',{month:'short',day:'numeric'}); }
 function uid(){ return (Date.now()+Math.random()).toString(36).replace('.',''); }
+function esc(v){ return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+function jsString(v){ return String(v??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\r/g,'\\r').replace(/\n/g,'\\n').replace(/</g,'\\x3C'); }
+function safeColor(v){ return /^#[0-9a-f]{6}$/i.test(String(v||'')) ? v : '#777777'; }
+function safePercent(v){ const n=Number(v); return Number.isFinite(n) ? Math.max(0,Math.min(100,n)) : 0; }
+function validatedHttpsUrl(raw){
+  try{
+    const url=new URL(String(raw||'').trim());
+    return url.protocol==='https:' ? url.href : null;
+  }catch{return null;}
+}
+function detectPlatform(url){
+  const host=(()=>{try{return new URL(url).hostname.toLowerCase();}catch{return'';}})();
+  if(host.includes('youtube.com')||host.includes('youtu.be')) return 'youtube';
+  if(host.includes('instagram.com')) return 'instagram';
+  if(host.includes('tiktok.com')) return 'tiktok';
+  return 'web';
+}
+function getYoutubeVideoId(raw){
+  const safe=validatedHttpsUrl(raw);
+  if(!safe) return null;
+  try{
+    const url=new URL(safe);
+    if(url.hostname.includes('youtu.be')) return url.pathname.split('/').filter(Boolean)[0]||null;
+    if(url.hostname.includes('youtube.com')) return url.searchParams.get('v');
+  }catch{}
+  return null;
+}
+function safeOpenUrl(raw){
+  const url=validatedHttpsUrl(raw);
+  if(!url){ showToast('tR','Unsafe or invalid URL'); return; }
+  window.open(url,'_blank','noopener,noreferrer');
+}
 function getWeakLabel(p){ const s=S(); const active=s.skillKeys.filter(k=>p.skills[k]>0); const min=active.reduce((a,b)=>p.skills[b]<p.skills[a]?b:a); return s.skillLabels[min]; }
 function getOvr(p){ const active=Object.keys(p.skills).filter(k=>p.skills[k]>0); return Math.round(active.reduce((a,k)=>a+p.skills[k],0)/active.length); }
 
@@ -1608,21 +1645,27 @@ function renderHome(){
   // today sessions
   const hs=document.getElementById('homeSessions');
   const plans=getPlans();
-  hs.innerHTML=players.slice(0,2).map((p,i)=>`
+  hs.innerHTML=players.slice(0,2).map((p,i)=>{
+    const color=safeColor(p.color);
+    return `
     <div class="row-item" onclick="openPlayerDetail('${p.id}')">
-      <div class="row-av" style="background:${p.color}20;color:${p.color}">${p.avatar}</div>
-      <div class="row-info"><div class="row-name">${p.name}</div><div class="row-detail">${p.pos} · ${plans[0]?.title||'Practice'}</div></div>
+      <div class="row-av" style="background:${color}20;color:${color}">${esc(p.avatar)}</div>
+      <div class="row-info"><div class="row-name">${esc(p.name)}</div><div class="row-detail">${esc(p.pos)} · ${esc(plans[0]?.title||'Practice')}</div></div>
       <div class="row-right"><div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--or)">${['3:00 PM','4:30 PM'][i]}</div></div>
-    </div>`).join('')||'<div style="padding:14px;text-align:center;color:var(--mu);font-size:13px">No sessions today</div>';
+    </div>`;
+  }).join('')||'<div style="padding:14px;text-align:center;color:var(--mu);font-size:13px">No sessions today</div>';
 
   // recent players
   const hp=document.getElementById('homePlayers');
-  hp.innerHTML=players.slice(0,3).map(p=>`
+  hp.innerHTML=players.slice(0,3).map(p=>{
+    const color=safeColor(p.color);
+    return `
     <div class="row-item" onclick="openPlayerDetail('${p.id}')">
-      <div class="row-av" style="background:${p.color}20;color:${p.color}">${p.avatar}</div>
-      <div class="row-info"><div class="row-name">${p.name}</div><div class="row-detail">${p.pos} · ${p.sessions} sessions · <span style="color:var(--or)">⚠ ${getWeakLabel(p)}</span></div></div>
+      <div class="row-av" style="background:${color}20;color:${color}">${esc(p.avatar)}</div>
+      <div class="row-info"><div class="row-name">${esc(p.name)}</div><div class="row-detail">${esc(p.pos)} · ${Number(p.sessions)||0} sessions · <span style="color:var(--or)">⚠ ${esc(getWeakLabel(p))}</span></div></div>
       <div class="row-right" style="font-size:18px;color:var(--mu2)">›</div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
   // recent captures
   const hc=document.getElementById('homeCaptures');
@@ -1630,13 +1673,13 @@ function renderHome(){
   hc.innerHTML=recent.map(cap=>{
     const p=players.find(x=>x.id===cap.playerId);
     const typeBadge={note:'📝 Note',stat:'📊 Stat',drill:'🎯 Drill'}[cap.type];
-    const content=cap.type==='stat'?`${cap.metric}: <strong style="color:var(--grn)">${cap.value}${cap.unit}</strong>`:cap.content||cap.title||'';
+    const content=cap.type==='stat'?`${esc(cap.metric)}: <strong style="color:var(--grn)">${esc(cap.value)}${esc(cap.unit)}</strong>`:esc(cap.content||cap.title||'');
     return`<div class="card" style="margin-bottom:8px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;color:var(--or)">${typeBadge}</span>
         <span style="font-size:10px;color:var(--mu2)">${fmtTs(cap.ts)}</span>
       </div>
-      ${p?`<div style="font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px">${p.name}</div>`:''}
+      ${p?`<div style="font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px">${esc(p.name)}</div>`:''}
       <div style="font-size:13px;color:var(--tx);line-height:1.5">${content}</div>
     </div>`;
   }).join('')||'<div style="text-align:center;color:var(--mu);font-size:12px">No notes yet — tap + to add one</div>';
@@ -1648,23 +1691,26 @@ function renderHome(){
 function renderPlayers(){
   const players=getPlayers();
   document.getElementById('playerCountLbl').textContent=players.length+' athletes';
-  document.getElementById('playerListBody').innerHTML=players.map(p=>`
+  document.getElementById('playerListBody').innerHTML=players.map(p=>{
+    const color=safeColor(p.color);
+    return `
     <div class="player-row" onclick="openPlayerDetail('${p.id}')">
-      <div class="pav" style="background:${p.color}20;color:${p.color}">${p.avatar}</div>
+      <div class="pav" style="background:${color}20;color:${color}">${esc(p.avatar)}</div>
       <div style="flex:1;min-width:0">
-        <div class="pname">${p.name}</div>
-        <div class="pdetail">${p.pos} · Age ${p.age} · ${p.sessions} sessions</div>
+        <div class="pname">${esc(p.name)}</div>
+        <div class="pdetail">${esc(p.pos)} · Age ${Number(p.age)||''} · ${Number(p.sessions)||0} sessions</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-        <span class="weak-lbl">⚠ ${getWeakLabel(p)}</span>
+        <span class="weak-lbl">⚠ ${esc(getWeakLabel(p))}</span>
         <span style="color:var(--mu2);font-size:16px">›</span>
       </div>
-    </div>`).join('')||'<div class="empty"><div class="empty-ico">👥</div><div class="empty-ttl">No players yet</div><div class="empty-dsc">Add your first athlete to get started</div></div>';
+    </div>`;
+  }).join('')||'<div class="empty"><div class="empty-ico">👥</div><div class="empty-ttl">No players yet</div><div class="empty-dsc">Add your first athlete to get started</div></div>';
 }
 
 function openNewPlayerModal(){
   const sp=S();
-  document.getElementById('npPos').innerHTML=sp.positions.map(p=>`<option>${p}</option>`).join('');
+  document.getElementById('npPos').innerHTML=sp.positions.map(p=>`<option>${esc(p)}</option>`).join('');
   document.getElementById('mNewPlayerTitle').textContent='Add '+(SPORT==='basketball'?'Basketball':'Football')+' Player';
   ['npName','npGoal','npWeak'].forEach(id=>document.getElementById(id).value='');
   openModal('mNewPlayer');
@@ -1694,25 +1740,26 @@ function openPlayerDetail(id){
 
   // hero
   const s=S();
+  const color=safeColor(p.color);
   document.getElementById('pdHero').innerHTML=`
     <div class="pd-hero-row">
-      <div class="pd-av" style="background:${p.color}20;color:${p.color}">${p.avatar}</div>
+      <div class="pd-av" style="background:${color}20;color:${color}">${esc(p.avatar)}</div>
       <div style="flex:1">
-        <div class="pd-name">${p.name}</div>
+        <div class="pd-name">${esc(p.name)}</div>
         <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px">
-          <span class="pill o">${p.pos}</span>
-          <span class="pill b">Age ${p.age}</span>
-          <span class="pill g">${p.sessions} Sessions</span>
+          <span class="pill o">${esc(p.pos)}</span>
+          <span class="pill b">Age ${Number(p.age)||''}</span>
+          <span class="pill g">${Number(p.sessions)||0} Sessions</span>
         </div>
-        <div class="pd-goal">🎯 ${p.goal}</div>
+        <div class="pd-goal">🎯 ${esc(p.goal)}</div>
       </div>
     </div>
     <div style="margin-top:12px">
       ${s.skillKeys.filter(k=>p.skills[k]>0).map(k=>`
         <div class="skbar-row">
-          <div class="skbar-lbl">${s.skillLabels[k]}</div>
-          <div class="skbar-track"><div class="skbar-fill" style="width:${p.skills[k]}%;background:${s.skillColors[k]}"></div></div>
-          <div class="skbar-val" style="color:${s.skillColors[k]}">${p.skills[k]}</div>
+          <div class="skbar-lbl">${esc(s.skillLabels[k])}</div>
+          <div class="skbar-track"><div class="skbar-fill" style="width:${safePercent(p.skills[k])}%;background:${s.skillColors[k]}"></div></div>
+          <div class="skbar-val" style="color:${s.skillColors[k]}">${safePercent(p.skills[k])}</div>
         </div>`).join('')}
     </div>`;
 
@@ -1769,16 +1816,16 @@ function renderPlayerTimeline(p, filter='all'){
   </div>`;
 
   if(!events.length){
-    el.innerHTML=filterBar+`<div class="empty" style="padding-top:32px"><div class="empty-ico">📋</div><div class="empty-ttl">Nothing captured yet</div><div class="empty-dsc">Use Quick Capture to start building ${p.name.split(' ')[0]}'s timeline</div></div>`;
+    el.innerHTML=filterBar+`<div class="empty" style="padding-top:32px"><div class="empty-ico">📋</div><div class="empty-ttl">Nothing captured yet</div><div class="empty-dsc">Use Quick Capture to start building ${esc(p.name.split(' ')[0])}'s timeline</div></div>`;
     return;
   }
 
   el.innerHTML=filterBar+`<div style="padding:14px 14px 80px">`+events.map(ev=>{
     const typeKey=ev.evType||'note';
     let bodyHTML='';
-    if(ev.evType==='stat') bodyHTML=`<div class="tl-stat-val">${ev.value}${ev.unit}<span class="tl-stat-unit"> ${ev.metric||''}</span></div>`;
-    else bodyHTML=`<div class="tl-body">${ev.content||ev.title||''}</div>`;
-    const tags=ev.tags?.length?`<div class="tl-tags">${ev.tags.map(t=>`<span class="tl-tag-chip">${t}</span>`).join('')}</div>`:'';
+    if(ev.evType==='stat') bodyHTML=`<div class="tl-stat-val">${esc(ev.value)}${esc(ev.unit)}<span class="tl-stat-unit"> ${esc(ev.metric||'')}</span></div>`;
+    else bodyHTML=`<div class="tl-body">${esc(ev.content||ev.title||'')}</div>`;
+    const tags=ev.tags?.length?`<div class="tl-tags">${ev.tags.map(t=>`<span class="tl-tag-chip">${esc(t)}</span>`).join('')}</div>`:'';
     const parentBadge=ev.visibility==='parent_visible'?`<span class="parent-badge" style="margin-left:6px">👁 PARENT</span>`:'';
     return`<div class="tl-event">
       <div class="tl-dot ${dotClass[typeKey]}">${dotIco[typeKey]}</div>
@@ -1829,7 +1876,7 @@ function openCapture(type='note'){
   // populate player selector
   const players=getPlayers();
   const sel=document.getElementById('capPlayer');
-  sel.innerHTML='<option value="">— No player —</option>'+players.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  sel.innerHTML='<option value="">— No player —</option>'+players.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
   if(currentPlayer) sel.value=currentPlayer.id;
   openModal('mCapture');
 }
@@ -1840,6 +1887,9 @@ function setCapType(type){
     document.getElementById('capType'+t.charAt(0).toUpperCase()+t.slice(1))?.classList.toggle('act',t===type);
     document.getElementById('cap'+t.charAt(0).toUpperCase()+t.slice(1)+'Fields').style.display=t===type?'':'none';
   });
+  const visRow=document.getElementById('capVisRow');
+  if(visRow) visRow.style.display=type==='note'?'':'none';
+  if(type!=='note') resetVisibilityToggle();
 }
 
 function toggleCapTag(el, tag){
@@ -1851,7 +1901,7 @@ function toggleCapTag(el, tag){
 function saveCapture(){
   const playerId=document.getElementById('capPlayer').value||null;
   const caps=getCaptures();
-  let cap={id:uid(),playerId,ts:Date.now(),sport:SPORT,visibility:capVisibility};
+  let cap={id:uid(),playerId,ts:Date.now(),sport:SPORT,visibility:capType==='note'?capVisibility:'private'};
 
   if(capType==='note'){
     const txt=document.getElementById('capNoteText').value.trim();
@@ -1896,7 +1946,7 @@ function renderDrillLinks(){
   const links=getDrillLinks();
   document.getElementById('drillCountLbl').textContent=links.length+' links saved';
   const cats=['All',...new Set(links.map(d=>d.cat))];
-  document.getElementById('drillCatBar').innerHTML=cats.map(c=>`<div class="tl-f-btn ${c===activeDrillCat?'act':''}" style="flex-shrink:0" onclick="setDrillCat('${c}')">${c}</div>`).join('');
+  document.getElementById('drillCatBar').innerHTML=cats.map(c=>`<div class="tl-f-btn ${c===activeDrillCat?'act':''}" style="flex-shrink:0" onclick="setDrillCat('${esc(jsString(c))}')">${esc(c)}</div>`).join('');
   filterDrillLinks();
 }
 
@@ -1910,24 +1960,24 @@ function filterDrillLinks(){
   document.getElementById('drillListBody').innerHTML=filtered.map(d=>{
     const players=getPlayers();
     const attached=d.attachedTo?.map(id=>players.find(p=>p.id===id)?.name||'').filter(Boolean)||[];
-    const ytId=d.url.includes('youtube.com')&&d.url.includes('v=')?d.url.split('v=')[1]?.split('&')[0]:null;
+    const ytId=getYoutubeVideoId(d.url);
     const thumbSrc=ytId?`https://img.youtube.com/vi/${ytId}/mqdefault.jpg`:null;
     return`<div class="dl-card">
       <div class="dl-card-top">
         <div class="dl-thumb">${thumbSrc?`<img src="${thumbSrc}" onerror="this.parentElement.textContent='🎯'">`:platIco[d.platform]||'🔗'}</div>
         <div class="dl-info">
-          <div class="dl-title">${d.title}</div>
+          <div class="dl-title">${esc(d.title)}</div>
           <div class="dl-pills">
-            <span class="pill o">${d.cat}</span>
-            <span class="pill m">${d.diff}</span>
-            <span class="pill m">${d.age}</span>
+            <span class="pill o">${esc(d.cat)}</span>
+            <span class="pill m">${esc(d.diff)}</span>
+            <span class="pill m">${esc(d.age)}</span>
           </div>
-          ${d.notes?`<div class="dl-notes">${d.notes}</div>`:''}
+          ${d.notes?`<div class="dl-notes">${esc(d.notes)}</div>`:''}
         </div>
       </div>
-      ${attached.length?`<div style="font-size:11px;color:var(--mu);margin-top:4px">👤 ${attached.join(', ')}</div>`:''}
+      ${attached.length?`<div style="font-size:11px;color:var(--mu);margin-top:4px">👤 ${attached.map(esc).join(', ')}</div>`:''}
       <div class="dl-actions">
-        <div class="dl-act primary" onclick="window.open('${d.url}','_blank')">▶ Open Video</div>
+        <div class="dl-act primary" onclick="safeOpenUrl('${esc(jsString(d.url))}')">▶ Open Video</div>
         <div class="dl-act" onclick="attachDrillToPlayer('${d.id}')">Attach to Player</div>
         <div class="dl-act" onclick="deleteDrillLink('${d.id}')">Delete</div>
       </div>
@@ -1937,10 +1987,10 @@ function filterDrillLinks(){
 
 function openDrillLinkSaver(){
   const sp=S();
-  document.getElementById('dlCat').innerHTML=sp.drillCats.map(c=>`<option>${c}</option>`).join('');
+  document.getElementById('dlCat').innerHTML=sp.drillCats.map(c=>`<option>${esc(c)}</option>`).join('');
   document.getElementById('dlSport').value=SPORT;
   const players=getPlayers();
-  document.getElementById('dlPlayer').innerHTML='<option value="">— None —</option>'+players.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  document.getElementById('dlPlayer').innerHTML='<option value="">— None —</option>'+players.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
   if(currentPlayer) document.getElementById('dlPlayer').value=currentPlayer.id;
   ['dlURL','dlTitle','dlNotes'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('dlThumbPreview').style.display='none';
@@ -1948,9 +1998,8 @@ function openDrillLinkSaver(){
 }
 
 function parseDrillURL(url){
-  const ytMatch=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n]+)/);
-  if(ytMatch){
-    const videoId=ytMatch[1];
+  const videoId=getYoutubeVideoId(url);
+  if(videoId){
     const thumb=document.getElementById('dlThumbPreview');
     const img=document.getElementById('dlThumbImg');
     img.src=`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
@@ -1958,6 +2007,8 @@ function parseDrillURL(url){
     if(!document.getElementById('dlTitle').value){
       document.getElementById('dlTitle').value='YouTube Drill — Add Title';
     }
+  } else {
+    document.getElementById('dlThumbPreview').style.display='none';
   }
   // detect platform
   const platMap=[['youtube','youtube'],['youtu.be','youtube'],['instagram','instagram'],['tiktok','tiktok']];
@@ -1969,11 +2020,12 @@ function saveDrillLink(){
   const title=document.getElementById('dlTitle').value.trim();
   if(!url){showToast('tO','Enter a URL');return;}
   if(!title){showToast('tO','Add a title');return;}
-  const ytMatch=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n]+)/);
-  const platform=url.includes('youtube')||url.includes('youtu.be')?'youtube':url.includes('instagram')?'instagram':url.includes('tiktok')?'tiktok':'web';
+  const safeUrl=validatedHttpsUrl(url);
+  if(!safeUrl){showToast('tR','Use a valid https:// URL');return;}
+  const platform=detectPlatform(safeUrl);
   const playerId=document.getElementById('dlPlayer').value||null;
   const links=getDrillLinks();
-  const dl={id:uid(),title,url,platform,cat:document.getElementById('dlCat').value,sport:document.getElementById('dlSport').value,age:document.getElementById('dlAge').value,diff:document.getElementById('dlDiff').value,notes:document.getElementById('dlNotes').value,attachedTo:playerId?[playerId]:[],ts:Date.now()};
+  const dl={id:uid(),title,url:safeUrl,platform,cat:document.getElementById('dlCat').value,sport:document.getElementById('dlSport').value,age:document.getElementById('dlAge').value,diff:document.getElementById('dlDiff').value,notes:document.getElementById('dlNotes').value,attachedTo:playerId?[playerId]:[],ts:Date.now()};
   links.push(dl);
   DB.set(pfx()+'_drilllinks',links);
   closeModal('mDrillLink');
@@ -1985,21 +2037,21 @@ function saveDrillLink(){
 function renderPlayerDrills(p){
   const el=document.getElementById('pdTpDrills');
   const links=getDrillLinks().filter(d=>d.attachedTo?.includes(p.id));
-  el.innerHTML=`<button class="btn o sm" style="margin-bottom:14px;width:auto;padding:9px 18px" onclick="openDrillLinkSaver()">+ Save Drill Link for ${p.name.split(' ')[0]}</button>`;
-  if(!links.length){ el.innerHTML+=`<div class="empty"><div class="empty-ico">🔗</div><div class="empty-ttl">No drill links attached</div><div class="empty-dsc">Save a YouTube link and attach it to ${p.name.split(' ')[0]}</div></div>`; return; }
+  el.innerHTML=`<button class="btn o sm" style="margin-bottom:14px;width:auto;padding:9px 18px" onclick="openDrillLinkSaver()">+ Save Drill Link for ${esc(p.name.split(' ')[0])}</button>`;
+  if(!links.length){ el.innerHTML+=`<div class="empty"><div class="empty-ico">🔗</div><div class="empty-ttl">No drill links attached</div><div class="empty-dsc">Save a YouTube link and attach it to ${esc(p.name.split(' ')[0])}</div></div>`; return; }
   const platIco={youtube:'▶️',instagram:'📸',tiktok:'🎵',web:'🌐',other:'🔗'};
   el.innerHTML+=links.map(d=>`
     <div class="dl-card">
       <div class="dl-card-top">
         <div class="dl-thumb">${platIco[d.platform]||'🔗'}</div>
         <div class="dl-info">
-          <div class="dl-title">${d.title}</div>
-          <div class="dl-pills"><span class="pill o">${d.cat}</span><span class="pill m">${d.diff}</span></div>
-          ${d.notes?`<div class="dl-notes">${d.notes}</div>`:''}
+          <div class="dl-title">${esc(d.title)}</div>
+          <div class="dl-pills"><span class="pill o">${esc(d.cat)}</span><span class="pill m">${esc(d.diff)}</span></div>
+          ${d.notes?`<div class="dl-notes">${esc(d.notes)}</div>`:''}
         </div>
       </div>
       <div class="dl-actions">
-        <div class="dl-act primary" onclick="window.open('${d.url}','_blank')">▶ Open</div>
+        <div class="dl-act primary" onclick="safeOpenUrl('${esc(jsString(d.url))}')">▶ Open</div>
         <div class="dl-act" onclick="addDrillToFocus('${d.id}','${p.id}')">Add to Weekly Focus</div>
       </div>
     </div>`).join('');
@@ -2088,8 +2140,8 @@ function renderPlayerFocus(p){
       <div class="focus-item" style="margin:0 0 1px">
         <div class="fi-check ${fi.status==='completed'?'done':''}" onclick="toggleFocusItemPD('${fi.id}','${week.id}','${p.id}')">${fi.status==='completed'?'✓':''}</div>
         <div class="fi-content">
-          <div class="fi-title ${fi.status==='completed'?'done':''}">${fi.title}</div>
-          <div class="fi-meta"><div class="fi-priority ${prioCls[fi.priority]}"></div><span>${fi.cat}</span></div>
+          <div class="fi-title ${fi.status==='completed'?'done':''}">${esc(fi.title)}</div>
+          <div class="fi-meta"><div class="fi-priority ${prioCls[fi.priority]}"></div><span>${esc(fi.cat)}</span></div>
         </div>
       </div>`).join('')
     :`<div class="empty" style="padding:24px"><div class="empty-ico">🎯</div><div class="empty-ttl">No focus items</div><div class="empty-dsc">Open full view to add items</div></div>`}`;
@@ -2145,13 +2197,13 @@ function renderPlayerFocusInTab(p, elId=null){
     <div class="focus-item" id="fi-${fi.id}">
       <div class="fi-check ${fi.status==='completed'?'done':''}" onclick="toggleFocusItem('${fi.id}','${week.id}','${p.id}',${elId?`'${elId}'`:'null'})">${fi.status==='completed'?'✓':''}</div>
       <div class="fi-content">
-        <div class="fi-title ${fi.status==='completed'?'done':''}">${fi.title}</div>
+        <div class="fi-title ${fi.status==='completed'?'done':''}">${esc(fi.title)}</div>
         <div class="fi-meta">
           <div class="fi-priority ${prioCls[fi.priority]}"></div>
-          <span>${fi.cat}</span>
+          <span>${esc(fi.cat)}</span>
           ${fi.priority==='high'?'<span style="color:var(--red);font-size:10px;font-weight:700">HIGH</span>':''}
         </div>
-        ${fi.drillLinkId?`<div class="fi-drill-link">🔗 ${getDrillLinks().find(d=>d.id===fi.drillLinkId)?.title||'Drill attached'}</div>`:''}
+        ${fi.drillLinkId?`<div class="fi-drill-link">🔗 ${esc(getDrillLinks().find(d=>d.id===fi.drillLinkId)?.title||'Drill attached')}</div>`:''}
       </div>
       <div class="fi-del" onclick="deleteFocusItem('${fi.id}','${week.id}','${p.id}',${elId?`'${elId}'`:'null'})">✕</div>
     </div>`).join('');
@@ -2175,11 +2227,14 @@ function deleteFocusItem(itemId, weekId, playerId, elId){
 
 function openFocusPlayerPicker(){
   const players=getPlayers();
-  document.getElementById('focusPlayerPickerList').innerHTML=players.map(p=>`
+  document.getElementById('focusPlayerPickerList').innerHTML=players.map(p=>{
+    const color=safeColor(p.color);
+    return `
     <div class="player-row" onclick="selectFocusPlayer('${p.id}')">
-      <div class="pav" style="background:${p.color}20;color:${p.color}">${p.avatar}</div>
-      <div><div class="pname">${p.name}</div><div class="pdetail">${p.pos} · Age ${p.age}</div></div>
-    </div>`).join('');
+      <div class="pav" style="background:${color}20;color:${color}">${esc(p.avatar)}</div>
+      <div><div class="pname">${esc(p.name)}</div><div class="pdetail">${esc(p.pos)} · Age ${Number(p.age)||''}</div></div>
+    </div>`;
+  }).join('');
   openModal('mFocusPlayer');
 }
 
@@ -2223,8 +2278,8 @@ function renderPlayerProgress(p){
       const cls=v>=80?'rtg-e':v>=65?'rtg-g':'rtg-l';
       return`<div class="trend-row">
         <div class="tr-ico">${{ballHandling:'🏀',shooting:'🎯',finishing:'💪',footwork:'👟',defense:'🛡️',conditioning:'⚡',throwing:'🏈',routeRunning:'💨',catching:'🤲',blocking:'🔒'}[k]||'📊'}</div>
-        <div class="tr-info"><div class="tr-name">${s.skillLabels[k]}</div><div class="tr-vals">${v}/100</div></div>
-        <div class="tr-delta ${v>=75?'up':'dn'}">${v}</div>
+        <div class="tr-info"><div class="tr-name">${esc(s.skillLabels[k])}</div><div class="tr-vals">${safePercent(v)}/100</div></div>
+        <div class="tr-delta ${v>=75?'up':'down'}">${safePercent(v)}</div>
       </div>`;
     }).join('')}
 
@@ -2232,14 +2287,14 @@ function renderPlayerProgress(p){
     ${caps.slice().sort((a,b)=>b.ts-a.ts).slice(0,8).map(c=>`
       <div class="trend-row">
         <div class="tr-ico">📊</div>
-        <div class="tr-info"><div class="tr-name">${c.metric}</div><div class="tr-vals">${fmtTs(c.ts)}</div></div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;color:var(--grn)">${c.value}${c.unit}</div>
+        <div class="tr-info"><div class="tr-name">${esc(c.metric)}</div><div class="tr-vals">${fmtTs(c.ts)}</div></div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;color:var(--grn)">${esc(c.value)}${esc(c.unit)}</div>
       </div>`).join('')}`:''}
 
     <div class="sec" style="margin-top:20px">AI Analysis</div>
     <div style="background:linear-gradient(135deg,rgba(249,115,22,.08),rgba(249,115,22,.03));border:1px solid rgba(249,115,22,.2);border-radius:var(--r);padding:13px">
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:var(--wh);margin-bottom:6px">🤖 Development Insight</div>
-      <div style="font-size:12px;color:var(--mu);line-height:1.6">${getAIInsight(p)}</div>
+      <div style="font-size:12px;color:var(--mu);line-height:1.6">${esc(getAIInsight(p))}</div>
       <button class="btn o sm" style="margin-top:10px;width:auto;padding:8px 16px" onclick="goTab('tAI')">Ask AI Coach</button>
     </div>`;
 }
@@ -2260,11 +2315,11 @@ function renderPlayerSessions(p){
     const mins=Math.floor((s.duration||0)/60);
     return`<div class="card" style="margin-bottom:9px">
       <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--wh)">${plan?.title||'Open Session'}</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--wh)">${esc(plan?.title||'Open Session')}</div>
         <span class="pill m">${fmtTs(s.date||s.ts||Date.now())}</span>
       </div>
       <div style="font-size:11px;color:var(--mu);margin-bottom:5px">⏱ ${mins} min · ${s.results?.length||0} drills tracked</div>
-      ${s.notes?`<div style="font-size:12px;color:var(--tx);line-height:1.5">${s.notes}</div>`:''}
+      ${s.notes?`<div style="font-size:12px;color:var(--tx);line-height:1.5">${esc(s.notes)}</div>`:''}
     </div>`;
   }).join('');
 }
@@ -2274,8 +2329,8 @@ function renderPlayerSessions(p){
 // ═══════════════════════════════════════════════════════
 function openSessionPicker(){
   const players=getPlayers(); const plans=getPlans();
-  document.getElementById('spPlayer').innerHTML=players.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
-  document.getElementById('spPlan').innerHTML=plans.map(p=>`<option value="${p.id}">${p.title}</option>`).join('');
+  document.getElementById('spPlayer').innerHTML=players.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+  document.getElementById('spPlan').innerHTML=plans.map(p=>`<option value="${esc(p.id)}">${esc(p.title)}</option>`).join('');
   if(currentPlayer) document.getElementById('spPlayer').value=currentPlayer.id;
   openModal('mSessionPicker');
 }
@@ -2357,8 +2412,8 @@ function handleRosterUpload(event){
     const text=e.target.result;
     parseCSVRoster(text, file.name);
   };
-  if(file.name.endsWith('.csv')) reader.readAsText(file);
-  else showToast('tO','CSV only for now — Excel coming soon');
+  if(file.name.toLowerCase().endsWith('.csv')) reader.readAsText(file);
+  else showToast('tO','CSV files only for now');
 }
 
 function parseCSVRoster(csvText, filename){
@@ -2407,7 +2462,7 @@ function showRosterPreview(filename){
   </div>`+rosterPreviewData.map((r,i)=>`
     <div class="roster-preview-row">
       <div class="rpr-num">${i+1}</div>
-      <div class="rpr-info"><div class="rpr-name">${r._name}</div><div class="rpr-detail">${[r._pos,r._age?'Age '+r._age:'',r._grade].filter(Boolean).join(' · ')||'Position TBD'}</div></div>
+      <div class="rpr-info"><div class="rpr-name">${esc(r._name)}</div><div class="rpr-detail">${esc([r._pos,r._age?'Age '+r._age:'',r._grade].filter(Boolean).join(' · ')||'Position TBD')}</div></div>
       <div class="rpr-status ${r._dup?'dup':'new'}">${r._dup?'Exists':'New'}</div>
     </div>`).join('');
 }
@@ -2468,7 +2523,7 @@ function renderDepthBody(){
         <div class="pos-group-hdr"><span style="font-size:15px">${pos.ico}</span><span class="pgh-name">${pos.n}</span><span class="pgh-count">${pos.a} · ${slots.filter(Boolean).length}/${pos.max}</span></div>`;
       for(let i=0;i<pos.max;i++){
         const pid=slots[i]||null;const player=pid?players.find(p=>p.id===pid):null;
-        const numCls='dn d'+(i+1<4?i+1:3);
+        const numCls='depth-num d'+(i+1<4?i+1:3);
         if(player){
           const sk=player.skills[pos.sk]||70;const ovr=getOvr(player);
           const oc=ovr>=90?'rtg-e':ovr>=75?'rtg-g':ovr>=60?'rtg-a':'rtg-l';
@@ -2477,7 +2532,7 @@ function renderDepthBody(){
             ${i===0?'<div class="starter-bar"></div>':''}
             <div class="${numCls}">${i+1}</div>
             <span class="pos-abbr ${phCls}">${pos.a}</span>
-            <div class="slot-player"><div class="slot-pname">${player.name}</div><div class="slot-ppos">${player.pos} · Age ${player.age}</div></div>
+            <div class="slot-player"><div class="slot-pname">${esc(player.name)}</div><div class="slot-ppos">${esc(player.pos)} · Age ${Number(player.age)||''}</div></div>
             <div class="slot-ratings">
               <div class="slot-rtg ${oc}">${ovr}<span>OVR</span></div>
               <div class="slot-rtg ${sc}">${sk}<span>${pos.sk.replace(/([A-Z])/g,' $1').trim().split(' ')[0].toUpperCase()}</span></div>
@@ -2513,8 +2568,8 @@ function openDepthAssign(posAbbr,slotIdx){
       const ovr=getOvr(p);const oc=ovr>=90?'rtg-e':ovr>=75?'rtg-g':ovr>=60?'rtg-a':'rtg-l';
       const also=(usedAt[p.id]||[]).filter(s=>!(posAbbr+'#'+(slotIdx+1)===s)).join(', ');
       return`<div class="player-row" onclick="assignDepthSlot('${p.id}')">
-        <div class="pav" style="background:${p.color}20;color:${p.color}">${p.avatar}</div>
-        <div style="flex:1"><div class="pname">${p.name}${current===p.id?' ✓':''}</div><div class="pdetail">${p.pos}${also?' · Also: '+also:''}</div></div>
+        <div class="pav" style="background:${safeColor(p.color)}20;color:${safeColor(p.color)}">${esc(p.avatar)}</div>
+        <div style="flex:1"><div class="pname">${esc(p.name)}${current===p.id?' ✓':''}</div><div class="pdetail">${esc(p.pos)}${also?' · Also: '+esc(also):''}</div></div>
         <div class="${oc}" style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900">${ovr}</div>
       </div>`;
     }).join('');
@@ -2555,6 +2610,7 @@ function switchSport(s){
 // ═══════════════════════════════════════════════════════
 let aiMessages=[];
 let aiReady=false;
+const AI_COACH_ENDPOINT='/api/ai/coach';
 
 function renderAI(){
   const sp=S();
@@ -2594,7 +2650,7 @@ function buildAIInsights(){
   el.innerHTML=`<div style="display:flex;gap:9px;overflow-x:auto;padding-bottom:4px">
     <div class="ai-insight">
       <div class="ai-insight-head"><span class="ai-insight-ico">⚠️</span><span class="ai-insight-title">Needs Work</span></div>
-      <div class="ai-insight-body">${w.p.name.split(' ')[0]} — ${s.skillLabels[w.skill]} at ${w.val}/100</div>
+      <div class="ai-insight-body">${esc(w.p.name.split(' ')[0])} — ${esc(s.skillLabels[w.skill])} at ${safePercent(w.val)}/100</div>
       <div class="ai-insight-acts">
         <span class="ai-ia" onclick="aiSuggest('${w.p.id}')">Build Plan</span>
         <span class="ai-ia" onclick="aiAsk('Drills for ${s.skillLabels[w.skill].toLowerCase()}?')">Drill Ideas</span>
@@ -2621,7 +2677,7 @@ function addAIMsg(role,text){
   const el=document.getElementById('aiChat');
   const div=document.createElement('div');
   div.className='ai-msg '+role;
-  div.innerHTML=text
+  div.innerHTML=esc(text)
     .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
     .replace(/_(.*?)_/g,'<em style="color:var(--or)">$1</em>')
     .replace(/\n/g,'<br>');
@@ -2663,41 +2719,39 @@ async function callAI(userMsg){
   const drillLinks=getDrillLinks();
   const sp=S();
   const aiName=SPORT==='basketball'?'CourtIQ':'FieldIQ';
-
-  const system=`You are ${aiName}, an elite ${sp.label} coaching AI built into CourtFlow — a professional trainer OS used by coaches worldwide.
-
-Sport: ${sp.label}
-Squad (${players.length} athletes):
-${players.map(p=>{
-  const active=sp.skillKeys.filter(k=>p.skills[k]>0);
-  const skills=active.map(k=>sp.skillLabels[k]+':'+p.skills[k]).join(', ');
-  return`- ${p.name} (${p.pos}, Age ${p.age}): ${skills} | Goal: ${p.goal} | Weak: ${p.weaknesses}`;
-}).join('\n')}
-
-Saved Drill Links: ${drillLinks.map(d=>d.title+' ('+d.cat+')').join(', ')||'None yet'}
-
-Rules:
-- Be a real coach, not a chatbot. Direct, specific, actionable.
-- Reference players by first name when relevant.
-- Use real ${sp.label} terminology.
-- When building plans: include warmup, main work, conditioning close. Give sets/reps/timing.
-- Keep responses tight. Coaches are busy.
-- Format with **bold headers** when giving multi-part answers.`;
-
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
+    const payload={
+      sport:SPORT,
+      assistantName:aiName,
+      message:userMsg,
+      messages:aiMessages.slice(-8),
+      context:{
+        players:players.map(p=>({
+          id:p.id,
+          name:p.name,
+          position:p.pos,
+          age:p.age,
+          goal:p.goal,
+          weaknesses:p.weaknesses,
+          skills:p.skills
+        })),
+        drillLinks:drillLinks.map(d=>({
+          id:d.id,
+          title:d.title,
+          category:d.cat,
+          attachedTo:d.attachedTo||[]
+        }))
+      }
+    };
+    const res=await fetch(AI_COACH_ENDPOINT,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        system,
-        messages:[...aiMessages.slice(-8).filter(m=>m.role!=='assistant'||m.content).map(m=>({role:m.role,content:m.content})),{role:'user',content:userMsg}]
-      })
+      body:JSON.stringify(payload)
     });
+    if(!res.ok) throw new Error('AI proxy unavailable');
     const data=await res.json();
     removeAILoading();
-    const reply=data.content?.[0]?.text||"I couldn't process that. Try again.";
+    const reply=data.reply||data.text||"I couldn't process that. Try again.";
     addAIMsg('bot',reply);
   }catch(e){
     removeAILoading();
@@ -2769,12 +2823,12 @@ function renderFocusDetail(p){
     <div class="focus-item">
       <div class="fi-check ${fi.status==='completed'?'done':''}" onclick="toggleFocusItemDetail('${fi.id}','${week.id}','${p.id}')">${fi.status==='completed'?'✓':''}</div>
       <div class="fi-content">
-        <div class="fi-title ${fi.status==='completed'?'done':''}">${fi.title}</div>
+        <div class="fi-title ${fi.status==='completed'?'done':''}">${esc(fi.title)}</div>
         <div class="fi-meta">
           <div class="fi-priority ${prioCls[fi.priority]}"></div>
-          <span>${fi.cat} · ${fi.priority}</span>
+          <span>${esc(fi.cat)} · ${esc(fi.priority)}</span>
         </div>
-        ${fi.drillLinkId?`<div class="fi-drill-link">🔗 ${getDrillLinks().find(d=>d.id===fi.drillLinkId)?.title||'Drill attached'}</div>`:''}
+        ${fi.drillLinkId?`<div class="fi-drill-link">🔗 ${esc(getDrillLinks().find(d=>d.id===fi.drillLinkId)?.title||'Drill attached')}</div>`:''}
       </div>
       <div class="fi-del" onclick="deleteFocusItemDetail('${fi.id}','${p.id}')">✕</div>
     </div>`).join('');
@@ -2865,6 +2919,7 @@ function obGoStep(n){
 function obFinish(){
   if(!obSport || !obRole) return;
   DB.set('onboarding_complete', true);
+  DB.set('sport', obSport);
   DB.set('user_sport', obSport);
   DB.set('user_role', obRole);
   SPORT = obSport;
@@ -2902,6 +2957,9 @@ let _lastSession = {};
 function showSessionSummary(sessData){
   const player = getPlayers().find(p => p.id === sessData.playerId);
   const plan   = getPlans().find(p => p.id === sessData.planId);
+  const sportIcon = S().icon || '🏆';
+  document.getElementById('ssIcon').textContent = sportIcon;
+  document.getElementById('ssShareBtn').textContent = `${sportIcon} Send to Parent`;
 
   // Stat boxes
   const mins = Math.floor((sessData.duration||0)/60);
@@ -2923,7 +2981,7 @@ function showSessionSummary(sessData){
   const notesEl = document.getElementById('ssSessNotes');
   const noteCaps = sessData.results?.filter(r=>r.notes) || [];
   notesEl.innerHTML = noteCaps.length
-    ? noteCaps.map(r=>`<div class="card" style="margin-bottom:8px"><div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;color:var(--or);margin-bottom:4px">${r.drillTitle}</div><div style="font-size:13px;color:var(--tx);line-height:1.5">${r.notes}</div></div>`).join('')
+    ? noteCaps.map(r=>`<div class="card" style="margin-bottom:8px"><div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;color:var(--or);margin-bottom:4px">${esc(r.drillTitle)}</div><div style="font-size:13px;color:var(--tx);line-height:1.5">${esc(r.notes)}</div></div>`).join('')
     : '<div style="font-size:12px;color:var(--mu);padding:4px 0">No drill notes recorded</div>';
 
   // Drills list
@@ -2931,7 +2989,7 @@ function showSessionSummary(sessData){
     <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bdr)">
       <span style="font-size:16px">✓</span>
       <div style="flex:1">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:var(--wh)">${r.drillTitle}</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:var(--wh)">${esc(r.drillTitle)}</div>
         ${r.makes||r.atts?`<div style="font-size:11px;color:var(--mu)">${r.makes}/${r.atts} makes</div>`:''}
       </div>
     </div>`).join('') || '<div style="font-size:12px;color:var(--mu);padding:4px 0">No drills tracked</div>';
@@ -2942,7 +3000,7 @@ function showSessionSummary(sessData){
   const pnotesEl = document.getElementById('ssParentNotes');
   if(parentNotes.length){
     psec.style.display = '';
-    pnotesEl.innerHTML = parentNotes.map(c=>`<div class="card" style="margin-bottom:8px;border-color:rgba(59,130,246,.3)"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span class="parent-badge">👁 PARENT VISIBLE</span><span style="font-size:10px;color:var(--mu2)">${fmtTs(c.ts)}</span></div><div style="font-size:13px;color:var(--tx);line-height:1.5">${c.content||c.title||''}</div></div>`).join('');
+    pnotesEl.innerHTML = parentNotes.map(c=>`<div class="card" style="margin-bottom:8px;border-color:rgba(59,130,246,.3)"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span class="parent-badge">👁 PARENT VISIBLE</span><span style="font-size:10px;color:var(--mu2)">${fmtTs(c.ts)}</span></div><div style="font-size:13px;color:var(--tx);line-height:1.5">${esc(c.content||c.title||'')}</div></div>`).join('');
   } else {
     psec.style.display = 'none';
     pnotesEl.innerHTML = '';
@@ -2956,8 +3014,9 @@ async function shareSessionSummary(){
   const { sessData, player, plan, noteCaps, parentNotes } = _lastSession;
   const mins = Math.floor((sessData?.duration||0)/60);
   const date = new Date(sessData?.ts||Date.now()).toLocaleDateString('en',{weekday:'long',month:'long',day:'numeric'});
+  const sportIcon = S().icon || '🏆';
 
-  let text = `🏀 CourtFlow Session Summary\n`;
+  let text = `${sportIcon} CourtFlow Session Summary\n`;
   text += `━━━━━━━━━━━━━━━━━━━━━━\n`;
   text += `Athlete: ${player?.name||'—'}\n`;
   text += `Date: ${date}\n`;

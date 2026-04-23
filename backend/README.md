@@ -10,3 +10,15 @@ The production backend should own:
 - Audit-friendly privacy controls for parent-visible notes.
 
 The client should call a CourtFlow-owned endpoint and gracefully fall back to local/offline guidance when unavailable.
+
+## Current Client Boundary
+
+The prototype calls `POST /api/ai/coach` with:
+
+- `sport`
+- `assistantName`
+- `message`
+- recent chat `messages`
+- a compact `context` object for players and drill links
+
+That endpoint is intentionally not implemented in the browser. A future serverless function should receive this payload, authenticate it, call the selected model provider with server-side credentials, and return `{ "reply": "..." }`.
