@@ -1,57 +1,5 @@
-// ═══════════════════════════════════════════════════════
-//  SPORT CONFIGS
-// ═══════════════════════════════════════════════════════
-const SPORTS = {
-  basketball:{
-    label:'Basketball', icon:'🏀',
-    positions:['Point Guard','Shooting Guard','Small Forward','Power Forward','Center'],
-    skillKeys:['ballHandling','shooting','finishing','footwork','defense','conditioning'],
-    skillLabels:{ballHandling:'Ball Handling',shooting:'Shooting',finishing:'Finishing',footwork:'Footwork',defense:'Defense',conditioning:'Conditioning'},
-    skillColors:{ballHandling:'#3b82f6',shooting:'#f97316',finishing:'#22c55e',footwork:'#eab308',defense:'#ef4444',conditioning:'#00d4e0'},
-    drillCats:['Ball Handling','Shooting','Finishing','Footwork','Defense','Conditioning','Passing','IQ / Reads'],
-    planFocuses:['Ball Handling','Shooting','Finishing','Footwork','Defense','Conditioning','Full Body','IQ / Reads'],
-    plans:[
-      {id:'bp1',title:'Ball Handling Fundamentals',focus:'Ball Handling',duration:45,drills:[]},
-      {id:'bp2',title:'Shooting Off Screens',focus:'Shooting',duration:60,drills:[]},
-      {id:'bp3',title:'Finishing Package',focus:'Finishing',duration:45,drills:[]},
-      {id:'bp4',title:'Defense Intensity',focus:'Defense',duration:50,drills:[]},
-    ],
-    focusTags:['Technique','Footwork','Shooting','Handle','Defense','Conditioning','IQ','Film'],
-  },
-  football:{
-    label:'Football', icon:'🏈',
-    positions:['Quarterback','Running Back','Wide Receiver','Tight End','Offensive Line','Defensive Line','Linebacker','Cornerback','Safety','Kicker'],
-    skillKeys:['throwing','routeRunning','catching','footwork','blocking','conditioning'],
-    skillLabels:{throwing:'Throwing',routeRunning:'Routes',catching:'Hands',footwork:'Footwork',blocking:'Blocking',conditioning:'Conditioning'},
-    skillColors:{throwing:'#3b82f6',routeRunning:'#f97316',catching:'#22c55e',footwork:'#eab308',blocking:'#ef4444',conditioning:'#00d4e0'},
-    drillCats:['Route Running','Throwing','Catching','Footwork','Blocking','Conditioning','Film Study','Reads'],
-    planFocuses:['Route Running','Throwing Mechanics','Catching','Footwork','Blocking','Conditioning','Red Zone','2-Minute Drill'],
-    plans:[
-      {id:'fp1',title:'WR Route Tree',focus:'Route Running',duration:50,drills:[]},
-      {id:'fp2',title:'QB Mechanics & Timing',focus:'Throwing Mechanics',duration:55,drills:[]},
-      {id:'fp3',title:'Footwork & Agility',focus:'Footwork',duration:40,drills:[]},
-    ],
-    focusTags:['Routes','Hands','Footwork','Reads','Coverage','Blocking','Conditioning','Film'],
-  },
-};
-
-// Depth chart positions
-const DC_POS = {
-  O:[
-    {g:'Backfield',p:[{a:'QB',n:'Quarterback',ico:'🏈',max:3,sk:'throwing'},{a:'HB',n:'Halfback',ico:'💨',max:3,sk:'routeRunning'},{a:'FB',n:'Fullback',ico:'🔨',max:2,sk:'blocking'}]},
-    {g:'Receivers',p:[{a:'WR',n:'Wide Receiver',ico:'⚡',max:5,sk:'catching'},{a:'TE',n:'Tight End',ico:'🎯',max:3,sk:'catching'}]},
-    {g:'O-Line',p:[{a:'LT',n:'Left Tackle',ico:'🛡️',max:2,sk:'blocking'},{a:'LG',n:'Left Guard',ico:'🛡️',max:2,sk:'blocking'},{a:'C',n:'Center',ico:'🛡️',max:2,sk:'blocking'},{a:'RG',n:'Right Guard',ico:'🛡️',max:2,sk:'blocking'},{a:'RT',n:'Right Tackle',ico:'🛡️',max:2,sk:'blocking'}]},
-  ],
-  D:[
-    {g:'D-Line',p:[{a:'LE',n:'Left End',ico:'💥',max:3,sk:'conditioning'},{a:'RE',n:'Right End',ico:'💥',max:3,sk:'conditioning'},{a:'DT',n:'Defensive Tackle',ico:'🏋️',max:3,sk:'blocking'}]},
-    {g:'Linebackers',p:[{a:'LOLB',n:'Left OLB',ico:'🔍',max:3,sk:'footwork'},{a:'MLB',n:'Middle LB',ico:'🔍',max:2,sk:'footwork'},{a:'ROLB',n:'Right OLB',ico:'🔍',max:3,sk:'footwork'}]},
-    {g:'Secondary',p:[{a:'CB',n:'Cornerback',ico:'🚫',max:4,sk:'footwork'},{a:'FS',n:'Free Safety',ico:'👁️',max:2,sk:'routeRunning'},{a:'SS',n:'Strong Safety',ico:'👊',max:2,sk:'footwork'}]},
-  ],
-  ST:[
-    {g:'Kicking',p:[{a:'K',n:'Kicker',ico:'⚽',max:2,sk:'conditioning'},{a:'P',n:'Punter',ico:'💢',max:2,sk:'conditioning'},{a:'LS',n:'Long Snapper',ico:'🎯',max:1,sk:'throwing'}]},
-    {g:'Returns',p:[{a:'KR',n:'Kick Returner',ico:'💨',max:2,sk:'routeRunning'},{a:'PR',n:'Punt Returner',ico:'💨',max:2,sk:'routeRunning'}]},
-  ],
-};
+import { state } from './js/state.js';
+import { SPORTS, DC_POS, AI_COACH_ENDPOINT, CF_FLAGS } from './js/config.js';
 
 // ═══════════════════════════════════════════════════════
 //  DATA STORE
@@ -61,19 +9,6 @@ const DB = {
   set(k,v){localStorage.setItem('cf3_'+k,JSON.stringify(v));},
 };
 
-let SPORT = DB.get('sport')||'basketball';
-let screenStack = [];
-let currentTab = 'tHome';
-let currentPlayer = null;
-let capType = 'note';
-let capTags = [];
-let fabOpen = false;
-let focusPlayerId = null;
-let dcPhase = 'O';
-let dcAssigning = null;
-let rosterPreviewData = [];
-let aiInit = {};
-let SESS = {};
 
 // ─── Seed Data ───────────────────────────────────────
 function seedBball(){
@@ -145,8 +80,8 @@ function init(){
 }
 
 // ─── Accessors ───────────────────────────────────────
-function S(){ return SPORTS[SPORT]; }
-function pfx(){ return SPORT==='basketball'?'bball':'football'; }
+function S(){ return SPORTS[state.SPORT]; }
+function pfx(){ return state.SPORT==='basketball'?'bball':'football'; }
 function getPlayers(){ return DB.get(pfx()+'_players')||[]; }
 function getCaptures(){ return DB.get(pfx()+'_captures')||[]; }
 function getDrillLinks(){ return DB.get(pfx()+'_drilllinks')||[]; }
@@ -166,7 +101,7 @@ function goTab(id){
   document.querySelectorAll('.bni').forEach(b=>b.classList.remove('act'));
   const map={tHome:'bn-home',tPlayers:'bn-players',tDrills:'bn-drills',tAI:'bn-ai',tFocus:null,tDepth:null};
   const bn=map[id];if(bn) document.getElementById(bn).classList.add('act');
-  currentTab=id;
+  state.currentTab=id;
   if(id==='tHome') renderHome();
   if(id==='tPlayers') renderPlayers();
   if(id==='tDrills') renderDrillLinks();
@@ -179,15 +114,15 @@ function push(id){
   if(id==='sSessionSummary') document.body.classList.add('summary-mode');
   document.querySelectorAll('.screen:not(.tab-root)').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  screenStack.push(id);
+  state.screenStack.push(id);
 }
 
 function back(fallback){
-  const last=screenStack.pop();
+  const last=state.screenStack.pop();
   if(last==='sSessionSummary') document.body.classList.remove('summary-mode');
   if(last) document.getElementById(last).classList.remove('active');
-  if(screenStack.length) document.getElementById(screenStack[screenStack.length-1]).classList.add('active');
-  else goTab(fallback||currentTab);
+  if(state.screenStack.length) document.getElementById(state.screenStack[state.screenStack.length-1]).classList.add('active');
+  else goTab(fallback||state.currentTab);
 }
 
 function openModal(id){ document.getElementById(id).classList.add('show'); }
@@ -238,24 +173,24 @@ function updateSportUI(){
   const sp=S();
   document.getElementById('scIco').textContent=sp.icon;
   document.getElementById('scLbl').textContent=sp.label;
-  document.getElementById('qaDepth').style.display=SPORT==='football'?'':'none';
+  document.getElementById('qaDepth').style.display=state.SPORT==='football'?'':'none';
   // Reset AI on sport switch
   const aiLbl=document.getElementById('bnAILbl');
-  if(aiLbl) aiLbl.textContent=SPORT==='basketball'?'CourtIQ':'FieldIQ';
+  if(aiLbl) aiLbl.textContent=state.SPORT==='basketball'?'CourtIQ':'FieldIQ';
 }
 
 // ═══════════════════════════════════════════════════════
 //  FAB
 // ═══════════════════════════════════════════════════════
 function toggleFAB(){
-  fabOpen=!fabOpen;
-  document.getElementById('fabBtn').classList.toggle('open',fabOpen);
-  document.getElementById('fabBtn').textContent=fabOpen?'✕':'+';
-  if(fabOpen) openModal('mFAB');
+  state.fabOpen=!state.fabOpen;
+  document.getElementById('fabBtn').classList.toggle('open',state.fabOpen);
+  document.getElementById('fabBtn').textContent=state.fabOpen?'✕':'+';
+  if(state.fabOpen) openModal('mFAB');
   else closeModal('mFAB');
 }
 function closeFAB(){
-  fabOpen=false;
+  state.fabOpen=false;
   document.getElementById('fabBtn').classList.remove('open');
   document.getElementById('fabBtn').textContent='+';
   closeModal('mFAB');
@@ -343,7 +278,7 @@ function renderPlayers(){
 function openNewPlayerModal(){
   const sp=S();
   document.getElementById('npPos').innerHTML=sp.positions.map(p=>`<option>${esc(p)}</option>`).join('');
-  document.getElementById('mNewPlayerTitle').textContent='Add '+(SPORT==='basketball'?'Basketball':'Football')+' Player';
+  document.getElementById('mNewPlayerTitle').textContent='Add '+(state.SPORT==='basketball'?'Basketball':'Football')+' Player';
   ['npName','npGoal','npWeak'].forEach(id=>document.getElementById(id).value='');
   openModal('mNewPlayer');
 }
@@ -355,7 +290,7 @@ function saveNewPlayer(){
   const colors=['#3b82f6','#ef4444','#22c55e','#f97316','#9b5de5','#eab308','#00d4e0','#ec4899'];
   const skills={};
   S().skillKeys.forEach(k=>skills[k]=65);
-  const p={id:uid(),name,pos:document.getElementById('npPos').value,age:parseInt(document.getElementById('npAge').value)||16,grade:document.getElementById('npGrade').value||'10th',goal:document.getElementById('npGoal').value||'Improve overall game',weaknesses:document.getElementById('npWeak').value||'To be assessed',avatar:name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(),color:colors[players.length%colors.length],skills,sessions:0,sport:SPORT,created:Date.now()};
+  const p={id:uid(),name,pos:document.getElementById('npPos').value,age:parseInt(document.getElementById('npAge').value)||16,grade:document.getElementById('npGrade').value||'10th',goal:document.getElementById('npGoal').value||'Improve overall game',weaknesses:document.getElementById('npWeak').value||'To be assessed',avatar:name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(),color:colors[players.length%colors.length],skills,sessions:0,sport:state.SPORT,created:Date.now()};
   players.push(p);
   DB.set(pfx()+'_players',players);
   closeModal('mNewPlayer');
@@ -366,7 +301,7 @@ function saveNewPlayer(){
 function openPlayerDetail(id){
   const p=getPlayers().find(x=>x.id===id);
   if(!p) return;
-  currentPlayer=p;
+  state.currentPlayer=p;
   document.getElementById('pdName').textContent=p.name;
   document.getElementById('pdSub').textContent=p.pos+' · Grade '+p.grade+' · Age '+p.age;
 
@@ -416,7 +351,7 @@ function pdTab(name){
 }
 
 function pdOpenCapture(){
-  if(currentPlayer) document.getElementById('capPlayer').value=currentPlayer.id;
+  if(state.currentPlayer) document.getElementById('capPlayer').value=state.currentPlayer.id;
   openCapture('note');
 }
 
@@ -487,16 +422,16 @@ function deleteCapture(id, type){
     const caps=getCaptures().filter(c=>c.id!==id);
     DB.set(pfx()+'_captures',caps);
   }
-  renderPlayerTimeline(currentPlayer);
+  renderPlayerTimeline(state.currentPlayer);
   showToast('tG','Deleted');
 }
 
 function filterPlayerTimeline(filter){
-  if(currentPlayer) renderPlayerTimeline(currentPlayer, filter);
+  if(state.currentPlayer) renderPlayerTimeline(state.currentPlayer, filter);
 }
 
 function closeSessionSummary(){
-  screenStack=[];
+  state.screenStack=[];
   goTab('tHome');
 }
 
@@ -508,22 +443,21 @@ function openCaptureEdit(id, type){
 // ═══════════════════════════════════════════════════════
 //  QUICK CAPTURE
 // ═══════════════════════════════════════════════════════
-let _activeCaptureSessionId = null;
 
 function openCapture(type='note'){
-  capType=type; capTags=[]; capVisibility='private';
+  state.capType=type; state.capTags=[]; state.capVisibility='private';
   resetVisibilityToggle();
   setCapType(type);
   // populate player selector
   const players=getPlayers();
   const sel=document.getElementById('capPlayer');
   sel.innerHTML='<option value="">— No player —</option>'+players.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
-  if(currentPlayer) sel.value=currentPlayer.id;
+  if(state.currentPlayer) sel.value=state.currentPlayer.id;
   openModal('mCapture');
 }
 
 function setCapType(type){
-  capType=type;
+  state.capType=type;
   ['note','stat','drill'].forEach(t=>{
     document.getElementById('capType'+t.charAt(0).toUpperCase()+t.slice(1))?.classList.toggle('act',t===type);
     document.getElementById('cap'+t.charAt(0).toUpperCase()+t.slice(1)+'Fields').style.display=t===type?'':'none';
@@ -535,20 +469,20 @@ function setCapType(type){
 
 function toggleCapTag(el, tag){
   el.classList.toggle('sel');
-  if(el.classList.contains('sel')) capTags.push(tag);
-  else capTags=capTags.filter(t=>t!==tag);
+  if(el.classList.contains('sel')) state.capTags.push(tag);
+  else state.capTags=state.capTags.filter(t=>t!==tag);
 }
 
 function saveCapture(){
   const playerId=document.getElementById('capPlayer').value||null;
   const caps=getCaptures();
-  let cap={id:uid(),playerId,ts:Date.now(),sport:SPORT,visibility:capType==='note'?capVisibility:'private'};
+  let cap={id:uid(),playerId,ts:Date.now(),sport:state.SPORT,visibility:state.capType==='note'?state.capVisibility:'private'};
 
-  if(capType==='note'){
+  if(state.capType==='note'){
     const txt=document.getElementById('capNoteText').value.trim();
     if(!txt){showToast('tO','Write a note first');return;}
     cap={...cap,type:'note',content:txt,tags:[...capTags]};
-  } else if(capType==='stat'){
+  } else if(state.capType==='stat'){
     const val=document.getElementById('capStatValue').value;
     if(!val){showToast('tO','Enter a value');return;}
     const metric=document.getElementById('capStatMetric').value;
@@ -563,9 +497,9 @@ function saveCapture(){
   caps.push(cap);
   DB.set(pfx()+'_captures',caps);
   closeModal('mCapture');
-  if(currentPlayer&&currentPlayer.id===playerId) renderPlayerTimeline(currentPlayer);
+  if(state.currentPlayer&&state.currentPlayer.id===playerId) renderPlayerTimeline(state.currentPlayer);
   renderHome();
-  const visMsg=capVisibility==='parent_visible'?' · 👁 parent visible':'';
+  const visMsg=state.capVisibility==='parent_visible'?' · 👁 parent visible':'';
   showToast('tG','✓ Saved to timeline'+visMsg);
 
   // Reset fields
@@ -573,7 +507,7 @@ function saveCapture(){
   document.getElementById('capStatValue').value='';
   document.getElementById('capDrillTitle').value='';
   document.getElementById('capDrillNote').value='';
-  capTags=[];
+  state.capTags=[];
   document.querySelectorAll('.cap-tag').forEach(t=>t.classList.remove('sel'));
   resetVisibilityToggle();
 }
@@ -581,22 +515,21 @@ function saveCapture(){
 // ═══════════════════════════════════════════════════════
 //  DRILL LINKS
 // ═══════════════════════════════════════════════════════
-let activeDrillCat='All';
 
 function renderDrillLinks(){
   const links=getDrillLinks();
   document.getElementById('drillCountLbl').textContent=links.length+' links saved';
   const cats=['All',...new Set(links.map(d=>d.cat))];
-  document.getElementById('drillCatBar').innerHTML=cats.map(c=>`<div class="tl-f-btn ${c===activeDrillCat?'act':''}" style="flex-shrink:0" onclick="setDrillCat('${esc(jsString(c))}')">${esc(c)}</div>`).join('');
+  document.getElementById('drillCatBar').innerHTML=cats.map(c=>`<div class="tl-f-btn ${c===state.activeDrillCat?'act':''}" style="flex-shrink:0" onclick="setDrillCat('${esc(jsString(c))}')">${esc(c)}</div>`).join('');
   filterDrillLinks();
 }
 
-function setDrillCat(cat){ activeDrillCat=cat; renderDrillLinks(); }
+function setDrillCat(cat){ state.activeDrillCat=cat; renderDrillLinks(); }
 
 function filterDrillLinks(){
   const links=getDrillLinks();
   const q=(document.getElementById('drillSearch')?.value||'').toLowerCase();
-  const filtered=links.filter(d=>(activeDrillCat==='All'||d.cat===activeDrillCat)&&(!q||d.title.toLowerCase().includes(q)||d.cat.toLowerCase().includes(q)));
+  const filtered=links.filter(d=>(state.activeDrillCat==='All'||d.cat===state.activeDrillCat)&&(!q||d.title.toLowerCase().includes(q)||d.cat.toLowerCase().includes(q)));
   const platIco={youtube:'▶️',instagram:'📸',tiktok:'🎵',web:'🌐',other:'🔗'};
   document.getElementById('drillListBody').innerHTML=filtered.map(d=>{
     const players=getPlayers();
@@ -629,10 +562,10 @@ function filterDrillLinks(){
 function openDrillLinkSaver(){
   const sp=S();
   document.getElementById('dlCat').innerHTML=sp.drillCats.map(c=>`<option>${esc(c)}</option>`).join('');
-  document.getElementById('dlSport').value=SPORT;
+  document.getElementById('dlSport').value=state.SPORT;
   const players=getPlayers();
   document.getElementById('dlPlayer').innerHTML='<option value="">— None —</option>'+players.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
-  if(currentPlayer) document.getElementById('dlPlayer').value=currentPlayer.id;
+  if(state.currentPlayer) document.getElementById('dlPlayer').value=state.currentPlayer.id;
   ['dlURL','dlTitle','dlNotes'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('dlThumbPreview').style.display='none';
   openModal('mDrillLink');
@@ -671,7 +604,7 @@ function saveDrillLink(){
   DB.set(pfx()+'_drilllinks',links);
   closeModal('mDrillLink');
   renderDrillLinks();
-  if(currentPlayer) renderPlayerDrills(currentPlayer);
+  if(state.currentPlayer) renderPlayerDrills(state.currentPlayer);
   showToast('tG','✓ Drill link saved');
 }
 
@@ -701,7 +634,7 @@ function renderPlayerDrills(p){
 function deleteDrillLink(id){
   DB.set(pfx()+'_drilllinks',getDrillLinks().filter(d=>d.id!==id));
   renderDrillLinks();
-  if(currentPlayer) renderPlayerDrills(currentPlayer);
+  if(state.currentPlayer) renderPlayerDrills(state.currentPlayer);
   showToast('tG','Deleted');
 }
 
@@ -731,14 +664,14 @@ function addDrillToFocus(drillId, playerId){
   items.push({id:uid(),weekId:weeks[0].id,playerId,title:'Watch & work: '+dl.title,cat:dl.cat,priority:'medium',status:'pending',drillLinkId:drillId,ts:Date.now()});
   DB.set(pfx()+'_focusitems',items);
   showToast('tG','✓ Added to Weekly Focus');
-  if(document.getElementById('pdTpFocus').classList.contains('act')) renderPlayerFocus(currentPlayer);
+  if(document.getElementById('pdTpFocus').classList.contains('act')) renderPlayerFocus(state.currentPlayer);
 }
 
 // ═══════════════════════════════════════════════════════
 //  WEEKLY FOCUS
 // ═══════════════════════════════════════════════════════
 function renderFocus(){
-  const p=focusPlayerId?getPlayers().find(x=>x.id===focusPlayerId):null;
+  const p=state.focusPlayerId?getPlayers().find(x=>x.id===state.focusPlayerId):null;
   if(!p){
     document.getElementById('wfWeekTitle').textContent='Choose a player to begin';
     document.getElementById('wfWeekSub').textContent='Track weekly development goals';
@@ -759,7 +692,7 @@ function renderPlayerFocus(p){
     const now=new Date();const dow=now.getDay();
     const start=new Date(now);start.setDate(now.getDate()-(dow===0?6:dow-1));
     const end=new Date(start);end.setDate(start.getDate()+6);
-    week={id:uid(),playerId:p.id,weekStart:start.toISOString().split('T')[0],weekEnd:end.toISOString().split('T')[0],sport:SPORT,status:'active'};
+    week={id:uid(),playerId:p.id,weekStart:start.toISOString().split('T')[0],weekEnd:end.toISOString().split('T')[0],sport:state.SPORT,status:'active'};
     const wks=getFocusWeeks();wks.push(week);DB.set(pfx()+'_focusweeks',wks);
   }
   const items=getFocusItems().filter(fi=>fi.weekId===week.id);
@@ -807,7 +740,7 @@ function renderPlayerFocusInTab(p, elId=null){
     const now=new Date(); const dow=now.getDay();
     const start=new Date(now); start.setDate(now.getDate()-(dow===0?6:dow-1));
     const end=new Date(start); end.setDate(start.getDate()+6);
-    week={id:uid(),playerId:p.id,weekStart:start.toISOString().split('T')[0],weekEnd:end.toISOString().split('T')[0],sport:SPORT,status:'active'};
+    week={id:uid(),playerId:p.id,weekStart:start.toISOString().split('T')[0],weekEnd:end.toISOString().split('T')[0],sport:state.SPORT,status:'active'};
     const weeks2=getFocusWeeks(); weeks2.push(week); DB.set(pfx()+'_focusweeks',weeks2);
   }
 
@@ -820,7 +753,7 @@ function renderPlayerFocusInTab(p, elId=null){
   const wf=document.getElementById('wfProgFill'); const wl=document.getElementById('wfProgLbl');
   const wl2=document.getElementById('focusWeekLbl');
   if(wt) wt.textContent=p.name+"'s Weekly Focus";
-  if(ws) ws.textContent=`${week.weekStart} → ${week.weekEnd} · ${SPORT}`;
+  if(ws) ws.textContent=`${week.weekStart} → ${week.weekEnd} · ${state.SPORT}`;
   if(wf) wf.style.width=total?((done/total*100)+'%'):'0%';
   if(wl) wl.textContent=done+'/'+total+' done';
   if(wl2) wl2.textContent=week.weekStart+' — '+week.weekEnd;
@@ -880,21 +813,21 @@ function openFocusPlayerPicker(){
 }
 
 function selectFocusPlayer(id){
-  focusPlayerId=id;
+  state.focusPlayerId=id;
   closeModal('mFocusPlayer');
   renderFocus();
 }
 
 function addFocusItem(){
-  if(!focusPlayerId){showToast('tO','Select a player first');return;}
+  if(!state.focusPlayerId){showToast('tO','Select a player first');return;}
   const title=document.getElementById('focusNewItem').value.trim();
   if(!title){showToast('tO','Enter a focus item');return;}
-  const p=getPlayers().find(x=>x.id===focusPlayerId);
+  const p=getPlayers().find(x=>x.id===state.focusPlayerId);
   if(!p) return;
-  const weeks=getFocusWeeks().filter(w=>w.playerId===focusPlayerId&&w.status==='active');
+  const weeks=getFocusWeeks().filter(w=>w.playerId===state.focusPlayerId&&w.status==='active');
   if(!weeks.length){renderFocus();setTimeout(addFocusItem,100);return;}
   const items=getFocusItems();
-  items.push({id:uid(),weekId:weeks[0].id,playerId:focusPlayerId,title,cat:'General',priority:'medium',status:'pending',drillLinkId:null,ts:Date.now()});
+  items.push({id:uid(),weekId:weeks[0].id,playerId:state.focusPlayerId,title,cat:'General',priority:'medium',status:'pending',drillLinkId:null,ts:Date.now()});
   DB.set(pfx()+'_focusitems',items);
   document.getElementById('focusNewItem').value='';
   renderFocus();
@@ -972,7 +905,7 @@ function openSessionPicker(){
   const players=getPlayers(); const plans=getPlans();
   document.getElementById('spPlayer').innerHTML=players.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
   document.getElementById('spPlan').innerHTML=plans.map(p=>`<option value="${esc(p.id)}">${esc(p.title)}</option>`).join('');
-  if(currentPlayer) document.getElementById('spPlayer').value=currentPlayer.id;
+  if(state.currentPlayer) document.getElementById('spPlayer').value=state.currentPlayer.id;
   openModal('mSessionPicker');
 }
 
@@ -986,56 +919,56 @@ function startSession(){
 
   const drills=[{title:'Warm-Up',coaching:'Dynamic movement, get loose'},{title:plan.title+' — Main Set',coaching:'Focus on quality over speed'},{title:'Game Speed Reps',coaching:'Simulate game situations'},{title:'Cool Down Notes',coaching:'Capture observations before leaving'}];
 
-  SESS={playerId,planId,idx:0,makes:0,atts:0,start:Date.now(),elapsed:0,drillElapsed:0,timer:null,drillTimer:null,results:[],drills};
+  state.SESS={playerId,planId,idx:0,makes:0,atts:0,start:Date.now(),elapsed:0,drillElapsed:0,timer:null,drillTimer:null,results:[],drills};
   document.getElementById('sessPlayerName').textContent=player.name;
   document.getElementById('sessPlanName').textContent=plan.title;
 
-  SESS.timer=setInterval(()=>{SESS.elapsed=Math.floor((Date.now()-SESS.start)/1000);const m=Math.floor(SESS.elapsed/60),s=SESS.elapsed%60;document.getElementById('sessElapsed').textContent=m+':'+String(s).padStart(2,'0');},1000);
-  SESS.drillTimer=setInterval(()=>{SESS.drillElapsed++;const m=Math.floor(SESS.drillElapsed/60),s=SESS.drillElapsed%60;document.getElementById('saTimer').textContent=m+':'+String(s).padStart(2,'0');},1000);
+  state.SESS.timer=setInterval(()=>{state.SESS.elapsed=Math.floor((Date.now()-state.SESS.start)/1000);const m=Math.floor(state.SESS.elapsed/60),s=state.SESS.elapsed%60;document.getElementById('sessElapsed').textContent=m+':'+String(s).padStart(2,'0');},1000);
+  state.SESS.drillTimer=setInterval(()=>{state.SESS.drillElapsed++;const m=Math.floor(state.SESS.drillElapsed/60),s=state.SESS.drillElapsed%60;document.getElementById('saTimer').textContent=m+':'+String(s).padStart(2,'0');},1000);
 
   renderSessDrill();
   push('sSession');
 }
 
 function renderSessDrill(){
-  const d=SESS.drills[SESS.idx];
-  document.getElementById('saDrillNum').textContent=`Drill ${SESS.idx+1} of ${SESS.drills.length}`;
+  const d=state.SESS.drills[state.SESS.idx];
+  document.getElementById('saDrillNum').textContent=`Drill ${state.SESS.idx+1} of ${state.SESS.drills.length}`;
   document.getElementById('saDrillName').textContent=d.title;
   document.getElementById('saTip').textContent=d.coaching;
-  document.getElementById('saMakes').textContent=SESS.makes=0;
-  document.getElementById('saAtts').textContent=SESS.atts=0;
+  document.getElementById('saMakes').textContent=state.SESS.makes=0;
+  document.getElementById('saAtts').textContent=state.SESS.atts=0;
   document.getElementById('saTimer').textContent='0:00';
   document.getElementById('saNoteInp').value='';
-  SESS.drillElapsed=0;
-  const isLast=SESS.idx>=SESS.drills.length-1;
+  state.SESS.drillElapsed=0;
+  const isLast=state.SESS.idx>=state.SESS.drills.length-1;
   document.getElementById('saNextBtn').textContent=isLast?'✓ Finish Session':'Next Drill →';
   document.getElementById('saNextBtn').className='btn '+(isLast?'g':'o');
 }
 
-function adj(t,n){if(t==='makes'){SESS.makes=Math.max(0,SESS.makes+n);document.getElementById('saMakes').textContent=SESS.makes;}else{SESS.atts=Math.max(0,SESS.atts+n);document.getElementById('saAtts').textContent=SESS.atts;}}
-function prevDrill(){if(SESS.idx===0)return;saveSessDrill();SESS.idx--;renderSessDrill();}
+function adj(t,n){if(t==='makes'){state.SESS.makes=Math.max(0,state.SESS.makes+n);document.getElementById('saMakes').textContent=state.SESS.makes;}else{state.SESS.atts=Math.max(0,state.SESS.atts+n);document.getElementById('saAtts').textContent=state.SESS.atts;}}
+function prevDrill(){if(state.SESS.idx===0)return;saveSessDrill();state.SESS.idx--;renderSessDrill();}
 
-function saveSessDrill(){ SESS.results.push({drillTitle:SESS.drills[SESS.idx]?.title,makes:SESS.makes,atts:SESS.atts,notes:document.getElementById('saNoteInp').value,duration:SESS.drillElapsed}); }
+function saveSessDrill(){ state.SESS.results.push({drillTitle:state.SESS.drills[state.SESS.idx]?.title,makes:state.SESS.makes,atts:state.SESS.atts,notes:document.getElementById('saNoteInp').value,duration:state.SESS.drillElapsed}); }
 
 function nextDrill(){
   saveSessDrill();
-  if(SESS.idx<SESS.drills.length-1){SESS.idx++;renderSessDrill();}
+  if(state.SESS.idx<state.SESS.drills.length-1){state.SESS.idx++;renderSessDrill();}
   else endSession(true);
 }
 
 function endSession(completed=false){
-  clearInterval(SESS.timer);clearInterval(SESS.drillTimer);
+  clearInterval(state.SESS.timer);clearInterval(state.SESS.drillTimer);
   if(completed){
     const sessId=uid();
-    const sessObj={id:sessId,playerId:SESS.playerId,planId:SESS.planId,date:Date.now(),ts:Date.now(),startTs:SESS.start,duration:SESS.elapsed,results:SESS.results,notes:'',sport:SPORT};
+    const sessObj={id:sessId,playerId:state.SESS.playerId,planId:state.SESS.planId,date:Date.now(),ts:Date.now(),startTs:state.SESS.start,duration:state.SESS.elapsed,results:state.SESS.results,notes:'',sport:state.SPORT};
     const sessions=getSessions();
     sessions.push(sessObj);
     DB.set(pfx()+'_sessions',sessions);
-    const players=getPlayers();const ci=players.findIndex(p=>p.id===SESS.playerId);
+    const players=getPlayers();const ci=players.findIndex(p=>p.id===state.SESS.playerId);
     if(ci>=0){players[ci].sessions++;DB.set(pfx()+'_players',players);}
     // Remove session screen then push summary
     document.getElementById('sSession').classList.remove('active');
-    screenStack=screenStack.filter(s=>s!=='sSession');
+    state.screenStack=state.screenStack.filter(s=>s!=='sSession');
     showSessionSummary(sessObj);
   } else {
     back();
@@ -1061,7 +994,7 @@ function parseCSVRoster(csvText, filename){
   const lines=csvText.trim().split('\n');
   if(lines.length<2){showToast('tO','CSV needs at least 2 rows (header + data)');return;}
   const headers=lines[0].split(',').map(h=>h.trim().toLowerCase().replace(/['"]/g,''));
-  rosterPreviewData=lines.slice(1).map((line,i)=>{
+  state.rosterPreviewData=lines.slice(1).map((line,i)=>{
     const cols=line.split(',').map(c=>c.trim().replace(/['"]/g,''));
     const obj={};
     headers.forEach((h,idx)=>obj[h]=cols[idx]||'');
@@ -1080,7 +1013,7 @@ function parsePastedRoster(){
   const text=document.getElementById('rosterPasteArea').value.trim();
   if(!text){showToast('tO','Paste some player names first');return;}
   const lines=text.split('\n').filter(l=>l.trim());
-  rosterPreviewData=lines.map((line,i)=>{
+  state.rosterPreviewData=lines.map((line,i)=>{
     const parts=line.split(',').map(p=>p.trim());
     const name=parts[0]||'Player '+(i+1);
     const pos=parts[1]||'';
@@ -1095,12 +1028,12 @@ function showRosterPreview(filename){
   const el=document.getElementById('rosterPreview');
   const list=document.getElementById('rosterPreviewList');
   el.style.display='';
-  const newCount=rosterPreviewData.filter(r=>!r._dup).length;
-  const dupCount=rosterPreviewData.filter(r=>r._dup).length;
+  const newCount=state.rosterPreviewData.filter(r=>!r._dup).length;
+  const dupCount=state.rosterPreviewData.filter(r=>r._dup).length;
   list.innerHTML=`<div style="padding:10px 14px;background:var(--s2);border-bottom:1px solid var(--bdr);display:flex;gap:12px">
     <span class="pill g">✓ ${newCount} new</span>
     ${dupCount?`<span class="pill y">⚠ ${dupCount} duplicate</span>`:''}
-  </div>`+rosterPreviewData.map((r,i)=>`
+  </div>`+state.rosterPreviewData.map((r,i)=>`
     <div class="roster-preview-row">
       <div class="rpr-num">${i+1}</div>
       <div class="rpr-info"><div class="rpr-name">${esc(r._name)}</div><div class="rpr-detail">${esc([r._pos,r._age?'Age '+r._age:'',r._grade].filter(Boolean).join(' · ')||'Position TBD')}</div></div>
@@ -1109,19 +1042,19 @@ function showRosterPreview(filename){
 }
 
 function importRoster(){
-  if(!rosterPreviewData.length){showToast('tO','No players to import');return;}
+  if(!state.rosterPreviewData.length){showToast('tO','No players to import');return;}
   const players=getPlayers();
   const colors=['#3b82f6','#ef4444','#22c55e','#f97316','#9b5de5','#eab308','#00d4e0','#ec4899'];
   const sp=S();
   let added=0;
-  rosterPreviewData.filter(r=>!r._dup).forEach(r=>{
+  state.rosterPreviewData.filter(r=>!r._dup).forEach(r=>{
     const skills={};sp.skillKeys.forEach(k=>skills[k]=65);
-    players.push({id:uid(),name:r._name,pos:r._pos||sp.positions[0],age:r._age||16,grade:r._grade||'',goal:'To be defined',weaknesses:'To be assessed',avatar:r._name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(),color:colors[players.length%colors.length],skills,sessions:0,sport:SPORT,created:Date.now()});
+    players.push({id:uid(),name:r._name,pos:r._pos||sp.positions[0],age:r._age||16,grade:r._grade||'',goal:'To be defined',weaknesses:'To be assessed',avatar:r._name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(),color:colors[players.length%colors.length],skills,sessions:0,sport:state.SPORT,created:Date.now()});
     added++;
   });
   DB.set(pfx()+'_players',players);
   document.getElementById('rosterPreview').style.display='none';
-  rosterPreviewData=[];
+  state.rosterPreviewData=[];
   renderPlayers();
   renderHome();
   showToast('tG',`✓ ${added} players imported`);
@@ -1140,21 +1073,21 @@ function downloadSampleCSV(){
 // ═══════════════════════════════════════════════════════
 
 function setDepthPhase(p){
-  dcPhase=p;
+  state.dcPhase=p;
   ['O','D','ST'].forEach(x=>document.getElementById('dcp'+x).classList.toggle('act',x===p));
   renderDepthBody();
 }
 
 function renderDepthChart(){
-  if(SPORT!=='football'){document.getElementById('depthBody').innerHTML='<div class="empty"><div class="empty-ico">🏈</div><div class="empty-ttl">Football Only</div><div class="empty-dsc">Switch to Football mode to use the depth chart</div></div>';return;}
+  if(state.SPORT!=='football'){document.getElementById('depthBody').innerHTML='<div class="empty"><div class="empty-ico">🏈</div><div class="empty-ttl">Football Only</div><div class="empty-dsc">Switch to Football mode to use the depth chart</div></div>';return;}
   renderDepthBody();
 }
 
 function renderDepthBody(){
-  if(SPORT!=='football'){document.getElementById('depthBody').innerHTML='<div class="empty"><div class="empty-ico">🏈</div><div class="empty-ttl">Switch to Football</div></div>';return;}
+  if(state.SPORT!=='football'){document.getElementById('depthBody').innerHTML='<div class="empty"><div class="empty-ico">🏈</div><div class="empty-ttl">Switch to Football</div></div>';return;}
   const dc=getDepthChart(),players=getPlayers();
-  const groups=DC_POS[dcPhase];
-  const phCls={O:'off',D:'def',ST:'st'}[dcPhase];
+  const groups=DC_POS[state.dcPhase];
+  const phCls={O:'off',D:'def',ST:'st'}[state.dcPhase];
   let html='<div style="padding:10px 0 24px">';
   groups.forEach(grp=>{
     html+=`<div style="margin:0 12px 4px;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:3px;color:var(--mu);text-transform:uppercase;padding:10px 0 4px">${grp.g}</div>`;
@@ -1197,7 +1130,7 @@ function renderDepthBody(){
 }
 
 function openDepthAssign(posAbbr,slotIdx){
-  dcAssigning={posAbbr,slotIdx};
+  state.dcAssigning={posAbbr,slotIdx};
   const dc=getDepthChart(),players=getPlayers();
   const current=(dc[posAbbr]||[])[slotIdx];
   const lbl=slotIdx===0?'1st':slotIdx===1?'2nd':'3rd';
@@ -1218,8 +1151,8 @@ function openDepthAssign(posAbbr,slotIdx){
 }
 
 function assignDepthSlot(playerId){
-  if(!dcAssigning) return;
-  const dc=getDepthChart();const{posAbbr,slotIdx}=dcAssigning;
+  if(!state.dcAssigning) return;
+  const dc=getDepthChart();const{posAbbr,slotIdx}=state.dcAssigning;
   if(!dc[posAbbr]) dc[posAbbr]=[];
   while(dc[posAbbr].length<=slotIdx) dc[posAbbr].push(null);
   dc[posAbbr][slotIdx]=playerId;
@@ -1237,10 +1170,10 @@ function clearDepthChart(){if(!confirm('Clear depth chart?')) return;DB.set('fb_
 //  SPORT SWITCH
 // ═══════════════════════════════════════════════════════
 function switchSport(s){
-  SPORT=s;DB.set('sport',SPORT);closeModal('mSportSwitch');
+  state.SPORT=s;DB.set('sport',state.SPORT);closeModal('mSportSwitch');
   updateSportUI();
-  currentPlayer=null;focusPlayerId=null;focusDetailPlayerId=null;
-  aiReady=false;aiMessages=[];
+  state.currentPlayer=null;state.focusPlayerId=null;state.focusDetailPlayerId=null;
+  state.aiReady=false;state.aiMessages=[];
   document.getElementById('aiChat').innerHTML='';
   document.getElementById('aiInsightArea').innerHTML='';
   goTab('tHome');showToast('tG',SPORTS[s].icon+' Switched to '+SPORTS[s].label);
@@ -1249,20 +1182,17 @@ function switchSport(s){
 // ═══════════════════════════════════════════════════════
 //  AI COACH — CourtIQ / FieldIQ
 // ═══════════════════════════════════════════════════════
-let aiMessages=[];
-let aiReady=false;
-const AI_COACH_ENDPOINT='/api/ai/coach';
 
 function renderAI(){
   const sp=S();
-  document.getElementById('aiTabName').innerHTML=SPORT==='basketball'
+  document.getElementById('aiTabName').innerHTML=state.SPORT==='basketball'
     ?'Court<span style="color:var(--or)">IQ</span>'
     :'Field<span style="color:var(--or)">IQ</span>';
-  document.getElementById('bnAILbl').textContent=SPORT==='basketball'?'CourtIQ':'FieldIQ';
+  document.getElementById('bnAILbl').textContent=state.SPORT==='basketball'?'CourtIQ':'FieldIQ';
 
-  if(aiReady) return;
-  aiReady=true;
-  aiMessages=[];
+  if(state.aiReady) return;
+  state.aiReady=true;
+  state.aiMessages=[];
 
   // Build insight cards
   buildAIInsights();
@@ -1324,7 +1254,7 @@ function addAIMsg(role,text){
     .replace(/\n/g,'<br>');
   el.appendChild(div);
   el.scrollTop=el.scrollHeight;
-  aiMessages.push({role:role==='bot'?'assistant':'user',content:text});
+  state.aiMessages.push({role:role==='bot'?'assistant':'user',content:text});
 }
 
 function addAILoading(){
@@ -1359,13 +1289,13 @@ async function callAI(userMsg){
   const players=getPlayers();
   const drillLinks=getDrillLinks();
   const sp=S();
-  const aiName=SPORT==='basketball'?'CourtIQ':'FieldIQ';
+  const aiName=state.SPORT==='basketball'?'CourtIQ':'FieldIQ';
   try{
     const payload={
-      sport:SPORT,
+      sport:state.SPORT,
       assistantName:aiName,
       message:userMsg,
-      messages:aiMessages.slice(-8),
+      messages:state.aiMessages.slice(-8),
       context:{
         players:players.map(p=>({
           id:p.id,
@@ -1421,16 +1351,15 @@ function generateOfflineAI(msg){
     return`**Drill Recommendations** 🎯\n\nFor your squad's weak areas:\n\n1. **Ball Handling** — Two-ball stationary, 3-cone weave\n2. **Shooting** — Form shooting 5 spots, free throw routine\n3. **Finishing** — Mikan drill, euro step series\n4. **Defense** — Zig-zag slides, closeout & contest\n\nSave YouTube links in the Drills tab to attach specific videos to each player.`;
   }
 
-  return`**${SPORT==='basketball'?'CourtIQ':'FieldIQ'}** here. Your squad has ${players.length} athletes. ${players.length?`Average OVR: ${Math.round(players.reduce((a,p)=>a+getOvr(p),0)/players.length)}/100.\n\nAsk me about a specific player by first name for a personalized plan, or ask for "this week's schedule" to get a full training plan.`:'Add players to get personalized recommendations.'}`;
+  return`**${state.SPORT==='basketball'?'CourtIQ':'FieldIQ'}** here. Your squad has ${players.length} athletes. ${players.length?`Average OVR: ${Math.round(players.reduce((a,p)=>a+getOvr(p),0)/players.length)}/100.\n\nAsk me about a specific player by first name for a personalized plan, or ask for "this week's schedule" to get a full training plan.`:'Add players to get personalized recommendations.'}`;
 }
 
 // ═══════════════════════════════════════════════════════
 //  FOCUS DETAIL SCREEN
 // ═══════════════════════════════════════════════════════
-let focusDetailPlayerId=null;
 
 function openFocusDetail(playerId){
-  focusDetailPlayerId=playerId;
+  state.focusDetailPlayerId=playerId;
   const p=getPlayers().find(x=>x.id===playerId);
   if(!p) return;
   document.getElementById('fdName').textContent=p.name+"'s Focus";
@@ -1445,14 +1374,14 @@ function renderFocusDetail(p){
     const now=new Date();const dow=now.getDay();
     const start=new Date(now);start.setDate(now.getDate()-(dow===0?6:dow-1));
     const end=new Date(start);end.setDate(start.getDate()+6);
-    week={id:uid(),playerId:p.id,weekStart:start.toISOString().split('T')[0],weekEnd:end.toISOString().split('T')[0],sport:SPORT,status:'active'};
+    week={id:uid(),playerId:p.id,weekStart:start.toISOString().split('T')[0],weekEnd:end.toISOString().split('T')[0],sport:state.SPORT,status:'active'};
     const wks=getFocusWeeks();wks.push(week);DB.set(pfx()+'_focusweeks',wks);
   }
   const items=getFocusItems().filter(fi=>fi.weekId===week.id);
   const done=items.filter(fi=>fi.status==='completed').length;
   document.getElementById('fdTitle').textContent=p.name+"'s Week";
   document.getElementById('fdWeekRange').textContent=week.weekStart+' → '+week.weekEnd;
-  document.getElementById('fdSub').textContent=`${SPORT} · ${items.length} focus items`;
+  document.getElementById('fdSub').textContent=`${state.SPORT} · ${items.length} focus items`;
   document.getElementById('fdFill').style.width=items.length?((done/items.length*100)+'%'):'0%';
   document.getElementById('fdLbl').textContent=done+'/'+items.length+' done';
 
@@ -1492,16 +1421,16 @@ function deleteFocusItemDetail(itemId,playerId){
 }
 
 function addFocusItemDirect(){
-  if(!focusDetailPlayerId){return;}
+  if(!state.focusDetailPlayerId){return;}
   const title=document.getElementById('fdNewItem').value.trim();
   if(!title){showToast('tO','Enter an item');return;}
-  const p=getPlayers().find(x=>x.id===focusDetailPlayerId);
+  const p=getPlayers().find(x=>x.id===state.focusDetailPlayerId);
   if(!p) return;
-  const weeks=getFocusWeeks().filter(w=>w.playerId===focusDetailPlayerId&&w.status==='active');
+  const weeks=getFocusWeeks().filter(w=>w.playerId===state.focusDetailPlayerId&&w.status==='active');
   if(!weeks.length){renderFocusDetail(p);setTimeout(addFocusItemDirect,100);return;}
   const items=getFocusItems();
   const priority=document.getElementById('fdPriority').value||'medium';
-  items.push({id:uid(),weekId:weeks[0].id,playerId:focusDetailPlayerId,title,cat:'General',priority,status:'pending',drillLinkId:null,ts:Date.now()});
+  items.push({id:uid(),weekId:weeks[0].id,playerId:state.focusDetailPlayerId,title,cat:'General',priority,status:'pending',drillLinkId:null,ts:Date.now()});
   DB.set(pfx()+'_focusitems',items);
   document.getElementById('fdNewItem').value='';
   renderFocusDetail(p);
@@ -1509,16 +1438,16 @@ function addFocusItemDirect(){
 }
 
 function newFocusWeek(){
-  if(!focusDetailPlayerId) return;
+  if(!state.focusDetailPlayerId) return;
   const weeks=getFocusWeeks();
-  const active=weeks.filter(w=>w.playerId===focusDetailPlayerId&&w.status==='active');
+  const active=weeks.filter(w=>w.playerId===state.focusDetailPlayerId&&w.status==='active');
   active.forEach(w=>{w.status='completed';});
   const now=new Date();const dow=now.getDay();
   const start=new Date(now);start.setDate(now.getDate()-(dow===0?6:dow-1)+7);
   const end=new Date(start);end.setDate(start.getDate()+6);
-  const week={id:uid(),playerId:focusDetailPlayerId,weekStart:start.toISOString().split('T')[0],weekEnd:end.toISOString().split('T')[0],sport:SPORT,status:'active'};
+  const week={id:uid(),playerId:state.focusDetailPlayerId,weekStart:start.toISOString().split('T')[0],weekEnd:end.toISOString().split('T')[0],sport:state.SPORT,status:'active'};
   weeks.push(week);DB.set(pfx()+'_focusweeks',weeks);
-  const p=getPlayers().find(x=>x.id===focusDetailPlayerId);
+  const p=getPlayers().find(x=>x.id===state.focusDetailPlayerId);
   if(p) renderFocusDetail(p);
   showToast('tG','✓ New week started');
 }
@@ -1526,11 +1455,9 @@ function newFocusWeek(){
 // ═══════════════════════════════════════════════════════
 //  BLOCKER 1: ONBOARDING
 // ═══════════════════════════════════════════════════════
-let obSport = null;
-let obRole  = null;
 
 function obSelectSport(s){
-  obSport = s;
+  state.obSport = s;
   document.querySelectorAll('#obStep1 .ob-card').forEach(c => c.classList.remove('sel'));
   document.getElementById('obBasketball').classList.toggle('sel', s==='basketball');
   document.getElementById('obFootball').classList.toggle('sel', s==='football');
@@ -1539,7 +1466,7 @@ function obSelectSport(s){
 }
 
 function obSelectRole(r){
-  obRole = r;
+  state.obRole = r;
   ['Coach','Trainer','Player','Parent'].forEach(x =>
     document.getElementById('obRole'+x)?.classList.remove('sel')
   );
@@ -1558,12 +1485,12 @@ function obGoStep(n){
 }
 
 function obFinish(){
-  if(!obSport || !obRole) return;
+  if(!state.obSport || !state.obRole) return;
   DB.set('onboarding_complete', true);
-  DB.set('sport', obSport);
-  DB.set('user_sport', obSport);
-  DB.set('user_role', obRole);
-  SPORT = obSport;
+  DB.set('sport', state.obSport);
+  DB.set('user_sport', state.obSport);
+  DB.set('user_role', state.obRole);
+  state.SPORT = state.obSport;
   // Fade out onboarding
   const ob = document.getElementById('sOnboarding');
   ob.style.transition = 'opacity .4s ease';
@@ -1593,7 +1520,6 @@ function checkOnboarding(){
 // ═══════════════════════════════════════════════════════
 //  BLOCKER 2: SESSION SUMMARY + SHARE
 // ═══════════════════════════════════════════════════════
-let _lastSession = {};
 
 function showSessionSummary(sessData){
   const player = getPlayers().find(p => p.id === sessData.playerId);
@@ -1647,12 +1573,12 @@ function showSessionSummary(sessData){
     pnotesEl.innerHTML = '';
   }
 
-  _lastSession = { sessData, player, plan, caps, noteCaps, parentNotes };
+  state._lastSession = { sessData, player, plan, caps, noteCaps, parentNotes };
   push('sSessionSummary');
 }
 
 async function shareSessionSummary(){
-  const { sessData, player, plan, noteCaps, parentNotes } = _lastSession;
+  const { sessData, player, plan, noteCaps, parentNotes } = state._lastSession;
   const mins = Math.floor((sessData?.duration||0)/60);
   const date = new Date(sessData?.ts||Date.now()).toLocaleDateString('en',{weekday:'long',month:'long',day:'numeric'});
   const sportIcon = S().icon || '🏆';
@@ -1701,15 +1627,14 @@ function copyToClipboard(text){
 // ═══════════════════════════════════════════════════════
 //  BLOCKER 3: NOTE VISIBILITY
 // ═══════════════════════════════════════════════════════
-let capVisibility = 'private'; // 'private' | 'parent_visible'
 
 function toggleCaptureVisibility(){
-  capVisibility = capVisibility === 'private' ? 'parent_visible' : 'private';
+  state.capVisibility = state.capVisibility === 'private' ? 'parent_visible' : 'private';
   const toggle = document.getElementById('capVisToggle');
   const ico    = document.getElementById('capVisIco');
   const lbl    = document.getElementById('capVisLabel');
   const sub    = document.getElementById('capVisSub');
-  if(capVisibility === 'parent_visible'){
+  if(state.capVisibility === 'parent_visible'){
     toggle.classList.add('parent-vis');
     ico.textContent = '👁';
     lbl.textContent = 'Parent Visible — Shows in summaries';
@@ -1723,7 +1648,7 @@ function toggleCaptureVisibility(){
 }
 
 function resetVisibilityToggle(){
-  capVisibility = 'private';
+  state.capVisibility = 'private';
   document.getElementById('capVisToggle')?.classList.remove('parent-vis');
   const ico = document.getElementById('capVisIco');
   const lbl = document.getElementById('capVisLabel');
@@ -1746,7 +1671,7 @@ function saveSettingsProfile(){
 function exportData(){
   const data = {
     exported: new Date().toISOString(),
-    sport: SPORT,
+    sport: state.SPORT,
     players: getPlayers(),
     captures: getCaptures(),
     sessions: getSessions(),
@@ -1783,7 +1708,7 @@ if(_sr) _sr.textContent = (DB.get('user_role')||'Coach').charAt(0).toUpperCase()
 
 // Settings sport label
 const _ssl = document.getElementById('settingsSportLbl');
-if(_ssl) _ssl.textContent = SPORTS[SPORT]?.label||'Basketball';
+if(_ssl) _ssl.textContent = SPORTS[state.SPORT]?.label||'Basketball';
 
 renderHome();
 
