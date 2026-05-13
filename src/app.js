@@ -1,95 +1,17 @@
 import { state } from './js/state.js';
 import { SPORTS, DC_POS, AI_COACH_ENDPOINT, CF_FLAGS } from './js/config.js';
-
-// ═══════════════════════════════════════════════════════
-//  DATA STORE
-// ═══════════════════════════════════════════════════════
-const DB = {
-  get(k){try{return JSON.parse(localStorage.getItem('cf3_'+k))||null;}catch{return null;}},
-  set(k,v){localStorage.setItem('cf3_'+k,JSON.stringify(v));},
-};
-
-
-// ─── Seed Data ───────────────────────────────────────
-function seedBball(){
-  const players = [
-    {id:'c1',name:'Marcus Johnson',pos:'Point Guard',age:16,grade:'10th',goal:'Elite playmaker, improve 3PT shooting',weaknesses:'Left hand finishing, pull-up jumper, off-ball defense',avatar:'MJ',color:'#3b82f6',skills:{ballHandling:82,shooting:68,finishing:74,footwork:71,defense:60,conditioning:78},sessions:14,sport:'basketball'},
-    {id:'c2',name:'Aaliyah Carter',pos:'Shooting Guard',age:15,grade:'9th',goal:'Consistent mid-range game',weaknesses:'Pick and roll defense, weak-hand layups',avatar:'AC',color:'#ef4444',skills:{ballHandling:75,shooting:84,finishing:70,footwork:78,defense:68,conditioning:82},sessions:11,sport:'basketball'},
-    {id:'c3',name:'Devon Williams',pos:'Power Forward',age:17,grade:'11th',goal:'Extend range, dominant in post',weaknesses:'Shooting off dribble, lateral quickness',avatar:'DW',color:'#22c55e',skills:{ballHandling:65,shooting:72,finishing:88,footwork:76,defense:80,conditioning:85},sessions:18,sport:'basketball'},
-    {id:'c4',name:'Brianna Scott',pos:'Point Guard',age:15,grade:'9th',goal:'Court vision, lead varsity offense',weaknesses:'Pull-up shooting, on-ball defense',avatar:'BS',color:'#f97316',skills:{ballHandling:88,shooting:70,finishing:76,footwork:82,defense:72,conditioning:80},sessions:12,sport:'basketball'},
-  ];
-  DB.set('bball_players', players);
-
-  const captures = [
-    {id:'cap1',playerId:'c1',type:'note',content:'Pull-up from left wing needs more hip load — leaking left before the catch',tags:['technique','weakness'],ts:Date.now()-2*3600000,sport:'basketball'},
-    {id:'cap2',playerId:'c2',type:'stat',metric:'Free Throw %',value:84,unit:'%',ts:Date.now()-5*3600000,sport:'basketball'},
-    {id:'cap3',playerId:'c3',type:'note',content:'Drop step is automatic now. Ready to add face-up game from elbow.',tags:['strength'],ts:Date.now()-86400000,sport:'basketball'},
-    {id:'cap4',playerId:'c4',type:'note',content:'Court vision is elite for her age. Needs to read the DHO better in PnR.',tags:['game iq','technique'],ts:Date.now()-2*86400000,sport:'basketball'},
-  ];
-  DB.set('bball_captures', captures);
-
-  const drillLinks = [
-    {id:'dl1',title:'Mikan Drill — Both Hands',url:'https://www.youtube.com/watch?v=example1',platform:'youtube',cat:'Finishing',sport:'basketball',age:'All Ages',diff:'Beginner',notes:'Great for Devon — finish both sides daily',attachedTo:['c3'],ts:Date.now()-3*86400000},
-    {id:'dl2',title:'Chair Shooting — Off Screen Footwork',url:'https://www.youtube.com/watch?v=example2',platform:'youtube',cat:'Shooting',sport:'basketball',age:'Teen',diff:'Intermediate',notes:'Perfect for Aaliyah — game speed catch and shoot',attachedTo:['c2'],ts:Date.now()-5*86400000},
-    {id:'dl3',title:'Two-Ball Dribble Stationary',url:'https://www.youtube.com/watch?v=example3',platform:'youtube',cat:'Ball Handling',sport:'basketball',age:'All Ages',diff:'Beginner',notes:'Marcus needs this 10 min every session',attachedTo:['c1'],ts:Date.now()-7*86400000},
-    {id:'dl4',title:'DHO Attack and Kick Reads',url:'https://www.youtube.com/watch?v=example4',platform:'youtube',cat:'IQ / Reads',sport:'basketball',age:'Teen',diff:'Intermediate',notes:'Brianna — reading the DHO coverage',attachedTo:['c4'],ts:Date.now()-10*86400000},
-  ];
-  DB.set('bball_drilllinks', drillLinks);
-
-  const now = new Date();
-  const weekStart = new Date(now); weekStart.setDate(now.getDate()-now.getDay()+1);
-  const weekEnd = new Date(weekStart); weekEnd.setDate(weekStart.getDate()+6);
-
-  const focusWeeks = [
-    {id:'fw1',playerId:'c1',weekStart:weekStart.toISOString().split('T')[0],weekEnd:weekEnd.toISOString().split('T')[0],sport:'basketball',status:'active'},
-    {id:'fw2',playerId:'c2',weekStart:weekStart.toISOString().split('T')[0],weekEnd:weekEnd.toISOString().split('T')[0],sport:'basketball',status:'active'},
-  ];
-  DB.set('bball_focusweeks', focusWeeks);
-
-  const focusItems = [
-    {id:'fi1',weekId:'fw1',playerId:'c1',title:'50 left-hand finishes daily',cat:'Finishing',priority:'high',status:'pending',drillLinkId:null,ts:Date.now()-86400000},
-    {id:'fi2',weekId:'fw1',playerId:'c1',title:'Pull-up mechanics — load hip before catch',cat:'Shooting',priority:'high',status:'completed',drillLinkId:null,ts:Date.now()-2*86400000},
-    {id:'fi3',weekId:'fw1',playerId:'c1',title:'Off-ball defense footwork — don\'t flat-foot',cat:'Defense',priority:'medium',status:'pending',drillLinkId:null,ts:Date.now()-86400000},
-    {id:'fi4',weekId:'fw2',playerId:'c2',title:'Come off screen on time — catch ready',cat:'Shooting',priority:'high',status:'completed',drillLinkId:'dl2',ts:Date.now()-86400000},
-    {id:'fi5',weekId:'fw2',playerId:'c2',title:'Weak hand layup — left side of basket',cat:'Finishing',priority:'medium',status:'pending',drillLinkId:null,ts:Date.now()-86400000},
-  ];
-  DB.set('bball_focusitems', focusItems);
-}
-
-function seedFootball(){
-  const players = [
-    {id:'f1',name:'Jaylen Brooks',pos:'Wide Receiver',age:17,grade:'11th',goal:'D1 scholarship — elite route runner',weaknesses:'Press release, contested catches',avatar:'JB',color:'#22c55e',skills:{throwing:0,routeRunning:84,catching:76,footwork:80,blocking:45,conditioning:88},sessions:10,sport:'football'},
-    {id:'f2',name:'Xavier Powell',pos:'Quarterback',age:16,grade:'10th',goal:'Develop pocket presence',weaknesses:'Footwork under pressure, reading zone',avatar:'XP',color:'#3b82f6',skills:{throwing:78,routeRunning:0,catching:0,footwork:68,blocking:0,conditioning:75},sessions:8,sport:'football'},
-    {id:'f3',name:'Destiny Miles',pos:'Running Back',age:15,grade:'9th',goal:'Make varsity, pass-catching out of backfield',weaknesses:'Pass protection reads, lateral agility',avatar:'DM',color:'#f97316',skills:{throwing:0,routeRunning:72,catching:70,footwork:82,blocking:60,conditioning:84},sessions:6,sport:'football'},
-  ];
-  DB.set('football_players', players);
-  DB.set('football_captures', [
-    {id:'fcap1',playerId:'f1',type:'note',content:'Stem on the out route needs more upfield push before the break',tags:['technique','routes'],ts:Date.now()-3*3600000,sport:'football'},
-    {id:'fcap2',playerId:'f2',type:'stat',metric:'Completion %',value:64,unit:'%',ts:Date.now()-86400000,sport:'football'},
-  ]);
-  DB.set('football_drilllinks', [
-    {id:'fdl1',title:'Route Release vs Press Coverage',url:'https://www.youtube.com/watch?v=example',platform:'youtube',cat:'Route Running',sport:'football',age:'Teen',diff:'Advanced',notes:'Jaylen needs this — vary releases',attachedTo:['f1'],ts:Date.now()-86400000},
-  ]);
-  DB.set('football_focusweeks',[]);
-  DB.set('football_focusitems',[]);
-}
-
-function init(){
-  if(!DB.get('bball_players')) seedBball();
-  if(!DB.get('football_players')) seedFootball();
-}
-
-// ─── Accessors ───────────────────────────────────────
-function S(){ return SPORTS[state.SPORT]; }
-function pfx(){ return state.SPORT==='basketball'?'bball':'football'; }
-function getPlayers(){ return DB.get(pfx()+'_players')||[]; }
-function getCaptures(){ return DB.get(pfx()+'_captures')||[]; }
-function getDrillLinks(){ return DB.get(pfx()+'_drilllinks')||[]; }
-function getPlans(){ return S().plans||[]; }
-function getSessions(){ return DB.get(pfx()+'_sessions')||[]; }
-function getFocusWeeks(){ return DB.get(pfx()+'_focusweeks')||[]; }
-function getFocusItems(){ return DB.get(pfx()+'_focusitems')||[]; }
-function getDepthChart(){ return DB.get('fb_depth')||{}; }
+import {
+  DB, S, pfx,
+  getPlayers, getCaptures, getDrillLinks, getPlans,
+  getSessions, getFocusWeeks, getFocusItems, getDepthChart,
+  init as initDB,
+} from './js/storage.js';
+import {
+  showToast, fmtTs, uid, esc, jsString,
+  safeColor, safePercent, validatedHttpsUrl, detectPlatform,
+  getYoutubeVideoId, safeOpenUrl, getWeakLabel, getOvr,
+  copyToClipboard,
+} from './js/utils.js';
 
 // ═══════════════════════════════════════════════════════
 //  NAVIGATION
@@ -127,47 +49,6 @@ function back(fallback){
 
 function openModal(id){ document.getElementById(id).classList.add('show'); }
 function closeModal(id){ document.getElementById(id).classList.remove('show'); }
-
-// ═══════════════════════════════════════════════════════
-//  UTILS
-// ═══════════════════════════════════════════════════════
-function showToast(id,txt){ const t=document.getElementById(id);t.textContent=txt;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200); }
-function fmtTs(ts){ const d=new Date(ts); const now=new Date(); const diff=Math.floor((now-d)/1000); if(diff<60) return'Just now'; if(diff<3600) return Math.floor(diff/60)+'m ago'; if(diff<86400) return Math.floor(diff/3600)+'h ago'; const days=Math.floor(diff/86400); if(days<7) return days+'d ago'; return d.toLocaleDateString('en',{month:'short',day:'numeric'}); }
-function uid(){ return (Date.now()+Math.random()).toString(36).replace('.',''); }
-function esc(v){ return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
-function jsString(v){ return String(v??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\r/g,'\\r').replace(/\n/g,'\\n').replace(/</g,'\\x3C'); }
-function safeColor(v){ return /^#[0-9a-f]{6}$/i.test(String(v||'')) ? v : '#777777'; }
-function safePercent(v){ const n=Number(v); return Number.isFinite(n) ? Math.max(0,Math.min(100,n)) : 0; }
-function validatedHttpsUrl(raw){
-  try{
-    const url=new URL(String(raw||'').trim());
-    return url.protocol==='https:' ? url.href : null;
-  }catch{return null;}
-}
-function detectPlatform(url){
-  const host=(()=>{try{return new URL(url).hostname.toLowerCase();}catch{return'';}})();
-  if(host.includes('youtube.com')||host.includes('youtu.be')) return 'youtube';
-  if(host.includes('instagram.com')) return 'instagram';
-  if(host.includes('tiktok.com')) return 'tiktok';
-  return 'web';
-}
-function getYoutubeVideoId(raw){
-  const safe=validatedHttpsUrl(raw);
-  if(!safe) return null;
-  try{
-    const url=new URL(safe);
-    if(url.hostname.includes('youtu.be')) return url.pathname.split('/').filter(Boolean)[0]||null;
-    if(url.hostname.includes('youtube.com')) return url.searchParams.get('v');
-  }catch{}
-  return null;
-}
-function safeOpenUrl(raw){
-  const url=validatedHttpsUrl(raw);
-  if(!url){ showToast('tR','Unsafe or invalid URL'); return; }
-  window.open(url,'_blank','noopener,noreferrer');
-}
-function getWeakLabel(p){ const s=S(); const active=s.skillKeys.filter(k=>p.skills[k]>0); const min=active.reduce((a,b)=>p.skills[b]<p.skills[a]?b:a); return s.skillLabels[min]; }
-function getOvr(p){ const active=Object.keys(p.skills).filter(k=>p.skills[k]>0); return Math.round(active.reduce((a,k)=>a+p.skills[k],0)/active.length); }
 
 function updateSportUI(){
   const sp=S();
@@ -1613,17 +1494,6 @@ async function shareSessionSummary(){
   }
 }
 
-function copyToClipboard(text){
-  if(navigator.clipboard){
-    navigator.clipboard.writeText(text).then(()=>showToast('tG','✓ Copied to clipboard'));
-  } else {
-    const ta = document.createElement('textarea');
-    ta.value = text; document.body.appendChild(ta);
-    ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-    showToast('tG','✓ Copied to clipboard');
-  }
-}
-
 // ═══════════════════════════════════════════════════════
 //  BLOCKER 3: NOTE VISIBILITY
 // ═══════════════════════════════════════════════════════
@@ -1689,7 +1559,7 @@ function exportData(){
 // ═══════════════════════════════════════════════════════
 //  INIT — ORIGINAL
 
-init();
+initDB();
 checkOnboarding();
 updateSportUI();
 
