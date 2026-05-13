@@ -20,420 +20,31 @@ import { renderHome, updateSportUI } from './js/home.js';
 import {
   obSelectSport, obSelectRole, obGoStep, obFinish, checkOnboarding,
 } from './js/onboarding.js';
-
-// ═══════════════════════════════════════════════════════
-//  PLAYERS
-// ═══════════════════════════════════════════════════════
-function renderPlayers(){
-  const players=getPlayers();
-  document.getElementById('playerCountLbl').textContent=players.length+' athletes';
-  document.getElementById('playerListBody').innerHTML=players.map(p=>{
-    const color=safeColor(p.color);
-    return `
-    <div class="player-row" onclick="openPlayerDetail('${p.id}')">
-      <div class="pav" style="background:${color}20;color:${color}">${esc(p.avatar)}</div>
-      <div style="flex:1;min-width:0">
-        <div class="pname">${esc(p.name)}</div>
-        <div class="pdetail">${esc(p.pos)} · Age ${Number(p.age)||''} · ${Number(p.sessions)||0} sessions</div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-        <span class="weak-lbl">⚠ ${esc(getWeakLabel(p))}</span>
-        <span style="color:var(--mu2);font-size:16px">›</span>
-      </div>
-    </div>`;
-  }).join('')||'<div class="empty"><div class="empty-ico">👥</div><div class="empty-ttl">No players yet</div><div class="empty-dsc">Add your first athlete to get started</div></div>';
-}
-
-function openNewPlayerModal(){
-  const sp=S();
-  document.getElementById('npPos').innerHTML=sp.positions.map(p=>`<option>${esc(p)}</option>`).join('');
-  document.getElementById('mNewPlayerTitle').textContent='Add '+(state.SPORT==='basketball'?'Basketball':'Football')+' Player';
-  ['npName','npGoal','npWeak'].forEach(id=>document.getElementById(id).value='');
-  openModal('mNewPlayer');
-}
-
-function saveNewPlayer(){
-  const name=document.getElementById('npName').value.trim();
-  if(!name){showToast('tO','Enter a name');return;}
-  const players=getPlayers();
-  const colors=['#3b82f6','#ef4444','#22c55e','#f97316','#9b5de5','#eab308','#00d4e0','#ec4899'];
-  const skills={};
-  S().skillKeys.forEach(k=>skills[k]=65);
-  const p={id:uid(),name,pos:document.getElementById('npPos').value,age:parseInt(document.getElementById('npAge').value)||16,grade:document.getElementById('npGrade').value||'10th',goal:document.getElementById('npGoal').value||'Improve overall game',weaknesses:document.getElementById('npWeak').value||'To be assessed',avatar:name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(),color:colors[players.length%colors.length],skills,sessions:0,sport:state.SPORT,created:Date.now()};
-  players.push(p);
-  DB.set(pfx()+'_players',players);
-  closeModal('mNewPlayer');
-  renderPlayers();
-  showToast('tG','✓ Player added');
-}
-
-function openPlayerDetail(id){
-  const p=getPlayers().find(x=>x.id===id);
-  if(!p) return;
-  state.currentPlayer=p;
-  document.getElementById('pdName').textContent=p.name;
-  document.getElementById('pdSub').textContent=p.pos+' · Grade '+p.grade+' · Age '+p.age;
-
-  // hero
-  const s=S();
-  const color=safeColor(p.color);
-  document.getElementById('pdHero').innerHTML=`
-    <div class="pd-hero-row">
-      <div class="pd-av" style="background:${color}20;color:${color}">${esc(p.avatar)}</div>
-      <div style="flex:1">
-        <div class="pd-name">${esc(p.name)}</div>
-        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px">
-          <span class="pill o">${esc(p.pos)}</span>
-          <span class="pill b">Age ${Number(p.age)||''}</span>
-          <span class="pill g">${Number(p.sessions)||0} Sessions</span>
-        </div>
-        <div class="pd-goal">🎯 ${esc(p.goal)}</div>
-      </div>
-    </div>
-    <div style="margin-top:12px">
-      ${s.skillKeys.filter(k=>p.skills[k]>0).map(k=>`
-        <div class="skbar-row">
-          <div class="skbar-lbl">${esc(s.skillLabels[k])}</div>
-          <div class="skbar-track"><div class="skbar-fill" style="width:${safePercent(p.skills[k])}%;background:${s.skillColors[k]}"></div></div>
-          <div class="skbar-val" style="color:${s.skillColors[k]}">${safePercent(p.skills[k])}</div>
-        </div>`).join('')}
-    </div>`;
-
-  // reset tabs
-  document.querySelectorAll('#pdTabBar .tbtn').forEach((b,i)=>b.classList.toggle('act',i===0));
-  document.querySelectorAll('.tp').forEach(p=>p.classList.remove('act'));
-  document.getElementById('pdTpTimeline').classList.add('act');
-
-  renderPlayerTimeline(p);
-  renderPlayerFocus(p);
-  renderPlayerDrills(p);
-  renderPlayerProgress(p);
-  renderPlayerSessions(p);
-  push('sPlayerDetail');
-}
-
-function pdTab(name){
-  const map={timeline:0,focus:1,drills:2,progress:3,sessions:4};
-  const idx=map[name];
-  document.querySelectorAll('#pdTabBar .tbtn').forEach((b,i)=>b.classList.toggle('act',i===idx));
-  document.querySelectorAll('.tp').forEach((p,i)=>p.classList.toggle('act',i===idx));
-}
-
-function pdOpenCapture(){
-  if(state.currentPlayer) document.getElementById('capPlayer').value=state.currentPlayer.id;
-  openCapture('note');
-}
-
-// ═══════════════════════════════════════════════════════
-//  TIMELINE
-// ═══════════════════════════════════════════════════════
-function renderPlayerTimeline(p, filter='all'){
-  const el=document.getElementById('pdTpTimeline');
-  const captures=getCaptures().filter(c=>c.playerId===p.id);
-  const sessions=getSessions().filter(s=>s.playerId===p.id);
-  const drillLinks=getDrillLinks().filter(d=>d.attachedTo?.includes(p.id));
-  const focusItems=getFocusItems().filter(fi=>fi.playerId===p.id&&fi.status==='completed');
-
-  // Build unified timeline
-  let events=[];
-  captures.forEach(c=>events.push({...c,evType:c.type}));
-  sessions.forEach(s=>events.push({...s,evType:'session',content:s.notes||'Session completed',title:getPlans().find(pl=>pl.id===s.planId)?.title||'Session'}));
-  drillLinks.forEach(d=>events.push({...d,evType:'drill',content:d.notes||d.title,playerId:p.id}));
-
-  events.sort((a,b)=>b.ts-a.ts);
-  if(filter!=='all') events=events.filter(e=>e.evType===filter);
-
-  const dotClass={note:'note',stat:'stat',drill:'drill',session:'session',focus:'focus'};
-  const dotIco={note:'📝',stat:'📊',drill:'🔗',session:'🏀',focus:'🎯'};
-
-  // Filter bar
-  const filterBar=`<div class="tl-filter">
-    ${['all','note','stat','drill','session'].map(f=>`<div class="tl-f-btn ${filter===f?'act':''}" onclick="filterPlayerTimeline('${f}')">${f.charAt(0).toUpperCase()+f.slice(1)}</div>`).join('')}
-  </div>`;
-
-  if(!events.length){
-    el.innerHTML=filterBar+`<div class="empty" style="padding-top:32px"><div class="empty-ico">📋</div><div class="empty-ttl">Nothing captured yet</div><div class="empty-dsc">Use Quick Capture to start building ${esc(p.name.split(' ')[0])}'s timeline</div></div>`;
-    return;
-  }
-
-  el.innerHTML=filterBar+`<div style="padding:14px 14px 80px">`+events.map(ev=>{
-    const typeKey=ev.evType||'note';
-    let bodyHTML='';
-    if(ev.evType==='stat') bodyHTML=`<div class="tl-stat-val">${esc(ev.value)}${esc(ev.unit)}<span class="tl-stat-unit"> ${esc(ev.metric||'')}</span></div>`;
-    else bodyHTML=`<div class="tl-body">${esc(ev.content||ev.title||'')}</div>`;
-    const tags=ev.tags?.length?`<div class="tl-tags">${ev.tags.map(t=>`<span class="tl-tag-chip">${esc(t)}</span>`).join('')}</div>`:'';
-    const parentBadge=ev.visibility==='parent_visible'?`<span class="parent-badge" style="margin-left:6px">👁 PARENT</span>`:'';
-    return`<div class="tl-event">
-      <div class="tl-dot ${dotClass[typeKey]}">${dotIco[typeKey]}</div>
-      <div class="tl-card" style="${ev.visibility==='parent_visible'?'border-color:rgba(59,130,246,.3)':''}">
-        <div class="tl-card-top">
-          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">
-            <span class="tl-type-badge ${typeKey}">${typeKey.toUpperCase()}</span>
-            ${parentBadge}
-          </div>
-          <span class="tl-ts">${fmtTs(ev.ts||ev.created||Date.now())}</span>
-        </div>
-        ${bodyHTML}${tags}
-        <div class="tl-actions">
-          <span class="tl-act-btn" onclick="openCaptureEdit('${ev.id}','${typeKey}')">Edit</span>
-          <span class="tl-act-btn del" onclick="deleteCapture('${ev.id}','${typeKey}')">Delete</span>
-        </div>
-      </div>
-    </div>`;
-  }).join('')+'</div>';
-}
-
-function deleteCapture(id, type){
-  if(type==='drill'){
-    const dls=getDrillLinks().filter(d=>d.id!==id);
-    DB.set(pfx()+'_drilllinks',dls);
-  } else {
-    const caps=getCaptures().filter(c=>c.id!==id);
-    DB.set(pfx()+'_captures',caps);
-  }
-  renderPlayerTimeline(state.currentPlayer);
-  showToast('tG','Deleted');
-}
-
-function filterPlayerTimeline(filter){
-  if(state.currentPlayer) renderPlayerTimeline(state.currentPlayer, filter);
-}
+import {
+  renderPlayers, openNewPlayerModal, saveNewPlayer,
+  openPlayerDetail, pdTab, pdOpenCapture,
+  renderPlayerTimeline, deleteCapture, filterPlayerTimeline,
+  openCaptureEdit,
+  renderPlayerFocus, toggleFocusItemPD,
+  renderPlayerDrills, renderPlayerProgress, renderPlayerSessions,
+} from './js/players.js';
+import {
+  openCapture, setCapType, toggleCapTag, saveCapture,
+  toggleCaptureVisibility,
+} from './js/captures.js';
+import {
+  renderDrillLinks, setDrillCat, filterDrillLinks,
+  openDrillLinkSaver, parseDrillURL, saveDrillLink,
+  deleteDrillLink, attachDrillToPlayer, addDrillToFocus,
+} from './js/drills.js';
+import {
+  handleRosterUpload, parsePastedRoster, importRoster,
+  downloadSampleCSV,
+} from './js/roster.js';
 
 function closeSessionSummary(){
   state.screenStack=[];
   goTab('tHome');
-}
-
-function openCaptureEdit(id, type){
-  // Simple re-open capture with data pre-filled
-  showToast('tO','Edit coming soon — re-create to update');
-}
-
-// ═══════════════════════════════════════════════════════
-//  QUICK CAPTURE
-// ═══════════════════════════════════════════════════════
-
-function openCapture(type='note'){
-  state.capType=type; state.capTags=[]; state.capVisibility='private';
-  resetVisibilityToggle();
-  setCapType(type);
-  // populate player selector
-  const players=getPlayers();
-  const sel=document.getElementById('capPlayer');
-  sel.innerHTML='<option value="">— No player —</option>'+players.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
-  if(state.currentPlayer) sel.value=state.currentPlayer.id;
-  openModal('mCapture');
-}
-
-function setCapType(type){
-  state.capType=type;
-  ['note','stat','drill'].forEach(t=>{
-    document.getElementById('capType'+t.charAt(0).toUpperCase()+t.slice(1))?.classList.toggle('act',t===type);
-    document.getElementById('cap'+t.charAt(0).toUpperCase()+t.slice(1)+'Fields').style.display=t===type?'':'none';
-  });
-  const visRow=document.getElementById('capVisRow');
-  if(visRow) visRow.style.display=type==='note'?'':'none';
-  if(type!=='note') resetVisibilityToggle();
-}
-
-function toggleCapTag(el, tag){
-  el.classList.toggle('sel');
-  if(el.classList.contains('sel')) state.capTags.push(tag);
-  else state.capTags=state.capTags.filter(t=>t!==tag);
-}
-
-function saveCapture(){
-  const playerId=document.getElementById('capPlayer').value||null;
-  const caps=getCaptures();
-  let cap={id:uid(),playerId,ts:Date.now(),sport:state.SPORT,visibility:state.capType==='note'?state.capVisibility:'private'};
-
-  if(state.capType==='note'){
-    const txt=document.getElementById('capNoteText').value.trim();
-    if(!txt){showToast('tO','Write a note first');return;}
-    cap={...cap,type:'note',content:txt,tags:[...capTags]};
-  } else if(state.capType==='stat'){
-    const val=document.getElementById('capStatValue').value;
-    if(!val){showToast('tO','Enter a value');return;}
-    const metric=document.getElementById('capStatMetric').value;
-    const unit=document.getElementById('capStatUnit').value||'';
-    cap={...cap,type:'stat',metric,value:parseFloat(val),unit};
-  } else {
-    const title=document.getElementById('capDrillTitle').value.trim();
-    if(!title){showToast('tO','Enter a drill name');return;}
-    cap={...cap,type:'drill',title,content:document.getElementById('capDrillNote').value};
-  }
-
-  caps.push(cap);
-  DB.set(pfx()+'_captures',caps);
-  closeModal('mCapture');
-  if(state.currentPlayer&&state.currentPlayer.id===playerId) renderPlayerTimeline(state.currentPlayer);
-  renderHome();
-  const visMsg=state.capVisibility==='parent_visible'?' · 👁 parent visible':'';
-  showToast('tG','✓ Saved to timeline'+visMsg);
-
-  // Reset fields
-  document.getElementById('capNoteText').value='';
-  document.getElementById('capStatValue').value='';
-  document.getElementById('capDrillTitle').value='';
-  document.getElementById('capDrillNote').value='';
-  state.capTags=[];
-  document.querySelectorAll('.cap-tag').forEach(t=>t.classList.remove('sel'));
-  resetVisibilityToggle();
-}
-
-// ═══════════════════════════════════════════════════════
-//  DRILL LINKS
-// ═══════════════════════════════════════════════════════
-
-function renderDrillLinks(){
-  const links=getDrillLinks();
-  document.getElementById('drillCountLbl').textContent=links.length+' links saved';
-  const cats=['All',...new Set(links.map(d=>d.cat))];
-  document.getElementById('drillCatBar').innerHTML=cats.map(c=>`<div class="tl-f-btn ${c===state.activeDrillCat?'act':''}" style="flex-shrink:0" onclick="setDrillCat('${esc(jsString(c))}')">${esc(c)}</div>`).join('');
-  filterDrillLinks();
-}
-
-function setDrillCat(cat){ state.activeDrillCat=cat; renderDrillLinks(); }
-
-function filterDrillLinks(){
-  const links=getDrillLinks();
-  const q=(document.getElementById('drillSearch')?.value||'').toLowerCase();
-  const filtered=links.filter(d=>(state.activeDrillCat==='All'||d.cat===state.activeDrillCat)&&(!q||d.title.toLowerCase().includes(q)||d.cat.toLowerCase().includes(q)));
-  const platIco={youtube:'▶️',instagram:'📸',tiktok:'🎵',web:'🌐',other:'🔗'};
-  document.getElementById('drillListBody').innerHTML=filtered.map(d=>{
-    const players=getPlayers();
-    const attached=d.attachedTo?.map(id=>players.find(p=>p.id===id)?.name||'').filter(Boolean)||[];
-    const ytId=getYoutubeVideoId(d.url);
-    const thumbSrc=ytId?`https://img.youtube.com/vi/${ytId}/mqdefault.jpg`:null;
-    return`<div class="dl-card">
-      <div class="dl-card-top">
-        <div class="dl-thumb">${thumbSrc?`<img src="${thumbSrc}" onerror="this.parentElement.textContent='🎯'">`:platIco[d.platform]||'🔗'}</div>
-        <div class="dl-info">
-          <div class="dl-title">${esc(d.title)}</div>
-          <div class="dl-pills">
-            <span class="pill o">${esc(d.cat)}</span>
-            <span class="pill m">${esc(d.diff)}</span>
-            <span class="pill m">${esc(d.age)}</span>
-          </div>
-          ${d.notes?`<div class="dl-notes">${esc(d.notes)}</div>`:''}
-        </div>
-      </div>
-      ${attached.length?`<div style="font-size:11px;color:var(--mu);margin-top:4px">👤 ${attached.map(esc).join(', ')}</div>`:''}
-      <div class="dl-actions">
-        <div class="dl-act primary" onclick="safeOpenUrl('${esc(jsString(d.url))}')">▶ Open Video</div>
-        <div class="dl-act" onclick="attachDrillToPlayer('${d.id}')">Attach to Player</div>
-        <div class="dl-act" onclick="deleteDrillLink('${d.id}')">Delete</div>
-      </div>
-    </div>`;
-  }).join('')||'<div class="empty"><div class="empty-ico">🔗</div><div class="empty-ttl">No drill links yet</div><div class="empty-dsc">Paste a YouTube URL to save your first drill</div></div>';
-}
-
-function openDrillLinkSaver(){
-  const sp=S();
-  document.getElementById('dlCat').innerHTML=sp.drillCats.map(c=>`<option>${esc(c)}</option>`).join('');
-  document.getElementById('dlSport').value=state.SPORT;
-  const players=getPlayers();
-  document.getElementById('dlPlayer').innerHTML='<option value="">— None —</option>'+players.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
-  if(state.currentPlayer) document.getElementById('dlPlayer').value=state.currentPlayer.id;
-  ['dlURL','dlTitle','dlNotes'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('dlThumbPreview').style.display='none';
-  openModal('mDrillLink');
-}
-
-function parseDrillURL(url){
-  const videoId=getYoutubeVideoId(url);
-  if(videoId){
-    const thumb=document.getElementById('dlThumbPreview');
-    const img=document.getElementById('dlThumbImg');
-    img.src=`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
-    thumb.style.display='block';
-    if(!document.getElementById('dlTitle').value){
-      document.getElementById('dlTitle').value='YouTube Drill — Add Title';
-    }
-  } else {
-    document.getElementById('dlThumbPreview').style.display='none';
-  }
-  // detect platform
-  const platMap=[['youtube','youtube'],['youtu.be','youtube'],['instagram','instagram'],['tiktok','tiktok']];
-  for(const [key,val] of platMap){ if(url.includes(key)){ document.getElementById('dlSport'); break; } }
-}
-
-function saveDrillLink(){
-  const url=document.getElementById('dlURL').value.trim();
-  const title=document.getElementById('dlTitle').value.trim();
-  if(!url){showToast('tO','Enter a URL');return;}
-  if(!title){showToast('tO','Add a title');return;}
-  const safeUrl=validatedHttpsUrl(url);
-  if(!safeUrl){showToast('tR','Use a valid https:// URL');return;}
-  const platform=detectPlatform(safeUrl);
-  const playerId=document.getElementById('dlPlayer').value||null;
-  const links=getDrillLinks();
-  const dl={id:uid(),title,url:safeUrl,platform,cat:document.getElementById('dlCat').value,sport:document.getElementById('dlSport').value,age:document.getElementById('dlAge').value,diff:document.getElementById('dlDiff').value,notes:document.getElementById('dlNotes').value,attachedTo:playerId?[playerId]:[],ts:Date.now()};
-  links.push(dl);
-  DB.set(pfx()+'_drilllinks',links);
-  closeModal('mDrillLink');
-  renderDrillLinks();
-  if(state.currentPlayer) renderPlayerDrills(state.currentPlayer);
-  showToast('tG','✓ Drill link saved');
-}
-
-function renderPlayerDrills(p){
-  const el=document.getElementById('pdTpDrills');
-  const links=getDrillLinks().filter(d=>d.attachedTo?.includes(p.id));
-  el.innerHTML=`<button class="btn o sm" style="margin-bottom:14px;width:auto;padding:9px 18px" onclick="openDrillLinkSaver()">+ Save Drill Link for ${esc(p.name.split(' ')[0])}</button>`;
-  if(!links.length){ el.innerHTML+=`<div class="empty"><div class="empty-ico">🔗</div><div class="empty-ttl">No drill links attached</div><div class="empty-dsc">Save a YouTube link and attach it to ${esc(p.name.split(' ')[0])}</div></div>`; return; }
-  const platIco={youtube:'▶️',instagram:'📸',tiktok:'🎵',web:'🌐',other:'🔗'};
-  el.innerHTML+=links.map(d=>`
-    <div class="dl-card">
-      <div class="dl-card-top">
-        <div class="dl-thumb">${platIco[d.platform]||'🔗'}</div>
-        <div class="dl-info">
-          <div class="dl-title">${esc(d.title)}</div>
-          <div class="dl-pills"><span class="pill o">${esc(d.cat)}</span><span class="pill m">${esc(d.diff)}</span></div>
-          ${d.notes?`<div class="dl-notes">${esc(d.notes)}</div>`:''}
-        </div>
-      </div>
-      <div class="dl-actions">
-        <div class="dl-act primary" onclick="safeOpenUrl('${esc(jsString(d.url))}')">▶ Open</div>
-        <div class="dl-act" onclick="addDrillToFocus('${d.id}','${p.id}')">Add to Weekly Focus</div>
-      </div>
-    </div>`).join('');
-}
-
-function deleteDrillLink(id){
-  DB.set(pfx()+'_drilllinks',getDrillLinks().filter(d=>d.id!==id));
-  renderDrillLinks();
-  if(state.currentPlayer) renderPlayerDrills(state.currentPlayer);
-  showToast('tG','Deleted');
-}
-
-function attachDrillToPlayer(drillId){
-  const players=getPlayers();
-  const sel=prompt('Player name to attach to:');
-  if(!sel) return;
-  const p=players.find(x=>x.name.toLowerCase().includes(sel.toLowerCase()));
-  if(!p){showToast('tO','Player not found');return;}
-  const links=getDrillLinks();
-  const dl=links.find(d=>d.id===drillId);
-  if(dl&&!dl.attachedTo?.includes(p.id)){
-    if(!dl.attachedTo) dl.attachedTo=[];
-    dl.attachedTo.push(p.id);
-    DB.set(pfx()+'_drilllinks',links);
-    showToast('tG',`Attached to ${p.name}`);
-    renderDrillLinks();
-  }
-}
-
-function addDrillToFocus(drillId, playerId){
-  // Add it as a focus item
-  const items=getFocusItems();
-  const dl=getDrillLinks().find(d=>d.id===drillId);
-  const weeks=getFocusWeeks().filter(w=>w.playerId===playerId&&w.status==='active');
-  if(!weeks.length){showToast('tO','No active focus week for this player');return;}
-  items.push({id:uid(),weekId:weeks[0].id,playerId,title:'Watch & work: '+dl.title,cat:dl.cat,priority:'medium',status:'pending',drillLinkId:drillId,ts:Date.now()});
-  DB.set(pfx()+'_focusitems',items);
-  showToast('tG','✓ Added to Weekly Focus');
-  if(document.getElementById('pdTpFocus').classList.contains('act')) renderPlayerFocus(state.currentPlayer);
 }
 
 // ═══════════════════════════════════════════════════════
@@ -451,53 +62,6 @@ function renderFocus(){
   document.getElementById('focusPlayerBtn').textContent=p.name+' ▾';
   document.getElementById('focusAddBar').style.display='';
   renderPlayerFocusInTab(p);
-}
-
-function renderPlayerFocus(p){
-  const el=document.getElementById('pdTpFocus');
-  const weeks=getFocusWeeks().filter(w=>w.playerId===p.id&&w.status==='active');
-  let week=weeks[0];
-  if(!week){
-    const now=new Date();const dow=now.getDay();
-    const start=new Date(now);start.setDate(now.getDate()-(dow===0?6:dow-1));
-    const end=new Date(start);end.setDate(start.getDate()+6);
-    week={id:uid(),playerId:p.id,weekStart:start.toISOString().split('T')[0],weekEnd:end.toISOString().split('T')[0],sport:state.SPORT,status:'active'};
-    const wks=getFocusWeeks();wks.push(week);DB.set(pfx()+'_focusweeks',wks);
-  }
-  const items=getFocusItems().filter(fi=>fi.weekId===week.id);
-  const done=items.filter(fi=>fi.status==='completed').length;
-  const prioCls={high:'high',medium:'medium',low:'low'};
-
-  el.innerHTML=`
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:var(--wh)">Week of ${week.weekStart}</div>
-        <div style="font-size:11px;color:var(--mu)">${done}/${items.length} items complete</div>
-      </div>
-      <button class="btn o sm" style="width:auto;padding:8px 14px" onclick="openFocusDetail('${p.id}')">Open Full View →</button>
-    </div>
-    <div style="height:4px;background:var(--s3);border-radius:2px;overflow:hidden;margin-bottom:14px">
-      <div style="height:100%;background:var(--grn);border-radius:2px;width:${items.length?((done/items.length*100)+'%'):'0%'};transition:width .4s"></div>
-    </div>
-    ${items.length?items.map(fi=>`
-      <div class="focus-item" style="margin:0 0 1px">
-        <div class="fi-check ${fi.status==='completed'?'done':''}" onclick="toggleFocusItemPD('${fi.id}','${week.id}','${p.id}')">${fi.status==='completed'?'✓':''}</div>
-        <div class="fi-content">
-          <div class="fi-title ${fi.status==='completed'?'done':''}">${esc(fi.title)}</div>
-          <div class="fi-meta"><div class="fi-priority ${prioCls[fi.priority]}"></div><span>${esc(fi.cat)}</span></div>
-        </div>
-      </div>`).join('')
-    :`<div class="empty" style="padding:24px"><div class="empty-ico">🎯</div><div class="empty-ttl">No focus items</div><div class="empty-dsc">Open full view to add items</div></div>`}`;
-}
-
-function toggleFocusItemPD(itemId,weekId,playerId){
-  const items=getFocusItems();
-  const item=items.find(fi=>fi.id===itemId);
-  if(item) item.status=item.status==='completed'?'pending':'completed';
-  DB.set(pfx()+'_focusitems',items);
-  const p=getPlayers().find(x=>x.id===playerId);
-  if(p) renderPlayerFocus(p);
-  if(item?.status==='completed') showToast('tG','✓ Done!');
 }
 
 function renderPlayerFocusInTab(p, elId=null){
@@ -604,70 +168,6 @@ function addFocusItem(){
 }
 
 // ═══════════════════════════════════════════════════════
-//  PLAYER PROGRESS
-// ═══════════════════════════════════════════════════════
-function renderPlayerProgress(p){
-  const el=document.getElementById('pdTpProgress');
-  const caps=getCaptures().filter(c=>c.playerId===p.id&&c.type==='stat');
-  const s=S();
-
-  // Skill overview
-  const weakKeys=s.skillKeys.filter(k=>p.skills[k]>0).sort((a,b)=>p.skills[a]-p.skills[b]);
-
-  el.innerHTML=`
-    <div class="sec">Skill Ratings</div>
-    ${weakKeys.map(k=>{
-      const v=p.skills[k];
-      const cls=v>=80?'rtg-e':v>=65?'rtg-g':'rtg-l';
-      return`<div class="trend-row">
-        <div class="tr-ico">${{ballHandling:'🏀',shooting:'🎯',finishing:'💪',footwork:'👟',defense:'🛡️',conditioning:'⚡',throwing:'🏈',routeRunning:'💨',catching:'🤲',blocking:'🔒'}[k]||'📊'}</div>
-        <div class="tr-info"><div class="tr-name">${esc(s.skillLabels[k])}</div><div class="tr-vals">${safePercent(v)}/100</div></div>
-        <div class="tr-delta ${v>=75?'up':'down'}">${safePercent(v)}</div>
-      </div>`;
-    }).join('')}
-
-    ${caps.length?`<div class="sec" style="margin-top:20px">Logged Stats</div>
-    ${caps.slice().sort((a,b)=>b.ts-a.ts).slice(0,8).map(c=>`
-      <div class="trend-row">
-        <div class="tr-ico">📊</div>
-        <div class="tr-info"><div class="tr-name">${esc(c.metric)}</div><div class="tr-vals">${fmtTs(c.ts)}</div></div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;color:var(--grn)">${esc(c.value)}${esc(c.unit)}</div>
-      </div>`).join('')}`:''}
-
-    <div class="sec" style="margin-top:20px">AI Analysis</div>
-    <div style="background:linear-gradient(135deg,rgba(249,115,22,.08),rgba(249,115,22,.03));border:1px solid rgba(249,115,22,.2);border-radius:var(--r);padding:13px">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:var(--wh);margin-bottom:6px">🤖 Development Insight</div>
-      <div style="font-size:12px;color:var(--mu);line-height:1.6">${esc(getAIInsight(p))}</div>
-      <button class="btn o sm" style="margin-top:10px;width:auto;padding:8px 16px" onclick="goTab('tAI')">Ask AI Coach</button>
-    </div>`;
-}
-
-function getAIInsight(p){
-  const s=S();
-  const active=s.skillKeys.filter(k=>p.skills[k]>0);
-  const min=active.reduce((a,b)=>p.skills[b]<p.skills[a]?b:a);
-  return `${p.name.split(' ')[0]}'s lowest rated area is ${s.skillLabels[min]} (${p.skills[min]}/100). Based on goal: "${p.goal}" — recommend 2× weekly sessions targeting this first. Key area from notes: "${p.weaknesses.split(',')[0].trim()}"`;
-}
-
-function renderPlayerSessions(p){
-  const el=document.getElementById('pdTpSessions');
-  const sessions=getSessions().filter(s=>s.playerId===p.id);
-  if(!sessions.length){el.innerHTML='<div class="empty"><div class="empty-ico">▶</div><div class="empty-ttl">No sessions yet</div><div class="empty-dsc">Start a session to build history</div></div>';return;}
-  el.innerHTML=sessions.map(s=>{
-    const plan=getPlans().find(pl=>pl.id===s.planId);
-    const mins=Math.floor((s.duration||0)/60);
-    return`<div class="card" style="margin-bottom:9px">
-      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--wh)">${esc(plan?.title||'Open Session')}</div>
-        <span class="pill m">${fmtTs(s.date||s.ts||Date.now())}</span>
-      </div>
-      <div style="font-size:11px;color:var(--mu);margin-bottom:5px">⏱ ${mins} min · ${s.results?.length||0} drills tracked</div>
-      ${s.notes?`<div style="font-size:12px;color:var(--tx);line-height:1.5">${esc(s.notes)}</div>`:''}
-    </div>`;
-  }).join('');
-}
-
-// ═══════════════════════════════════════════════════════
 //  SESSION
 // ═══════════════════════════════════════════════════════
 function openSessionPicker(){
@@ -742,99 +242,6 @@ function endSession(completed=false){
   } else {
     back();
   }
-}
-
-// ═══════════════════════════════════════════════════════
-//  ROSTER UPLOAD
-// ═══════════════════════════════════════════════════════
-function handleRosterUpload(event){
-  const file=event.target.files[0];
-  if(!file) return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    const text=e.target.result;
-    parseCSVRoster(text, file.name);
-  };
-  if(file.name.toLowerCase().endsWith('.csv')) reader.readAsText(file);
-  else showToast('tO','CSV files only for now');
-}
-
-function parseCSVRoster(csvText, filename){
-  const lines=csvText.trim().split('\n');
-  if(lines.length<2){showToast('tO','CSV needs at least 2 rows (header + data)');return;}
-  const headers=lines[0].split(',').map(h=>h.trim().toLowerCase().replace(/['"]/g,''));
-  state.rosterPreviewData=lines.slice(1).map((line,i)=>{
-    const cols=line.split(',').map(c=>c.trim().replace(/['"]/g,''));
-    const obj={};
-    headers.forEach((h,idx)=>obj[h]=cols[idx]||'');
-    // Normalize
-    const name=obj.name||obj.full_name||(obj.first_name&&obj.last_name?obj.first_name+' '+obj.last_name:'')||obj.player||'Player '+(i+1);
-    const pos=obj.position||obj.pos||'';
-    const age=parseInt(obj.age)||0;
-    const grade=obj.grade||obj.year||'';
-    const existing=getPlayers().find(p=>p.name.toLowerCase()===name.toLowerCase());
-    return{_name:name,_pos:pos,_age:age,_grade:grade,_dup:!!existing,_err:!name};
-  }).filter(r=>!r._err);
-  showRosterPreview(filename);
-}
-
-function parsePastedRoster(){
-  const text=document.getElementById('rosterPasteArea').value.trim();
-  if(!text){showToast('tO','Paste some player names first');return;}
-  const lines=text.split('\n').filter(l=>l.trim());
-  state.rosterPreviewData=lines.map((line,i)=>{
-    const parts=line.split(',').map(p=>p.trim());
-    const name=parts[0]||'Player '+(i+1);
-    const pos=parts[1]||'';
-    const age=parseInt(parts[2])||0;
-    const existing=getPlayers().find(p=>p.name.toLowerCase()===name.toLowerCase());
-    return{_name:name,_pos:pos,_age:age,_grade:'',_dup:!!existing,_err:!name};
-  });
-  showRosterPreview('Pasted Roster');
-}
-
-function showRosterPreview(filename){
-  const el=document.getElementById('rosterPreview');
-  const list=document.getElementById('rosterPreviewList');
-  el.style.display='';
-  const newCount=state.rosterPreviewData.filter(r=>!r._dup).length;
-  const dupCount=state.rosterPreviewData.filter(r=>r._dup).length;
-  list.innerHTML=`<div style="padding:10px 14px;background:var(--s2);border-bottom:1px solid var(--bdr);display:flex;gap:12px">
-    <span class="pill g">✓ ${newCount} new</span>
-    ${dupCount?`<span class="pill y">⚠ ${dupCount} duplicate</span>`:''}
-  </div>`+state.rosterPreviewData.map((r,i)=>`
-    <div class="roster-preview-row">
-      <div class="rpr-num">${i+1}</div>
-      <div class="rpr-info"><div class="rpr-name">${esc(r._name)}</div><div class="rpr-detail">${esc([r._pos,r._age?'Age '+r._age:'',r._grade].filter(Boolean).join(' · ')||'Position TBD')}</div></div>
-      <div class="rpr-status ${r._dup?'dup':'new'}">${r._dup?'Exists':'New'}</div>
-    </div>`).join('');
-}
-
-function importRoster(){
-  if(!state.rosterPreviewData.length){showToast('tO','No players to import');return;}
-  const players=getPlayers();
-  const colors=['#3b82f6','#ef4444','#22c55e','#f97316','#9b5de5','#eab308','#00d4e0','#ec4899'];
-  const sp=S();
-  let added=0;
-  state.rosterPreviewData.filter(r=>!r._dup).forEach(r=>{
-    const skills={};sp.skillKeys.forEach(k=>skills[k]=65);
-    players.push({id:uid(),name:r._name,pos:r._pos||sp.positions[0],age:r._age||16,grade:r._grade||'',goal:'To be defined',weaknesses:'To be assessed',avatar:r._name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(),color:colors[players.length%colors.length],skills,sessions:0,sport:state.SPORT,created:Date.now()});
-    added++;
-  });
-  DB.set(pfx()+'_players',players);
-  document.getElementById('rosterPreview').style.display='none';
-  state.rosterPreviewData=[];
-  renderPlayers();
-  renderHome();
-  showToast('tG',`✓ ${added} players imported`);
-  back();
-}
-
-function downloadSampleCSV(){
-  const csv='name,position,age,grade\nMarcus Johnson,Point Guard,16,10th\nAaliyah Carter,Shooting Guard,15,9th\nDevon Williams,Power Forward,17,11th';
-  const blob=new Blob([csv],{type:'text/csv'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download='courtflow_sample_roster.csv';a.click();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -936,7 +343,7 @@ function removeDepthSlot(posAbbr,slotIdx){
 function clearDepthChart(){if(!confirm('Clear depth chart?')) return;DB.set('fb_depth',{});renderDepthBody();showToast('tO','Depth chart cleared');}
 
 // ═══════════════════════════════════════════════════════
-//  SPORT SWITCH
+//  state.SPORT SWITCH
 // ═══════════════════════════════════════════════════════
 function switchSport(s){
   state.SPORT=s;DB.set('sport',state.SPORT);closeModal('mSportSwitch');
@@ -1318,40 +725,6 @@ async function shareSessionSummary(){
 }
 
 // ═══════════════════════════════════════════════════════
-//  BLOCKER 3: NOTE VISIBILITY
-// ═══════════════════════════════════════════════════════
-
-function toggleCaptureVisibility(){
-  state.capVisibility = state.capVisibility === 'private' ? 'parent_visible' : 'private';
-  const toggle = document.getElementById('capVisToggle');
-  const ico    = document.getElementById('capVisIco');
-  const lbl    = document.getElementById('capVisLabel');
-  const sub    = document.getElementById('capVisSub');
-  if(state.capVisibility === 'parent_visible'){
-    toggle.classList.add('parent-vis');
-    ico.textContent = '👁';
-    lbl.textContent = 'Parent Visible — Shows in summaries';
-    sub.textContent = 'Tap to make private';
-  } else {
-    toggle.classList.remove('parent-vis');
-    ico.textContent = '🔒';
-    lbl.textContent = 'Private — Coach only';
-    sub.textContent = 'Tap to make visible in parent summaries';
-  }
-}
-
-function resetVisibilityToggle(){
-  state.capVisibility = 'private';
-  document.getElementById('capVisToggle')?.classList.remove('parent-vis');
-  const ico = document.getElementById('capVisIco');
-  const lbl = document.getElementById('capVisLabel');
-  const sub = document.getElementById('capVisSub');
-  if(ico) ico.textContent = '🔒';
-  if(lbl) lbl.textContent = 'Private — Coach only';
-  if(sub) sub.textContent = 'Tap to make visible in parent summaries';
-}
-
-// ═══════════════════════════════════════════════════════
 //  BLOCKER 4: SETTINGS
 // ═══════════════════════════════════════════════════════
 function saveSettingsProfile(){
@@ -1381,7 +754,6 @@ function exportData(){
 
 // ═══════════════════════════════════════════════════════
 //  INIT — ORIGINAL
-
 
 // ── Wire tab renderers into the navigation registry ──
 registerTab('tHome', renderHome);
