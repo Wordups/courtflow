@@ -72,7 +72,21 @@ registerTab('tFocus', renderFocus);
 registerTab('tDepth', renderDepthChart);
 registerTab('tAI', renderAI);
 
+// ── Feature flag activation ───────────────────────────
+// Mark every [data-flag="X"] element with data-flag-active when its
+// flag is currently on. Combined with the CSS rule
+// `[data-flag]:not([data-flag-active]){display:none}`, this hides
+// every gated element by default and reveals only the ones whose
+// flag is set to true in CF_FLAGS.
+function activateFlags(){
+  document.querySelectorAll('[data-flag]').forEach(el => {
+    const flag = el.getAttribute('data-flag');
+    if (CF_FLAGS[flag]) el.setAttribute('data-flag-active', '');
+  });
+}
+
 // ── Boot ──────────────────────────────────────────────
+activateFlags();
 initDB();
 checkOnboarding();
 updateSportUI();

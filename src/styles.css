@@ -10,6 +10,9 @@
   --r:14px; --st:env(safe-area-inset-top,0px); --sb:env(safe-area-inset-bottom,0px);
   --nav-h:58px;
 }
+/* Feature-flag visibility. Elements with data-flag="X" are hidden by
+   default; app.js sets data-flag-active on those whose flag is on. */
+[data-flag]:not([data-flag-active]){display:none !important;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;background:var(--bg);}
 body{font-family:'Barlow',sans-serif;color:var(--tx);position:fixed;inset:0;}

@@ -10,7 +10,7 @@
 // ═══════════════════════════════════════════════════════
 
 import { state } from './state.js';
-import { AI_COACH_ENDPOINT } from './config.js';
+import { AI_COACH_ENDPOINT, CF_FLAGS } from './config.js';
 import { S, getPlayers, getDrillLinks } from './storage.js';
 import { esc, safePercent, getOvr } from './utils.js';
 
@@ -99,6 +99,11 @@ function addAILoading(){
 function removeAILoading(){ const e = document.getElementById('aiLoad'); if (e) e.remove(); }
 
 export async function sendAI(){
+  // Feature flag: hide the AI proxy entirely until the backend lands.
+  // The send button itself is also gated via data-flag in markup, but
+  // we guard the entry point as defense in depth (e.g. against
+  // programmatic invocation from aiAsk).
+  if (!CF_FLAGS.AI_ENABLED) return;
   const inp = document.getElementById('aiInput');
   const msg = inp.value.trim();
   if (!msg) return;
@@ -133,6 +138,14 @@ export function aiSuggest(playerId){
 }
 
 async function callAI(userMsg){
+  // Second guard at the network boundary — keeps any direct caller
+  // (or a future code path) honest. Falls back to the offline plan
+  // so the chat surface still shows something useful.
+  if (!CF_FLAGS.AI_ENABLED) {
+    removeAILoading();
+    addAIMsg('bot', generateOfflineAI(userMsg));
+    return;
+  }
   const players = getPlayers();
   const drillLinks = getDrillLinks();
   const aiName = state.SPORT === 'basketball' ? 'CourtIQ' : 'FieldIQ';
