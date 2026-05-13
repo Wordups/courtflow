@@ -12,126 +12,14 @@ import {
   getYoutubeVideoId, safeOpenUrl, getWeakLabel, getOvr,
   copyToClipboard,
 } from './js/utils.js';
-
-// ═══════════════════════════════════════════════════════
-//  NAVIGATION
-// ═══════════════════════════════════════════════════════
-function goTab(id){
-  document.body.classList.remove('summary-mode');
-  document.querySelectorAll('.screen.tab-root').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.bni').forEach(b=>b.classList.remove('act'));
-  const map={tHome:'bn-home',tPlayers:'bn-players',tDrills:'bn-drills',tAI:'bn-ai',tFocus:null,tDepth:null};
-  const bn=map[id];if(bn) document.getElementById(bn).classList.add('act');
-  state.currentTab=id;
-  if(id==='tHome') renderHome();
-  if(id==='tPlayers') renderPlayers();
-  if(id==='tDrills') renderDrillLinks();
-  if(id==='tFocus') renderFocus();
-  if(id==='tDepth') renderDepthChart();
-  if(id==='tAI') renderAI();
-}
-
-function push(id){
-  if(id==='sSessionSummary') document.body.classList.add('summary-mode');
-  document.querySelectorAll('.screen:not(.tab-root)').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  state.screenStack.push(id);
-}
-
-function back(fallback){
-  const last=state.screenStack.pop();
-  if(last==='sSessionSummary') document.body.classList.remove('summary-mode');
-  if(last) document.getElementById(last).classList.remove('active');
-  if(state.screenStack.length) document.getElementById(state.screenStack[state.screenStack.length-1]).classList.add('active');
-  else goTab(fallback||state.currentTab);
-}
-
-function openModal(id){ document.getElementById(id).classList.add('show'); }
-function closeModal(id){ document.getElementById(id).classList.remove('show'); }
-
-function updateSportUI(){
-  const sp=S();
-  document.getElementById('scIco').textContent=sp.icon;
-  document.getElementById('scLbl').textContent=sp.label;
-  document.getElementById('qaDepth').style.display=state.SPORT==='football'?'':'none';
-  // Reset AI on sport switch
-  const aiLbl=document.getElementById('bnAILbl');
-  if(aiLbl) aiLbl.textContent=state.SPORT==='basketball'?'CourtIQ':'FieldIQ';
-}
-
-// ═══════════════════════════════════════════════════════
-//  FAB
-// ═══════════════════════════════════════════════════════
-function toggleFAB(){
-  state.fabOpen=!state.fabOpen;
-  document.getElementById('fabBtn').classList.toggle('open',state.fabOpen);
-  document.getElementById('fabBtn').textContent=state.fabOpen?'✕':'+';
-  if(state.fabOpen) openModal('mFAB');
-  else closeModal('mFAB');
-}
-function closeFAB(){
-  state.fabOpen=false;
-  document.getElementById('fabBtn').classList.remove('open');
-  document.getElementById('fabBtn').textContent='+';
-  closeModal('mFAB');
-}
-document.getElementById('mFAB').addEventListener('click',e=>{if(e.target===document.getElementById('mFAB'))closeFAB();});
-
-// ═══════════════════════════════════════════════════════
-//  HOME
-// ═══════════════════════════════════════════════════════
-function renderHome(){
-  const h=new Date().getHours();
-  document.getElementById('htGreeting').textContent=(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+', Coach';
-  updateSportUI();
-  const players=getPlayers(),captures=getCaptures(),drillLinks=getDrillLinks();
-  document.getElementById('hPlayers').textContent=players.length;
-  document.getElementById('hCaptures').textContent=captures.length;
-  document.getElementById('hDrillLinks').textContent=drillLinks.length;
-
-  // today sessions
-  const hs=document.getElementById('homeSessions');
-  const plans=getPlans();
-  hs.innerHTML=players.slice(0,2).map((p,i)=>{
-    const color=safeColor(p.color);
-    return `
-    <div class="row-item" onclick="openPlayerDetail('${p.id}')">
-      <div class="row-av" style="background:${color}20;color:${color}">${esc(p.avatar)}</div>
-      <div class="row-info"><div class="row-name">${esc(p.name)}</div><div class="row-detail">${esc(p.pos)} · ${esc(plans[0]?.title||'Practice')}</div></div>
-      <div class="row-right"><div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--or)">${['3:00 PM','4:30 PM'][i]}</div></div>
-    </div>`;
-  }).join('')||'<div style="padding:14px;text-align:center;color:var(--mu);font-size:13px">No sessions today</div>';
-
-  // recent players
-  const hp=document.getElementById('homePlayers');
-  hp.innerHTML=players.slice(0,3).map(p=>{
-    const color=safeColor(p.color);
-    return `
-    <div class="row-item" onclick="openPlayerDetail('${p.id}')">
-      <div class="row-av" style="background:${color}20;color:${color}">${esc(p.avatar)}</div>
-      <div class="row-info"><div class="row-name">${esc(p.name)}</div><div class="row-detail">${esc(p.pos)} · ${Number(p.sessions)||0} sessions · <span style="color:var(--or)">⚠ ${esc(getWeakLabel(p))}</span></div></div>
-      <div class="row-right" style="font-size:18px;color:var(--mu2)">›</div>
-    </div>`;
-  }).join('');
-
-  // recent captures
-  const hc=document.getElementById('homeCaptures');
-  const recent=captures.slice().sort((a,b)=>b.ts-a.ts).slice(0,3);
-  hc.innerHTML=recent.map(cap=>{
-    const p=players.find(x=>x.id===cap.playerId);
-    const typeBadge={note:'📝 Note',stat:'📊 Stat',drill:'🎯 Drill'}[cap.type];
-    const content=cap.type==='stat'?`${esc(cap.metric)}: <strong style="color:var(--grn)">${esc(cap.value)}${esc(cap.unit)}</strong>`:esc(cap.content||cap.title||'');
-    return`<div class="card" style="margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;color:var(--or)">${typeBadge}</span>
-        <span style="font-size:10px;color:var(--mu2)">${fmtTs(cap.ts)}</span>
-      </div>
-      ${p?`<div style="font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px">${esc(p.name)}</div>`:''}
-      <div style="font-size:13px;color:var(--tx);line-height:1.5">${content}</div>
-    </div>`;
-  }).join('')||'<div style="text-align:center;color:var(--mu);font-size:12px">No notes yet — tap + to add one</div>';
-}
+import {
+  registerTab, goTab, push, back, openModal, closeModal,
+  toggleFAB, closeFAB,
+} from './js/navigation.js';
+import { renderHome, updateSportUI } from './js/home.js';
+import {
+  obSelectSport, obSelectRole, obGoStep, obFinish, checkOnboarding,
+} from './js/onboarding.js';
 
 // ═══════════════════════════════════════════════════════
 //  PLAYERS
@@ -1334,71 +1222,6 @@ function newFocusWeek(){
 }
 
 // ═══════════════════════════════════════════════════════
-//  BLOCKER 1: ONBOARDING
-// ═══════════════════════════════════════════════════════
-
-function obSelectSport(s){
-  state.obSport = s;
-  document.querySelectorAll('#obStep1 .ob-card').forEach(c => c.classList.remove('sel'));
-  document.getElementById('obBasketball').classList.toggle('sel', s==='basketball');
-  document.getElementById('obFootball').classList.toggle('sel', s==='football');
-  const btn = document.getElementById('obStep1Next');
-  btn.style.opacity = '1'; btn.style.pointerEvents = 'auto';
-}
-
-function obSelectRole(r){
-  state.obRole = r;
-  ['Coach','Trainer','Player','Parent'].forEach(x =>
-    document.getElementById('obRole'+x)?.classList.remove('sel')
-  );
-  document.getElementById('obRole'+r.charAt(0).toUpperCase()+r.slice(1)).classList.add('sel');
-  const btn = document.getElementById('obStep2Next');
-  btn.style.opacity = '1'; btn.style.pointerEvents = 'auto';
-}
-
-function obGoStep(n){
-  document.querySelectorAll('.ob-step').forEach(s => s.classList.remove('act'));
-  document.getElementById('obStep'+n).classList.add('act');
-  // sync dot states
-  const isStep2 = n === 2;
-  ['obD1','obD1b'].forEach(id => { const el=document.getElementById(id); if(el) el.classList.toggle('act',!isStep2); });
-  ['obD2','obD2b'].forEach(id => { const el=document.getElementById(id); if(el) el.classList.toggle('act', isStep2); });
-}
-
-function obFinish(){
-  if(!state.obSport || !state.obRole) return;
-  DB.set('onboarding_complete', true);
-  DB.set('sport', state.obSport);
-  DB.set('user_sport', state.obSport);
-  DB.set('user_role', state.obRole);
-  state.SPORT = state.obSport;
-  // Fade out onboarding
-  const ob = document.getElementById('sOnboarding');
-  ob.style.transition = 'opacity .4s ease';
-  ob.style.opacity = '0';
-  setTimeout(() => ob.classList.add('hidden'), 420);
-  updateSportUI();
-  renderHome();
-}
-
-function checkOnboarding(){
-  // Always dismiss splash after 1.4s
-  const splash = document.getElementById('sSplash');
-  setTimeout(() => {
-    splash.style.opacity = '0';
-    setTimeout(() => { splash.style.display = 'none'; }, 520);
-  }, 1400);
-
-  if(DB.get('onboarding_complete')){
-    // Already onboarded — hide onboarding immediately after splash
-    setTimeout(() => {
-      document.getElementById('sOnboarding').classList.add('hidden');
-    }, 1450);
-  }
-  // else onboarding stays visible after splash fades
-}
-
-// ═══════════════════════════════════════════════════════
 //  BLOCKER 2: SESSION SUMMARY + SHARE
 // ═══════════════════════════════════════════════════════
 
@@ -1558,6 +1381,15 @@ function exportData(){
 
 // ═══════════════════════════════════════════════════════
 //  INIT — ORIGINAL
+
+
+// ── Wire tab renderers into the navigation registry ──
+registerTab('tHome', renderHome);
+registerTab('tPlayers', renderPlayers);
+registerTab('tDrills', renderDrillLinks);
+registerTab('tFocus', renderFocus);
+registerTab('tDepth', renderDepthChart);
+registerTab('tAI', renderAI);
 
 initDB();
 checkOnboarding();
