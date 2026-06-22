@@ -6,14 +6,9 @@ the app stable.
 
 ## How to run
 
-1. Open `src/index.html` in Chrome (drag-and-drop, or `file://`).
-   **Important:** because the app uses native ES modules
-   (`<script type="module">`), some browsers block module loading
-   from `file://`. If you see CORS errors in DevTools, serve the
-   `src/` directory via a tiny local server, e.g.:
+1. Start the Vite development server, then open its URL in Chrome:
    ```
-   cd src && python -m http.server 8000
-   # then open http://localhost:8000/
+   npm run dev -w @courtflow/mobile
    ```
 2. Open DevTools → Console. The page should load with **zero**
    `console.error`. Warnings are OK; errors are not.

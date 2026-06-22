@@ -1,0 +1,14 @@
+{
+  "name": "courtflow",
+  "private": true,
+  "version": "0.2.0",
+  "workspaces": [
+    "apps/mobile",
+    "apps/portal"
+  ],
+  "scripts": {
+    "build": "npm run build -w @courtflow/mobile && npm run build -w @courtflow/portal && node tools/compose-web.mjs",
+    "check": "node tools/check-frontend.mjs",
+    "test": "npm run check && python -m pytest backend/tests"
+  }
+}

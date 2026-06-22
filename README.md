@@ -1,28 +1,39 @@
 # CourtFlow
 
-CourtFlow is a mobile-first coaching app for tracking athletes, session notes, drill links, weekly focus items, and player development.
+CourtFlow is a multi-tenant coaching platform with a mobile coaching app, a
+separate organization portal, and an authenticated FastAPI/Supabase backend.
 
-## App Store Direction
-
-This repo is set up as the clean home for the CourtFlow app. The current priority is to harden the single-page prototype before native packaging:
-
-1. Fix data persistence and app-state bugs.
-2. Remove direct client-side LLM calls.
-3. Escape or safely render all user-controlled values.
-4. Validate external drill URLs.
-5. Prepare the app for Capacitor iOS packaging.
-
-## Structure
+## Repository layout
 
 ```text
-src/
-  index.html      Current mobile web app shell
-backend/
-  README.md       AI/backend proxy boundary notes
-docs/
-  app-store.md    App Store readiness checklist
+apps/mobile/            Existing mobile UI, Vite build, Capacitor config
+apps/portal/            Miller organization administration surface
+backend/                FastAPI API and tests
+supabase/migrations/    Multi-tenant schema, RLS, storage, transaction RPC
+supabase/seed/          Optional organization-scoped development seed
+docs/                   Smoke tests and product/deployment notes
+render.yaml             Backend deployment blueprint
+netlify.toml            Combined mobile + /portal web deployment
 ```
 
-## Local Use
+## Local development
 
-For now, open `src/index.html` directly in a browser. After the prototype is added and hardened, this repo can add a lightweight build step and Capacitor.
+```bash
+npm install
+npm run dev -w @courtflow/mobile
+npm run dev -w @courtflow/portal
+
+python -m pip install -r backend/requirements-dev.txt
+uvicorn backend.app.main:app --reload
+```
+
+## Verification
+
+```bash
+npm test
+npm run build
+```
+
+The deployed web bundle serves the mobile application at `/` and the Miller
+Portal at `/portal/`. AI and cloud sync remain disabled until authenticated
+Supabase and provider configuration are supplied server-side.

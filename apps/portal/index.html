@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#071013">
+  <title>Miller Program Admin | CourtFlow</title>
+  <link rel="stylesheet" href="./src/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Primary navigation">
+      <div class="brand-block">
+        <div class="brand-mark" aria-hidden="true">CF</div>
+        <div>
+          <div class="brand-name">COURTFLOW</div>
+          <div class="brand-sub">PROGRAM ADMIN</div>
+        </div>
+      </div>
+
+      <div class="org-block">
+        <span class="eyebrow">ORGANIZATION</span>
+        <strong id="sidebarOrgName">Milford Mill High School</strong>
+        <span id="sidebarSeason">2026-27 season</span>
+      </div>
+
+      <nav class="nav-list">
+        <button class="nav-item active" data-view="overview"><span class="nav-icon">⌂</span>Overview</button>
+        <button class="nav-item" data-view="programs"><span class="nav-icon">▦</span>Programs</button>
+        <button class="nav-item" data-view="roster"><span class="nav-icon">◎</span>Rosters</button>
+        <button class="nav-item" data-view="games"><span class="nav-icon">◇</span>Games</button>
+        <button class="nav-item" data-view="uploads"><span class="nav-icon">⇧</span>Box Scores</button>
+        <button class="nav-item" data-view="development"><span class="nav-icon">↗</span>Development</button>
+        <button class="nav-item" data-view="settings"><span class="nav-icon">⚙</span>Settings</button>
+      </nav>
+
+      <div class="sidebar-foot">
+        <span class="status-dot"></span>
+        <div><strong>Local workspace</strong><span>Saved in this browser</span></div>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <div>
+          <span class="eyebrow" id="pageEyebrow">PROGRAM CONTROL</span>
+          <h1 id="pageTitle">Overview</h1>
+        </div>
+        <div class="topbar-actions">
+          <label class="team-context">
+            <span>TEAM CONTEXT</span>
+            <select id="globalTeamSelect" aria-label="Select team context"></select>
+          </label>
+          <button class="icon-button" id="exportQuickBtn" type="button" title="Export workspace" aria-label="Export workspace">↓</button>
+          <button class="primary-button" id="primaryActionBtn" type="button"><span>＋</span>Add athlete</button>
+        </div>
+      </header>
+
+      <main id="view" tabindex="-1"></main>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <header class="modal-header">
+        <div>
+          <span class="eyebrow" id="modalEyebrow">COURTFLOW</span>
+          <h2 id="modalTitle">Add athlete</h2>
+        </div>
+        <button class="icon-button" id="closeModalBtn" type="button" aria-label="Close">×</button>
+      </header>
+      <form id="modalForm" class="modal-body"></form>
+    </section>
+  </div>
+
+  <input type="file" id="jsonImportInput" accept="application/json,.json" hidden>
+  <input type="file" id="boxscoreInput" accept="image/png,image/jpeg,image/webp" multiple hidden>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>
