@@ -179,6 +179,10 @@
         <div class="qa-ico">▶</div>
         <div class="qa-info"><div class="qa-name">Start Session</div><div class="qa-desc">Begin a live practice session</div></div>
       </div>
+      <div class="qa" onclick="openWorkouts()">
+        <div class="qa-ico">🏋️</div>
+        <div class="qa-info"><div class="qa-name">Workouts</div><div class="qa-desc">Run a tracked block workout</div></div>
+      </div>
       <div class="qa" onclick="goTab('tFocus')">
         <div class="qa-ico">🎯</div>
         <div class="qa-info"><div class="qa-name">Weekly Focus</div><div class="qa-desc">Player goals &amp; this week's plan</div></div>
@@ -336,6 +340,37 @@
   </div>
 </div>
 
+<!-- WORKOUT LIBRARY SCREEN -->
+<div class="screen" id="sWorkouts">
+  <div class="nav">
+    <button class="nav-back" onclick="back('tHome')">←</button>
+    <div class="nav-info"><div class="nav-title">Workouts</div><div class="nav-sub">Block-by-block, rep-tracked</div></div>
+  </div>
+  <div class="sb p">
+    <div id="workoutList"></div>
+  </div>
+</div>
+
+<!-- WORKOUT DETAIL SCREEN -->
+<div class="screen" id="sWorkoutDetail">
+  <div class="nav">
+    <button class="nav-back" onclick="back('tHome')">←</button>
+    <div class="nav-info"><div class="nav-title" id="wdTitle">Workout</div><div class="nav-sub" id="wdSub">—</div></div>
+    <button class="nav-cta" id="wdStartBtn" onclick="startOpenWorkout()">▶ Track</button>
+  </div>
+  <div class="sb p">
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-size:13px;color:var(--tx);line-height:1.55" id="wdSummary"></div>
+    </div>
+    <div class="sec">What I'm Watching</div>
+    <div class="wo-watch" id="wdWatch"></div>
+    <div class="sec">Blocks</div>
+    <div id="wdBlocks"></div>
+    <button class="btn o" onclick="startOpenWorkout()">▶ Start Tracking</button>
+    <div style="height:70px"></div>
+  </div>
+</div>
+
 <!-- SESSION SCREEN -->
 <div class="screen" id="sSession">
   <div class="nav">
@@ -343,21 +378,27 @@
     <div class="nav-info"><div class="nav-title" id="sessPlayerName">Session</div><div class="nav-sub" id="sessPlanName">—</div></div>
     <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:var(--or)" id="sessElapsed">0:00</div>
   </div>
+  <div class="sess-prog">
+    <div class="sess-prog-track"><div class="sess-prog-fill" id="saProgFill"></div></div>
+    <div class="sess-prog-lbl" id="saProgLbl">0/0</div>
+  </div>
   <div class="sess-body">
+    <div class="sess-block" id="saBlock" style="display:none"></div>
     <div class="sess-drill-num" id="saDrillNum">Drill 1 of 5</div>
     <div class="sess-drill-name" id="saDrillName">—</div>
     <div class="sess-tip" id="saTip">—</div>
+    <div class="sess-target" id="saTarget" style="display:none"></div>
     <div class="sess-timer" id="saTimer">0:00</div>
-    <div class="sess-ctrs">
+    <div class="sess-ctrs" id="saCtrs">
       <div class="sess-ctr">
         <div class="sess-ctr-v" id="saMakes">0</div>
-        <div class="sess-ctr-l">Makes</div>
+        <div class="sess-ctr-l" id="saMakesLbl">Makes</div>
         <div class="sess-ctr-btns">
           <button class="scss-btn" onclick="adj('makes',-1)">−</button>
           <button class="scss-btn plus" onclick="adj('makes',1)">+</button>
         </div>
       </div>
-      <div class="sess-ctr">
+      <div class="sess-ctr" id="saAttsCtr">
         <div class="sess-ctr-v" id="saAtts">0</div>
         <div class="sess-ctr-l">Attempts</div>
         <div class="sess-ctr-btns">
@@ -386,8 +427,10 @@
   <div class="ss-stats-row">
     <div class="ss-stat"><div class="ss-stat-v" id="ssStatDur">0</div><div class="ss-stat-l">MINUTES</div></div>
     <div class="ss-stat"><div class="ss-stat-v" id="ssStatDrills">0</div><div class="ss-stat-l">DRILLS</div></div>
+    <div class="ss-stat"><div class="ss-stat-v" id="ssStatShots">0</div><div class="ss-stat-l" id="ssStatShotsL">REPS</div></div>
     <div class="ss-stat"><div class="ss-stat-v" id="ssStatNotes">0</div><div class="ss-stat-l">NOTES</div></div>
   </div>
+  <div class="ss-targets" id="ssTargets" style="display:none"></div>
   <div style="flex:1;overflow-y:auto;padding:0 16px 16px">
     <div class="sec" style="margin-top:4px">Session Notes</div>
     <div id="ssSessNotes"></div>

@@ -151,7 +151,7 @@ export function renderPlayerTimeline(p, filter = 'all'){
     ...s,
     evType: 'session',
     content: s.notes || 'Session completed',
-    title: getPlans().find(pl => pl.id === s.planId)?.title || 'Session',
+    title: s.title || getPlans().find(pl => pl.id === s.planId)?.title || 'Session',
   }));
   drillLinks.forEach(d => events.push({ ...d, evType: 'drill', content: d.notes || d.title, playerId: p.id }));
 
@@ -348,12 +348,17 @@ export function renderPlayerSessions(p){
   el.innerHTML = sessions.map(s => {
     const plan = getPlans().find(pl => pl.id === s.planId);
     const mins = Math.floor((s.duration || 0) / 60);
+    // Shooting totals across the tracked drills, when any were logged.
+    const shots = (s.results || []).reduce((t, r) => {
+      if (r.track !== 'reps' && r.track !== 'time') { t.makes += r.makes || 0; t.atts += r.atts || 0; }
+      return t;
+    }, { makes: 0, atts: 0 });
     return `<div class="card" style="margin-bottom:9px">
       <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--wh)">${esc(plan?.title||'Open Session')}</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--wh)">${esc(s.title||plan?.title||'Open Session')}</div>
         <span class="pill m">${fmtTs(s.date||s.ts||Date.now())}</span>
       </div>
-      <div style="font-size:11px;color:var(--mu);margin-bottom:5px">⏱ ${mins} min · ${s.results?.length||0} drills tracked</div>
+      <div style="font-size:11px;color:var(--mu);margin-bottom:5px">⏱ ${mins} min · ${s.results?.length||0} drills tracked${shots.atts?` · ${shots.makes}/${shots.atts} (${Math.round(shots.makes/shots.atts*100)}%)`:''}</div>
       ${s.notes?`<div style="font-size:12px;color:var(--tx);line-height:1.5">${esc(s.notes)}</div>`:''}
     </div>`;
   }).join('');

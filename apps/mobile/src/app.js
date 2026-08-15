@@ -54,6 +54,9 @@ import {
   endSession, shareSessionSummary, closeSessionSummary,
 } from './js/session.js';
 import {
+  openWorkouts, openWorkoutDetail, startOpenWorkout,
+} from './js/workouts.js';
+import {
   setDepthPhase, renderDepthChart,
   openDepthAssign, assignDepthSlot, removeDepthSlot, clearDepthChart,
 } from './js/depth-chart.js';
@@ -144,6 +147,8 @@ Object.assign(window, {
   // session
   openSessionPicker, startSession, prevDrill, nextDrill, endSession,
   adj, shareSessionSummary, closeSessionSummary,
+  // workouts
+  openWorkouts, openWorkoutDetail, startOpenWorkout,
   // depth chart
   setDepthPhase, openDepthAssign, assignDepthSlot, removeDepthSlot,
   clearDepthChart,
