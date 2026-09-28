@@ -1,0 +1,576 @@
+<meta charset="utf-8">
+<title>Millers Playbook</title>
+<meta name="description" content="Milford Mill girls basketball 26-27 playbook, organized by game situation and position.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+:root{
+  --bg:#F3F4EF; --surface:#FFFFFF; --surface-2:#E9ECE5; --ink:#111713; --ink-2:#48524B; --ink-3:#6E786F;
+  --line:#D6DBD2; --green:#0E6B45; --green-ink:#0A5536; --pine:#0A2E20; --on-green:#FFFFFF;
+  --wood:#C98B4A; --wood-soft:#F3E3CF; --court:#E7C79A; --court-line:#FFFFFF; --warn:#9A5B00; --warn-bg:#FBEBD2;
+  --shadow:0 1px 2px rgba(10,46,32,.08),0 6px 20px rgba(10,46,32,.06);
+  --display:"Anton","Oswald","Impact","Arial Narrow",sans-serif;
+  --body:"Barlow","Helvetica Neue",Arial,sans-serif;
+  --label:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0B120E; --surface:#121C16; --surface-2:#1A261F; --ink:#E8EEE9; --ink-2:#B3BFB6; --ink-3:#86938A;
+  --line:#26352C; --green:#2FA46C; --green-ink:#5CCB94; --pine:#07170F; --on-green:#04140C;
+  --wood:#D9A06A; --wood-soft:#3A2A1A; --court:#5A4430; --court-line:#E9DCC8; --warn:#F2B45C; --warn-bg:#3A2A12;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25); color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#0B120E; --surface:#121C16; --surface-2:#1A261F; --ink:#E8EEE9; --ink-2:#B3BFB6; --ink-3:#86938A;
+  --line:#26352C; --green:#2FA46C; --green-ink:#5CCB94; --pine:#07170F; --on-green:#04140C;
+  --wood:#D9A06A; --wood-soft:#3A2A1A; --court:#5A4430; --court-line:#E9DCC8; --warn:#F2B45C; --warn-bg:#3A2A12;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25); color-scheme:dark;}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+.chrome{position:sticky;top:env(safe-area-inset-top,0px);z-index:20}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--body);margin:0}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--wood);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1100px;margin:0 auto;padding-inline:16px}
+
+/* top bar */
+.top{background:var(--pine);color:#fff}
+.top .wrap{display:flex;align-items:center;gap:14px;padding-block:10px}
+.mark{display:flex;align-items:baseline;gap:10px;min-width:0}
+.mark b{font:400 26px/1 var(--display);letter-spacing:.02em;text-transform:uppercase;white-space:nowrap}
+.mark span{font:600 13px/1 var(--label);letter-spacing:.12em;text-transform:uppercase;color:#9FD6B9;white-space:nowrap}
+.search{margin-left:auto;flex:0 1 260px;min-width:0}
+.search input{width:100%;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:8px 14px;font:500 15px var(--body)}
+.search input::placeholder{color:rgba(255,255,255,.6)}
+.tabs{background:var(--pine);border-top:1px solid rgba(255,255,255,.08)}
+.tabs .wrap{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.tab{background:none;border:0;color:rgba(255,255,255,.7);font:600 15px/1 var(--label);letter-spacing:.1em;text-transform:uppercase;padding:12px 12px 11px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:#fff;border-bottom-color:var(--wood)}
+
+/* position rail */
+.posbar{background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.posbar .wrap{display:flex;align-items:center;gap:8px;padding-block:8px;overflow-x:auto;scrollbar-width:none}
+.posbar small{font:600 12px var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);white-space:nowrap;margin-right:2px}
+.pchip{flex:none;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font:700 15px/1 var(--label);letter-spacing:.04em;cursor:pointer;display:flex;gap:6px;align-items:center}
+.pchip i{font-style:normal;font-weight:500;color:var(--ink-3)}
+.pchip[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--on-green)}
+.pchip[aria-pressed="true"] i{color:inherit;opacity:.8}
+
+main{padding-block:22px 60px}
+.view[hidden]{display:none}
+.kicker{font:700 13px/1 var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--green-ink)}
+h1,h2,h3{text-wrap:balance;margin:0}
+h1{font:400 clamp(34px,6vw,54px)/1 var(--display);text-transform:uppercase;letter-spacing:.01em}
+h2{font:400 30px/1.05 var(--display);text-transform:uppercase;letter-spacing:.01em}
+h3{font:700 20px/1.2 var(--body)}
+p{margin:0}
+.lead{color:var(--ink-2);max-width:62ch}
+
+/* situation grid */
+.intro{display:grid;gap:10px;margin-bottom:22px}
+.readfirst{display:flex;gap:12px;align-items:flex-start;background:var(--wood-soft);border:1px solid color-mix(in srgb,var(--wood) 45%,transparent);border-radius:12px;padding:12px 14px;max-width:760px}
+.readfirst b{font:400 22px/1 var(--display);color:var(--wood);text-transform:uppercase;flex:none;padding-top:2px}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.stile{display:grid;gap:6px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:14px 14px 13px;cursor:pointer;box-shadow:var(--shadow)}
+.stile:hover{border-color:var(--green)}
+.stile .phase{font:700 12px/1 var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.stile .name{font:400 23px/1.05 var(--display);text-transform:uppercase}
+.stile .calls{font:600 15px/1.35 var(--label);letter-spacing:.02em;color:var(--green-ink)}
+
+/* situation section */
+.sit{scroll-margin-top:150px;padding-top:34px;margin-top:10px;border-top:2px solid var(--ink)}
+.sit-head{display:grid;gap:8px;margin-bottom:16px}
+.sit-head .row{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.rules{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.rule{background:var(--surface-2);border-radius:8px;padding:6px 10px;font:600 15px/1.3 var(--label);letter-spacing:.02em}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.card{display:flex;flex-direction:column;border:1px solid var(--line);background:var(--surface);border-radius:14px;overflow:hidden;cursor:pointer;text-align:left;padding:0;box-shadow:var(--shadow)}
+.card:hover{border-color:var(--green)}
+.thumb{aspect-ratio:16/9;max-width:100%;background:var(--court);display:grid;place-items:center;overflow:hidden;border-bottom:1px solid var(--line)}
+.thumb img{width:100%;height:100%;object-fit:contain;background:#fff}
+.thumb svg{width:100%;height:100%}
+.cbody{display:grid;gap:8px;padding:12px 14px 14px}
+.ctop{display:flex;align-items:baseline;gap:8px;justify-content:space-between}
+.ctop h3{font:400 24px/1 var(--display);text-transform:uppercase;letter-spacing:.01em}
+.tag{font:700 12px/1 var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);white-space:nowrap}
+.cbody ol{margin:0;padding-left:20px;color:var(--ink-2);font-size:15px;display:grid;gap:2px}
+.job{display:none;border-radius:10px;background:color-mix(in srgb,var(--green) 12%,var(--surface));padding:8px 10px;font-size:15px}
+.job b{display:block;font:700 12px/1.2 var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--green-ink);margin-bottom:2px}
+body.haspos .job{display:block}
+body.haspos .cbody ol{display:none}
+.flag{display:inline-flex;gap:6px;align-items:center;font:700 12px/1 var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--warn);background:var(--warn-bg);border-radius:6px;padding:4px 7px;width:max-content}
+.watchhint{font:600 13px/1 var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+
+/* positions */
+.posgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-top:18px}
+.pcard{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:16px;display:grid;gap:12px;box-shadow:var(--shadow)}
+.pcard .num{font:400 56px/.85 var(--display);color:var(--green)}
+.pcard header{display:flex;gap:14px;align-items:flex-end}
+.pcard header div{display:grid;gap:2px}
+.who{display:flex;flex-wrap:wrap;gap:6px}
+.who span{background:var(--surface-2);border-radius:999px;padding:3px 10px;font:600 15px var(--label)}
+.focus{margin:0;padding-left:18px;display:grid;gap:3px}
+.minihead{font:700 12px/1 var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.cue{display:grid;gap:8px}
+.cue div{border-left:3px solid var(--wood);padding-left:10px}
+.cue b{font-weight:700}
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;background:var(--green);color:var(--on-green);font:700 15px/1 var(--label);letter-spacing:.08em;text-transform:uppercase;padding:10px 16px;cursor:pointer;width:max-content}
+.btn.ghost{background:var(--surface-2);color:var(--ink)}
+
+/* game day */
+.gd{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-top:18px}
+.panel{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:16px;display:grid;gap:10px;align-content:start}
+.big3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.big3 div{background:var(--pine);color:#fff;border-radius:10px;padding:12px 10px;font:400 22px/1 var(--display);text-transform:uppercase;text-align:center}
+.lanes{display:grid;gap:8px}
+.lanes div{display:grid;grid-template-columns:92px 1fr;gap:10px;align-items:start}
+.lanes b{font:700 14px/1.3 var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--green-ink)}
+.court svg{width:100%;height:auto;max-width:100%;display:block;border-radius:10px}
+
+/* all plays index */
+.index{display:grid;gap:18px;margin-top:18px}
+.index section{display:grid;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 12px;font:600 16px/1 var(--label);letter-spacing:.03em;cursor:pointer}
+.chip:hover{border-color:var(--green)}
+.empty{color:var(--ink-3);padding:30px 0}
+
+/* sheet */
+dialog{border:0;padding:0;background:var(--surface);color:var(--ink);width:min(980px,100vw);max-width:100vw;max-height:100dvh;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(5,20,13,.6)}
+@media (max-width:640px){dialog{border-radius:0;width:100vw;height:100dvh;margin:0}}
+.sheet{display:grid;gap:14px;padding:16px 16px 24px;padding-top:calc(16px + env(safe-area-inset-top,0px))}
+.sheet-top{display:flex;align-items:flex-start;gap:12px}
+.sheet-top h2{font-size:clamp(30px,5vw,42px)}
+.close{margin-left:auto;flex:none;border:0;background:var(--surface-2);border-radius:999px;width:40px;height:40px;font:700 22px/1 var(--body);cursor:pointer}
+.media{display:grid;gap:10px}
+.media img,.media video{width:100%;max-width:100%;border-radius:10px;background:#000;display:block}
+.media img{background:#fff;border:1px solid var(--line)}
+.media video{aspect-ratio:16/9;max-height:56vh}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.cols{display:grid;gap:16px;grid-template-columns:1fr}
+@media (min-width:760px){.cols{grid-template-columns:1.1fr 1fr}}
+.steps{margin:0;padding-left:22px;display:grid;gap:6px}
+.roles{display:grid;gap:6px}
+.role{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:start;border-radius:10px;padding:8px;background:var(--surface-2)}
+.role .n{font:400 26px/1 var(--display);color:var(--green);text-align:center}
+.role.me{background:color-mix(in srgb,var(--green) 18%,var(--surface));outline:2px solid var(--green)}
+.role small{display:block;font:600 13px/1.2 var(--label);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.note{background:var(--wood-soft);border-radius:10px;padding:10px 12px}
+footer{color:var(--ink-3);font-size:14px;padding-block:24px 40px;border-top:1px solid var(--line)}
+@media (max-width:560px){
+  .mark span{display:none}.mark b{font-size:22px}.search{flex-basis:150px}
+  .top .wrap{padding-block:8px}.tab{padding:10px 10px 9px;font-size:14px}.posbar .wrap{padding-block:6px}
+  h2{font-size:26px}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+
+<div class="chrome">
+<header class="top">
+  <div class="wrap">
+    <div class="mark"><b>Millers Playbook</b><span>Milford Mill · 26-27</span></div>
+    <label class="search"><span hidden>Search plays</span><input id="q" type="search" placeholder="Find a play" autocomplete="off"></label>
+  </div>
+</header>
+<nav class="tabs" aria-label="Sections">
+  <div class="wrap" role="tablist">
+    <button class="tab" role="tab" data-view="situations" aria-selected="true">Situations</button>
+    <button class="tab" role="tab" data-view="positions" aria-selected="false">Positions</button>
+    <button class="tab" role="tab" data-view="gameday" aria-selected="false">Game day</button>
+    <button class="tab" role="tab" data-view="all" aria-selected="false">All plays</button>
+  </div>
+</nav>
+<div class="posbar" aria-label="Show plays for one position">
+  <div class="wrap" id="posbar"></div>
+</div>
+</div>
+
+<main class="wrap">
+  <section class="view" id="view-situations">
+    <div class="intro">
+      <p class="kicker">What's happening on the floor?</p>
+      <h1>Call it by situation</h1>
+      <div class="readfirst"><b>1st</b><p>Read the defense before you call anything: man or zone, then which zone. Then pick the call from that list. Tap your number above to see only your job in every play.</p></div>
+    </div>
+    <div class="sgrid" id="sgrid"></div>
+    <div id="sits"></div>
+  </section>
+
+  <section class="view" id="view-positions" hidden>
+    <p class="kicker">Know your spot</p>
+    <h1>Positions 1 through 5</h1>
+    <p class="lead" style="margin-top:8px">Default slotting by position group. Coach sets the lineup each game, and most of you will play more than one spot, so learn the jobs next to yours too.</p>
+    <div class="posgrid" id="posgrid"></div>
+  </section>
+
+  <section class="view" id="view-gameday" hidden>
+    <p class="kicker">Before tip</p>
+    <h1>Game day</h1>
+    <div class="gd" id="gd"></div>
+  </section>
+
+  <section class="view" id="view-all" hidden>
+    <p class="kicker">Every call in the book</p>
+    <h1>All plays</h1>
+    <div class="index" id="index"></div>
+  </section>
+
+  <footer>Milford Mill girls basketball · 26-27 playbook. Diagrams and clips come from the staff playbook videos. Team use only.</footer>
+</main>
+
+<dialog id="sheet" aria-labelledby="sheetTitle"><div class="sheet" id="sheetBody"></div></dialog>
+
+<script>
+const POS = {
+  1:{name:"Point guard",group:"guards",who:["Karisma","Courtney"]},
+  2:{name:"Shooting guard",group:"guards",who:["Carter","Haylee","Courtney"]},
+  3:{name:"Wing",group:"wings",who:["Mackynzie","Asia","Jazelle"]},
+  4:{name:"Forward",group:"wings",who:["Chanel","Jazelle"]},
+  5:{name:"Post",group:"bigs",who:["Janel","Ming","Maeva"]}
+};
+const GROUPS = {
+  guards:{title:"Guard group",focus:["Play off two","We want paint touches and stops","Pass and move","Sprint: get out in your lane and pass ahead. If you pass ahead, pick a side: sprint through to the opposite corner or come back ball side"]},
+  wings:{title:"Wing / forward group",focus:["Be physical","Score and run the floor","Rebound","Sprint: take the ball out and trail the play"]},
+  bigs:{title:"Big pool",focus:["Talk. Be loud, physical, confident","No layups. Block a shot","Rebound and outlet the ball","Sprint: run your lane","Set good, big screens. Screen away","Get post touches","Guards are searching for you. Be the difference"]}
+};
+const CUES = {
+  1:[["Karisma","Get everyone aligned and set up. Find the mismatch and call it in the huddle. Chanel or Janel with a mismatch: post it up or run the ball screen."],["Courtney","Don't look over your shoulder. You put the work in all spring and summer. Play with confidence."]],
+  2:[["Carter","Make your mind up on your moves and get busy. Balance, footwork, pace. Get to the paint and finish through contact."],["Haylee","Be ready to shoot. Search for your mid-range, get two feet in the paint, use your speed."]],
+  3:[["Mackynzie","Be a dog on offense. Get your buckets. You have the advantage every time you step on the floor."],["Asia","Be patient, be smart. In the zone, drop when the ball swings to the opposite wing."],["Jazelle","Just react, we trust you. Active hands on the offensive glass."]],
+  4:[["Chanel","Just play free. First to pick up the ball in transition D. Attack right: finish, kick to Carter, or dump to Janel."],["Jazelle","Just react, we trust you. Active hands on the offensive glass."]],
+  5:[["Janel","Catch the ball ready to score. Rim run hard for the dump-off."],["Ming","You'll get found. Catch it and finish."],["Maeva","Catch, rebound, active hands. Second-chance points."]]
+};
+
+const SITS = [
+ {id:"man",phase:"Half court",name:"They're in man",rules:["4 out, 1 in","Two feet in the paint","Mismatch on Chanel or Janel: post it or ball screen it"]},
+ {id:"zone23",phase:"Half court",name:"They're in a 2-3 zone",rules:["Top gap, no free drives","Flash the high post","Ball moves faster than the zone"]},
+ {id:"zone32",phase:"Half court",name:"They're in a 3-2 zone",rules:["Overload one side","Reverse it and repeat"]},
+ {id:"bloman",phase:"Out of bounds",name:"Baseline OB vs man",rules:["Inbounder is a threat after the pass","Set it up, sell the first cut"]},
+ {id:"blozone",phase:"Out of bounds",name:"Baseline OB vs zone",rules:["Screen the zone's inside players","Shooter steps to the open spot"]},
+ {id:"sideline",phase:"Out of bounds",name:"Sideline OB",rules:["Stack it","“Sideline” + a name: that player posts ballside"]},
+ {id:"pressed",phase:"Full court",name:"They press us",rules:["Get it middle","Don't dribble if you don't have to","Got it middle? Look opposite"]},
+ {id:"wepress",phase:"Full court",name:"We press",rules:["Shade to the sideline","Trap after half court","Back row stays ballside"]},
+ {id:"transition",phase:"Full court",name:"Transition",rules:["Run the floor, get to your spots","If you have something, try your hand"]},
+ {id:"defense",phase:"Half court",name:"Our half-court D",rules:["No free drives","Help and get back"]}
+];
+
+/* court drawing */
+function court(players,paths,{w=300,h=250}={}){
+  const lines=`<rect x="1" y="1" width="298" height="248" rx="6" fill="var(--court)" stroke="var(--court-line)" stroke-width="2"/>
+  <rect x="100" y="1" width="100" height="112" fill="none" stroke="var(--court-line)" stroke-width="2"/>
+  <circle cx="150" cy="113" r="30" fill="none" stroke="var(--court-line)" stroke-width="2"/>
+  <path d="M22 1 V56 A128 128 0 0 0 278 56 V1" fill="none" stroke="var(--court-line)" stroke-width="2"/>
+  <circle cx="150" cy="30" r="7" fill="none" stroke="var(--wood)" stroke-width="2.5"/><line x1="132" y1="20" x2="168" y2="20" stroke="var(--court-line)" stroke-width="3"/>`;
+  const p=(paths||[]).map(d=>`<path d="${d[0]}" fill="none" stroke="var(--pine)" stroke-width="2.5" ${d[1]==='dash'?'stroke-dasharray="6 5"':''} ${d[1]==='zig'?'':''} marker-end="url(#ah)"/>`).join('');
+  const pl=players.map(([n,x,y])=>`<g><circle cx="${x}" cy="${y}" r="12" fill="var(--green)" stroke="var(--court-line)" stroke-width="2"/><text x="${x}" y="${y+5}" text-anchor="middle" font-family="Barlow Condensed,Arial" font-weight="700" font-size="15" fill="var(--on-green)">${n}</text></g>`).join('');
+  return `<svg viewBox="0 0 300 250" role="img" aria-label="Court diagram"><defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 9 5 1 9z" fill="var(--pine)"/></marker></defs>${lines}${p}${pl}</svg>`;
+}
+function fullcourt(){
+  return `<svg viewBox="0 0 470 250" role="img" aria-label="Sprint lanes">
+  <defs><marker id="ah2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 9 5 1 9z" fill="var(--pine)"/></marker></defs>
+  <rect x="1" y="1" width="468" height="248" rx="8" fill="var(--court)" stroke="var(--court-line)" stroke-width="2"/>
+  <line x1="235" y1="1" x2="235" y2="249" stroke="var(--court-line)" stroke-width="2"/><circle cx="235" cy="125" r="28" fill="none" stroke="var(--court-line)" stroke-width="2"/>
+  <rect x="1" y="85" width="90" height="80" fill="none" stroke="var(--court-line)" stroke-width="2"/><rect x="379" y="85" width="90" height="80" fill="none" stroke="var(--court-line)" stroke-width="2"/>
+  <path d="M1 22 H40 A110 110 0 0 1 40 228 H1" fill="none" stroke="var(--court-line)" stroke-width="2"/><path d="M469 22 H430 A110 110 0 0 0 430 228 H469" fill="none" stroke="var(--court-line)" stroke-width="2"/>
+  <circle cx="22" cy="125" r="6" fill="none" stroke="var(--wood)" stroke-width="2.5"/><circle cx="448" cy="125" r="6" fill="none" stroke="var(--wood)" stroke-width="2.5"/>
+  <g fill="none" stroke="var(--pine)" stroke-width="2.5">
+   <path d="M44 118 Q70 70 104 52" stroke-dasharray="6 5" marker-end="url(#ah2)"/>
+   <path d="M118 44 H300" marker-end="url(#ah2)"/>
+   <path d="M126 58 L330 120" stroke-dasharray="6 5" marker-end="url(#ah2)"/>
+   <path d="M60 212 H420" marker-end="url(#ah2)"/>
+   <path d="M312 44 Q380 44 430 22" marker-end="url(#ah2)"/>
+   <path d="M44 132 Q200 160 420 138" marker-end="url(#ah2)"/>
+   <path d="M60 170 Q120 178 180 176" marker-end="url(#ah2)"/>
+  </g>
+  ${[["5",32,125],["1",112,48],["2",312,44],["3",46,212],["4",46,168]].map(([n,x,y])=>`<g><circle cx="${x}" cy="${y}" r="12" fill="var(--green)" stroke="var(--court-line)" stroke-width="2"/><text x="${x}" y="${y+5}" text-anchor="middle" font-family="Barlow Condensed,Arial" font-weight="700" font-size="15" fill="var(--on-green)">${n}</text></g>`).join('')}
+  <text x="236" y="243" text-anchor="middle" font-family="Barlow Condensed,Arial" font-weight="600" font-size="13" fill="var(--pine)">Rebound → outlet → pass ahead. Bigs run the middle to the rim.</text>
+  </svg>`;
+}
+const SVG = {
+  horns: ()=>court([["1",150,215],["4",100,120],["5",200,120],["2",20,20],["3",280,20]],[["M150 203 Q170 160 196 132"],["M200 132 Q185 90 158 44"],["M100 132 Q110 170 120 190","dash"]]),
+  fourout: ()=>court([["1",150,218],["2",262,150],["3",38,150],["4",280,40],["5",112,52]],[["M150 206 L150 90"],["M112 64 Q140 80 146 96","dash"]]),
+  triangle: ()=>court([["1",150,215],["2",50,150],["4",150,130],["5",86,40],["3",250,150]],[["M140 212 L62 158"],["M150 204 Q220 190 262 60","dash"],["M150 118 L150 100"],["M238 150 Q200 130 176 120"]]),
+};
+
+/* plays */
+const V = {man:"video/man.mp4",z23:"video/zone23.mp4",z32:"video/zone32.mp4",bm:"video/bloman.mp4",bz:"video/blozone.mp4",sl:"video/sideline.mp4",pb:"video/pressbreak.mp4",pr:"video/press.mp4"};
+const PLAYS = [
+ // vs man
+ {id:"philly",name:"Philly",sit:"man",kind:"Set",img:"img/philly.jpg",vid:V.man,t:6,
+  steps:["At the same time: 2 cuts baseline to the opposite corner, 3 makes an Iverson cut to the opposite wing.","PG passes to 3 and cuts to the basket.","4 and 5 set an elevator screen. PG comes up the elevator.","Not open: PG and 5 set a staggered screen for 2 in the corner. 5 slips, PG pops.","Meanwhile, 4 sets a ball screen for 3, driving to the baseline."],
+  roles:{1:"Hit 3 on the Iverson cut, cut to the rim, come up through the 4-5 elevator. Not open: stagger for 2 with 5, then pop.",2:"Cut baseline to the opposite corner. Come off the PG and 5 stagger ready to shoot.",3:"Iverson cut to the opposite wing and catch. Use 4's ball screen to the baseline.",4:"Elevator screen with 5 for the PG. Then ball screen for 3 toward the baseline.",5:"Elevator screen with 4. Then stagger for 2 and slip to the rim."}},
+ {id:"philly4",name:"Philly 4",sit:"man",kind:"Set",img:"img/philly4.jpg",vid:V.man,t:10,
+  steps:["2 cuts baseline to the opposite corner.","3 lifts to the wing.","4 and 5 lift up the lane line to the elbows.","1 passes to 4.","5 cuts to the offside block and seals, or goes short corner.","4 has an iso."],
+  roles:{1:"Enter to 4 at the elbow and space.",2:"Cut baseline to the opposite corner and spot up.",3:"Lift to the wing and space.",4:"Lift to the elbow, catch, and go to work. If 5's man helps, hit her.",5:"Lift to the elbow, then cut to the offside block. Seal or go short corner."}},
+ {id:"philly5",name:"Philly 5",sit:"man",kind:"Set",img:"img/philly5.jpg",vid:V.man,t:14,
+  steps:["2 cuts baseline to the opposite corner.","3 makes an Iverson cut to the opposite wing.","4 and 5 lift up the lane line to the elbows.","1 passes to 3 on the wing, then cuts ballside into a back screen for 5.","5 cuts to the ballside block. 4 pops.","2 cuts backdoor or lifts, depending on the read."],
+  roles:{1:"Pass to 3 on the wing, cut ballside, back screen for 5.",2:"Cut baseline to the opposite corner. Read your defender: backdoor or lift.",3:"Iverson cut to the wing, catch, look for 5 on the block.",4:"Lift to the elbow, then pop.",5:"Lift to the elbow, use 1's back screen, seal on the ballside block."}},
+ {id:"horns",name:"Horns",sit:"man",also:["zone23"],kind:"Motion · man & zone",img:"img/horns.jpg",svg:"horns",vid:V.man,t:18,
+  steps:["4 and 5 set high elbow screens for the PG. 2 and 3 are in the corners.","PG picks a side. Say 5: 5 rolls down the middle of the lane, 4 pops to the top of the key.","PG gets downhill or hits the roller.","Not there: pass to the corner, relocate to the wing, get it back, then hit the popper.","Popper hands off to the ballside corner. 5 sets a ball screen on that guard.","It's continuous motion from here."],
+  roles:{1:"Pick a screen and get downhill. Hit the roller. Not there: pass corner, relocate to the wing, get it back, hit the popper.",2:"Start in the corner. Ballside: catch, swing it back, take the handoff and use the ball screen.",3:"Start in the corner. Ballside: catch, swing it back, take the handoff and use the ball screen.",4:"Elbow screen. Used: roll down the middle. Not used: pop to the top and hand off to the ballside corner.",5:"Elbow screen. Used: roll down the middle. Then ball screen the guard taking the handoff."},
+  note:"Horns works against man and zone. Be patient with it."},
+ {id:"hornsflex",name:"Horns Flex",sit:"man",kind:"Motion",img:"img/hornsflex.jpg",vid:V.man,t:54,
+  steps:["1 passes to 4, cuts down the middle, and sets a cross screen for 2 in the corner.","2 cuts across the lane for a layup. If it's not there, 2 cross screens for 3.","5 sets a down screen for 1.","1 comes up the lane line off the screen: shoot, attack, hit the cutter from the corner, or hit 3 coming off the down screen.","The motion repeats."],
+  roles:{1:"Pass to 4, cut down the middle, cross screen for 2. Come up off 5's down screen: shoot, attack, or find the cutter.",2:"Cut across the lane off 1's screen for the layup. Not there: cross screen for 3.",3:"From the corner, cut off 2's cross screen, or come up off the down screen.",4:"Catch up top and read it: the layup cutter, 1 coming up, or 3.",5:"Down screen for 1."}},
+ {id:"quickflex",name:"Horns Quick Flex",sit:"man",kind:"Motion",img:"img/quickflex.jpg",vid:V.man,t:114,
+  steps:["1 passes to 4 and fakes the cut down the middle, but back screens 5 and pops.","4 looks for 5 on the layup.","Not there: swing it to 1 and flow into Flex.","5 sets the cross screen if there's no layup."],
+  roles:{1:"Pass to 4, sell the middle cut, back screen 5, pop for the swing.",2:"Corner. Be ready for the Flex cut when it swings.",3:"Corner. Be ready for the Flex cut when it swings.",4:"Look for 5 on the lob or layup. Not there: swing to 1 and go into Flex.",5:"Cut off the back screen for the layup. Not there: set the cross screen."}},
+ {id:"lift",name:"Lift",sit:"man",kind:"Set",img:"img/lift.jpg",vid:V.man,t:146,
+  steps:["Out of a 1-4 high. PG passes to 4 on the elbow.","Ballside guard cuts backdoor, then back screens the guard running the baseline.","5 sets a flare screen for the PG to flare offside.","Offside guard runs the baseline to the opposite wing.","4 skips to the PG.","4 and 5 stagger for the offside guard to V-cut and run off it for an elbow jumper or layup.","PG hits the guard at the elbow or cutting up off the down screen."],
+  roles:{1:"Pass to 4 on the elbow, flare off 5, catch the skip, hit the cutter.",2:"Ballside guard: cut backdoor, then back screen for the baseline runner.",3:"Offside guard: run the baseline to the other wing, V-cut, come off the 4-5 stagger for the elbow jumper or layup.",4:"Catch on the elbow, skip to the PG, stagger with 5.",5:"Flare screen for the PG, then stagger with 4."}},
+ {id:"slice",name:"Slice",sit:"man",kind:"Set",img:"img/slice.jpg",vid:V.man,t:162,
+  steps:["2 passes to 5 at the top of the key and cuts down to the wing.","1 fakes the handoff and sets a screen for 2.","2 uses the screen and gets the handoff from 5 for a three.","5 rolls.","3 and 4 look for a backdoor."],
+  roles:{1:"Fake the handoff, then screen for 2.",2:"Pass to 5 up top, cut to the wing, come off 1's screen into 5's handoff for three.",3:"Watch your defender. Overplayed: go backdoor.",4:"Watch your defender. Overplayed: go backdoor.",5:"Catch at the top, hand off to 2, roll."}},
+ {id:"fortyone",name:"41",sit:"man",kind:"Set · from 25-26",img:"img/fortyone.jpg",
+  steps:["Start in a 1-4 high. PG passes to 4 on the elbow.","Ballside guard cuts backdoor for a quick layup. Not there: run the baseline.","PG gets the handoff from 4 for a layup. Not there: hit the ballside corner.","5 and 2 set a staggered screen for the guard in the corner. 5 rolls to the basket.","Guard runs off the stagger for the shot. 2 pops after screening."],
+  roles:{1:"Pass to 4 on the elbow, take the handoff back to the rim, or hit the ballside corner.",2:"Stagger with 5 for the corner guard, then pop for the shot.",3:"Backdoor cut, run the baseline, come off the stagger for the shot.",4:"Catch on the elbow and hand it back to the PG.",5:"Stagger with 2, then roll to the rim."},
+  note:"Carried over from last season's book. Not in the 26-27 video."},
+
+ // vs 2-3
+ {id:"quick",name:"Quick",sit:"zone23",kind:"Set",img:"img/quick.jpg",vid:V.z23,t:6,confirm:true,
+  steps:["Set against the 2-3. Follow the two diagrams: first pass to the wing, point cuts through, then the swing.","The full written steps are too small to read in the video. Watch the clip and walk it at practice."],
+  roles:{}},
+ {id:"tre",name:"Tre",sit:"zone23",kind:"Set",img:"img/tre.jpg",vid:V.z23,t:18,
+  steps:["Line up like Triangle.","1 passes to 2, and 2 swings it right back to 1.","1 fakes the swing and passes back to the same wing.","2 sets a screen for 3 to cut to the wing for the three."],
+  roles:{1:"Pass to 2, get it back, sell the swing with a ball fake, then pass back to the same wing.",2:"Catch and swing it right back to 1. Then screen the zone for 3.",3:"Cut to the wing off 2's screen. Shot's there.",4:"Hold your triangle spot. Occupy the middle of the zone.",5:"Hold your triangle spot. Occupy the back of the zone."}},
+ {id:"drag",name:"Drag",sit:"zone23",kind:"Set",img:"img/drag.jpg",vid:V.z23,t:32,
+  steps:["2 passes to 1 and cuts to the ballside corner.","3 delays, then follows 2 to the same corner.","5 sets a screen for 3 and posts.","4 drifts to the offside block and flashes to the high post.","1 passes it to 2.","2 drag-dribbles the ball to the wing.","2 passes to 3 for the shot."],
+  roles:{1:"Take the pass from 2, then hit 2 in the corner.",2:"Pass to 1, cut to the ballside corner, catch, drag-dribble up to the wing, hit 3.",3:"Delay, follow 2 to the corner, come off 5's screen for the shot.",4:"Drift to the offside block, then flash to the high post.",5:"Screen for 3, then post up."}},
+ {id:"elbow",name:"Elbow",sit:"zone23",kind:"Set",img:"img/elbow.jpg",vid:V.z23,t:50,
+  steps:["1 passes to the wing on 4's side.","4 and 5 lift up to the elbows.","Wing passes to 4 at the elbow.","5 flashes across the lane.","5 open: hit her for the layup.","Not there: skip it to the offside wing, fading to the open shot."],
+  roles:{1:"Pass to the wing on 4's side.",2:"Wing. Ballside: feed 4 at the elbow. Offside: fade to the open spot for the skip.",3:"Wing. Ballside: feed 4 at the elbow. Offside: fade to the open spot for the skip.",4:"Lift to the elbow, catch, look for 5 flashing. Not there: skip to the fading wing.",5:"Lift to the elbow, then flash across the lane for the layup."}},
+ {id:"ua",name:"UA",sit:"zone23",kind:"Motion",img:"img/ua.jpg",vid:V.z23,t:88,
+  steps:["PG pushes the SG through to the opposite corner.","PG keeps dribbling and gets a ball screen from the ballside forward. Forward rolls.","PG comes off the screen, swings to the guard, and relocates to the other wing.","Ballside forward sets the ball screen and rolls. That guard comes off it and swings to the wing.","Steps repeat."],
+  roles:{1:"Push the SG through, keep your dribble, use the forward's ball screen, swing it, relocate to the other wing.",2:"Cut through to the opposite corner. When the swing comes to you, use the ball screen and swing it again.",3:"Fill the open wing and be ready for the swing.",4:"Ballside forward: set the ball screen and roll. Repeat on each swing.",5:"Ballside forward: set the ball screen and roll. Repeat on each swing."}},
+ {id:"triangle",name:"Triangle",sit:"zone23",kind:"Motion",svg:"triangle",vid:V.z23,t:96,
+  steps:["PG passes to the wing and cuts away.","High post pops to the top of the key.","Offside guard flashes to the middle or slashes to the high post.","Center is ballside in the kitchen or short corner. She can also pop to the corner."],
+  roles:{1:"Pass to the wing and cut away.",2:"Wing: catch and read the high post, the slash, and the short corner.",3:"Offside guard: flash to the middle or slash to the high post.",4:"High post: pop to the top of the key.",5:"Ballside short corner. You can pop to the corner."}},
+
+ // vs 3-2
+ {id:"fire",name:"Fire",sit:"zone32",kind:"Motion",img:"img/fire.jpg",vid:V.z32,t:5,
+  steps:["PG passes to 3 and gets it right back. 3 runs the baseline to the corner.","PG reverses to the other wing (2), gets it right back, and operates from the slot.","2 banana cuts to the other slot.","5 sets a down screen for 3 cutting to the corner, then posts.","4 flashes to the high post.","Repeat."],
+  roles:{1:"Pass to 3 and get it back. Reverse to 2 and get it back. Run it from the slot.",2:"Catch on the reversal, give it right back, banana cut to the other slot.",3:"Give it back to 1, run the baseline to the corner off 5's down screen.",4:"Flash to the high post.",5:"Down screen for 3, then post up."}},
+ {id:"smoke",name:"Smoke",sit:"zone32",kind:"Motion",img:"img/smoke.jpg",vid:V.z32,t:56,
+  steps:["Overload one side: 3 ballside corner, 4 ballside elbow, 5 ballside block, 2 offside wing.","1 swings the ball to 2.","3 runs the baseline.","Ballside elbow sets a screen on the bottom defender.","5 flashes across the lane to the ballside elbow.","You're back in the same overload, other side. Reverse it and repeat."],
+  roles:{1:"Swing it to 2 and keep the ball moving.",2:"Start on the offside wing. After the swing you're the new ballside wing.",3:"Start in the ballside corner. Run the baseline to the new ballside corner.",4:"Start at the ballside elbow. Screen the bottom defender for the baseline runner.",5:"Start on the ballside block. Flash across the lane to the new ballside elbow."}},
+ {id:"screen",name:"Screen",sit:"zone32",kind:"Set",img:"img/screen.jpg",vid:V.z32,t:111,
+  steps:["PG passes to the wing and sets a ball screen on the inside of the wing defender.","Wing dribbles to the top, passes to the other wing, and cuts outside to the ballside corner.","Wing with the ball makes the post entry to 5.","5 passes to the shooter in the corner."],
+  roles:{1:"Pass to the wing, then ball screen on the inside of her defender.",2:"Use the screen, dribble to the top, pass to the other wing, cut outside to the ballside corner for the shot.",3:"Catch from the top and make the post entry to 5.",4:"Not in the called action. Space and crash the glass.",5:"Post up, catch the entry, kick to the shooter in the corner."}},
+
+ // BLOB man
+ {id:"corner",name:"Corner",sit:"bloman",kind:"Baseline OB",img:"img/corner.jpg",vid:V.bm,t:3,
+  steps:["5 on the ballside block, 4 on the offside block, 2 in the ballside slot (higher than 3), 3 in the offside slot.","5 screens for 4, who runs around for a layup on the offside block.","Not there: inbound to 5. Inbounder gets the handoff from 5.","2 screens for 3. 3 rolls to the ballside block."],
+  roles:{1:"Inbounder. Look for 4's layup first, then enter to 5 and take the handoff.",2:"Ballside slot, higher than 3. Screen for 3.",3:"Offside slot. Come off 2's screen and roll to the ballside block.",4:"Offside block. Run around 5's screen for the layup.",5:"Ballside block. Screen for 4. Not there: catch the entry and hand it back to the inbounder."}},
+ {id:"box2",name:"Box 2",sit:"bloman",kind:"Baseline OB",img:"img/box2.jpg",vid:V.bm,t:23,confirm:true,
+  steps:["Box alignment. 2 (shooter) takes it out.","Ballside block pops to the corner, then flares to the wing.","Offside elbow pivots to the offside block and seals.","After the entry, the inbounder comes up the lane to the slot.","4 sets a down screen for the 2 guard for the shot."],
+  roles:{2:"Inbound it, then come up the lane and off 4's down screen for the shot.",4:"Down screen for the 2 guard after the entry."}},
+ {id:"four",name:"4",sit:"bloman",kind:"Baseline OB",img:"img/four.jpg",vid:V.bm,t:48,confirm:true,
+  steps:["4 starts ballside. 2 and 1 lift up the lane.","Inbounder passes to 5, then sets a cross screen.","5 moves it to 4.","4 reads the cross cut from 1, then hits the inbounder coming up the lane for the shot."],
+  roles:{1:"Lift up the lane, then make the cross cut.",2:"Lift up the lane.",4:"Catch from 5. Read 1's cross cut, then hit the inbounder coming up the lane.",5:"Catch the entry and move it to 4."}},
+ {id:"fourtoo",name:"4 Too",sit:"bloman",kind:"Baseline OB",img:"img/fourtoo.jpg",vid:V.bm,t:65,confirm:true,
+  steps:["Counter off the 4 look. Same start: 2 and 1 lift up the lane.","The whiteboard walk-through in the clip shows the counter action. Watch it before we run it."],
+  roles:{}},
+ {id:"five",name:"5",sit:"bloman",kind:"Baseline OB",img:"img/five.jpg",vid:V.bm,t:100,
+  steps:["4 crosses the lane and back screens for 5.","5 cuts hard to the block.","2 cuts hard to the corner.","As 4 screens, look for the seal or the straight cut to the basket for the layup."],
+  roles:{2:"Cut hard to the corner. You're the outlet.",4:"Cross the lane and back screen for 5.",5:"Cut hard off 4's back screen to the block. Seal for the layup."}},
+
+ // BLOB zone
+ {id:"zbox",name:"Box",sit:"blozone",kind:"Baseline OB",img:"img/zbox.jpg",vid:V.bz,t:6,
+  steps:["Ballside block pops to the corner. Covered: screen for the ballside guard and dive weakside.","Ballside elbow runs off the screen to the corner: shot, post entry, or back to the inbounder.","Weakside elbow dives, posts, then screens down for the inbounder.","Weakside block pops to the weak corner, flashes elbow or top, then rebounds."],
+  spots:[["Ballside block","Pop to the corner. Covered: screen for the ballside guard and dive weakside."],["Ballside elbow","Run off the screen to the corner: shoot, post entry, or back to the inbounder."],["Weakside elbow","Dive and post, then down screen for the inbounder."],["Weakside block","Pop to the weak corner, flash elbow or top, then rebound."],["Inbounder","Read the corner first. Step in off the down screen."]]},
+ {id:"z3",name:"3",sit:"blozone",kind:"Baseline OB",img:"img/z3.jpg",vid:V.bz,t:14,
+  steps:["Stack: center first, PF second, shooter third, guard last.","Screen for the shooter.","Shooter steps back to the open spot for three."],
+  roles:{1:"Last in the stack. Safety outlet.",2:"Shooter, third in line. Step back to the open spot for three.",4:"Second in line. Screen for the shooter.",5:"First in line. Screen for the shooter, then crash."}},
+ {id:"three2",name:"Three 2",sit:"blozone",kind:"Baseline OB",img:"img/three2.jpg",vid:V.bz,t:16,
+  steps:["Center posts.","PG (1st in line) screens the ballside top defender.","Small forward (2nd in line) screens the middle defender.","Shooting guard (3rd in line) steps back to shoot the three.","Inbounder passes the ball to the SG."],
+  roles:{1:"First in line. Screen the ballside top defender.",2:"Third in line. Step back for the three.",3:"Second in line. Screen the middle defender.",4:"Inbounder. Hit the SG stepping back.",5:"Post up."}},
+ {id:"split",name:"Split",sit:"blozone",kind:"Baseline OB",img:"img/split.jpg",vid:V.bz,t:30,
+  steps:["1st in line makes one hard cut to the basket and wraps around the line.","2nd in line cuts to the ballside corner.","3rd in line cuts to the middle, sealing the center defender.","4th in line cuts to the ballside short corner or block for the middy or layup."],
+  spots:[["1st in line","One hard cut to the basket, then wrap around the line."],["2nd in line","Cut to the ballside corner."],["3rd in line","Cut to the middle and seal the center defender."],["4th in line","Cut to the ballside short corner or block for the middy or layup."]]},
+ {id:"texas",name:"Texas",sit:"blozone",kind:"Baseline OB",img:"img/texas.jpg",vid:V.bz,t:96,
+  steps:["2 cuts to the ballside corner.","1 cuts to the offside corner.","5 cuts to the ballside block.","4 cuts to the offside block."],
+  roles:{1:"Cut to the offside corner.",2:"Cut to the ballside corner.",3:"Inbounder. Read the cuts.",4:"Cut to the offside block.",5:"Cut to the ballside block."}},
+
+ // sideline
+ {id:"sideline",name:"Sideline",sit:"sideline",kind:"Sideline OB",img:"img/sideline.jpg",vid:V.sl,t:5.5,
+  steps:["Stack: PG first, 2 second, 4 third, center last.","2 screens for the PG to get the ball back court, then cuts to the ballside wing.","5 cuts around 4 to the basket for the layup.","4 flashes forward."],
+  roles:{1:"First in the stack. Come off 2's screen and get it back court.",2:"Second. Screen for the PG, then cut to the ballside wing.",3:"Inbounder. Look for 5's layup, then the PG.",4:"Third. Hold for 5, then flash forward.",5:"Last. Cut around 4 to the basket for the layup."}},
+ {id:"sidename",name:"Sideline + a name",sit:"sideline",kind:"Sideline OB",img:"img/sidename.jpg",vid:V.sl,t:8.5,
+  steps:["Stack: PG first, 2 second, 4 third. Center posts on the ballside block.","2 screens for the PG to get the ball back court, then cuts to the ballside wing.","4 flashes forward.","Looking for the post on the block. The name called is the player we're posting."],
+  roles:{1:"First in the stack. Come off 2's screen and get it back court.",2:"Second. Screen for the PG, then cut to the ballside wing.",3:"Inbounder. Look for the post on the block.",4:"Third. Flash forward.",5:"Post on the ballside block. If your name's called, seal and call for it."}},
+
+ // pressed
+ {id:"pressbreak",name:"Press Break",sit:"pressed",kind:"Press break",img:"img/pressbreak.jpg",vid:V.pb,t:6.5,
+  steps:["4 is the inbounder. 1 and 2 on the elbows.","Pass to 1 or 2. 4 cuts up court.","2 cuts back. 3 fills offside. 5 cuts middle hard.","4 is always ballside.","Get the ball middle. Don't dribble if you don't have to. Got it middle: look opposite."],
+  roles:{1:"Start on the elbow. Get open for the entry and look to the middle.",2:"Start on the elbow. Catch or cut back to the ball.",3:"Fill the offside lane.",4:"Inbound it, then cut up court. Always stay ballside.",5:"Cut hard to the middle. Catch it middle and look opposite."}},
+ {id:"cross",name:"Cross",sit:"pressed",kind:"Press break",img:"img/cross.jpg",vid:V.pb,t:10,
+  steps:["4 flashes to the ballside wing.","Inbounder passes to 4.","2 sets a cross screen for 1 to curl and get the pass from 4.","Advance up court and get it middle."],
+  roles:{1:"Curl off 2's cross screen and catch from 4.",2:"Cross screen for 1.",3:"Inbounder. Hit 4 on the flash.",4:"Flash to the ballside wing, catch, hit 1 on the curl.",5:"Deep outlet. Get middle as it advances."}},
+
+ // we press
+ {id:"press22",name:"22 · 2-2-1 press",sit:"wepress",kind:"Press",img:"img/press22.jpg",vid:V.pr,t:4,
+  steps:["1st line. Ball on your side: shade to the sideline. Not on your side: take away the middle.","2nd line. Ball on your side: trap with the front line on the sideline, preferably after the half-court line. Not on your side: sprint home and protect the basket.","Back row. Always ballside, taking away the pass ahead up the sideline."],
+  roles:{1:"Front line. Ball on your side: shade it to the sideline. Not your side: take away the middle.",2:"Front line. Ball on your side: shade it to the sideline. Not your side: take away the middle.",3:"Second line. Ball on your side: trap with the front line after half court. Not your side: sprint home.",4:"Second line. Ball on your side: trap with the front line after half court. Not your side: sprint home.",5:"Back row. Always ballside. Take away the pass ahead up the sideline."}},
+ {id:"onethreeone",name:"1-3-1 press",sit:"wepress",kind:"Press",img:"img/onethreeone.jpg",vid:V.pr,t:138,confirm:true,
+  steps:["Installed on the whiteboard clip. No written steps in the video.","Watch the full clip before we run it."],
+  roles:{}},
+
+ // transition
+ {id:"sprint",name:"Sprint",sit:"transition",kind:"Transition · concept",svg:"sprint",
+  steps:["Carolina-style break with a job for every lane.","Bigs rebound, outlet, and run their lane to the rim.","Guards get out in their lanes and pass ahead.","The guard who passes ahead picks a side: sprint through to the opposite corner or come back ball side.","Wings take the ball out after a make and trail the play.","Run the floor and get to your spots. If you have something, try your hand."],
+  roles:{1:"Get out in your lane, take the outlet, pass ahead. Then pick a side: through to the opposite corner or back ball side.",2:"Get out in your lane wide and early. Catch the pass ahead.",3:"Take the ball out after a make, then trail the play.",4:"Take the ball out after a make, then trail the play.",5:"Rebound and outlet. Then run your lane to the rim."}},
+ {id:"fourout",name:"4 Out 1 In",sit:"man",kind:"Concept",svg:"fourout",
+  steps:["Our base spacing. Four on the perimeter, one post.","Attack for two feet in the paint.","Play off two: react to the drive, the kick, and the dump-off.","Pass and move. Paint touches and stops."],
+  roles:{1:"Top. Get two feet in the paint or move it.",2:"Perimeter spot. Space, catch ready, attack the closeout.",3:"Perimeter spot. Space, catch ready, attack the closeout.",4:"Perimeter spot. Space, catch ready, attack the closeout.",5:"The one in. Seal, rim run on the drive, be ready for the dump-off."}},
+
+ // defense
+ {id:"man-d",name:"Man to man",sit:"defense",kind:"Defense",
+  steps:["No free drives.","Be good enough to help, then get back to yours.","Pick up the ball early in transition.","Weak side: pinch in when the corner is empty."],
+  roles:{}},
+ {id:"zone-d",name:"2-3 zone",sit:"defense",kind:"Defense",
+  steps:["Take away the top gap. No free drives.","Be good enough to help and get back.","Top guards: step up to cover the wing until the other top guard bumps back.","Wings: drop when the ball swings to the opposite wing."],
+  roles:{}}
+];
+
+/* state */
+let POSSEL = 0;
+try{POSSEL = +localStorage.getItem('mm-pos')||0}catch(e){}
+const $ = s=>document.querySelector(s);
+const esc = s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const bySit = id => PLAYS.filter(p=>p.sit===id||(p.also||[]).includes(id));
+
+function thumb(p){
+  if(p.img) return `<img src="${p.img}" alt="${esc(p.name)} diagram" loading="lazy">`;
+  if(p.svg==='sprint') return fullcourt();
+  if(p.svg) return SVG[p.svg]();
+  return `<span style="font:400 40px var(--display);color:var(--pine);opacity:.5;text-transform:uppercase">${esc(p.name)}</span>`;
+}
+function jobFor(p,n){
+  if(!n) return '';
+  if(p.roles && p.roles[n]) return p.roles[n];
+  if(p.spots) return 'Spot-based. Find your spot in the line, then run that job.';
+  if(p.sit==='defense') return 'Team rules below apply to every position.';
+  return 'Not written for your number. Watch the clip.';
+}
+function card(p){
+  return `<button class="card" data-play="${p.id}">
+    <div class="thumb">${thumb(p)}</div>
+    <div class="cbody">
+      <div class="ctop"><h3>${esc(p.name)}</h3><span class="tag">${esc(p.kind)}</span></div>
+      ${p.confirm?'<span class="flag">Check the clip</span>':''}
+      <ol>${p.steps.slice(0,3).map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
+      <div class="job"><b>${POSSEL?`Your job at ${POSSEL}`:''}</b>${esc(jobFor(p,POSSEL))}</div>
+      ${p.vid?'<span class="watchhint">Diagram + clip inside</span>':''}
+    </div></button>`;
+}
+
+function renderPosbar(){
+  $('#posbar').innerHTML = `<small>My position</small>` + [0,1,2,3,4,5].map(n=>`<button class="pchip" data-pos="${n}" aria-pressed="${POSSEL===n}">${n?`${n}<i>${POS[n].name}</i>`:'All'}</button>`).join('');
+  document.body.classList.toggle('haspos',!!POSSEL);
+}
+function renderSituations(){
+  $('#sgrid').innerHTML = SITS.map(s=>`<a class="stile" href="#${s.id}" data-jump="${s.id}" style="text-decoration:none;color:inherit"><span class="phase">${s.phase}</span><span class="name">${s.name}</span><span class="calls">${bySit(s.id).map(p=>esc(p.name)).join(' · ')}</span></a>`).join('');
+  const q = ($('#q').value||'').trim().toLowerCase();
+  $('#sits').innerHTML = SITS.map(s=>{
+    let list = bySit(s.id); if(q) list = list.filter(p=>(p.name+' '+p.steps.join(' ')).toLowerCase().includes(q));
+    if(q && !list.length) return '';
+    return `<section class="sit" id="${s.id}"><div class="sit-head"><div class="row"><span class="kicker">${s.phase}</span></div><h2>${s.name}</h2><div class="rules">${s.rules.map(r=>`<span class="rule">${esc(r)}</span>`).join('')}</div></div><div class="cards">${list.map(card).join('')}</div></section>`;
+  }).join('') || `<p class="empty">No play matches “${esc(q)}”.</p>`;
+}
+function renderPositions(){
+  $('#posgrid').innerHTML = [1,2,3,4,5].map(n=>{
+    const P=POS[n], G=GROUPS[P.group];
+    return `<article class="pcard" id="pos${n}"><header><span class="num">${n}</span><div><span class="minihead">${G.title}</span><h3 style="font:400 26px/1 var(--display);text-transform:uppercase">${P.name}</h3></div></header>
+    <div class="who">${P.who.map(w=>`<span>${w}</span>`).join('')}</div>
+    <div><p class="minihead" style="margin-bottom:6px">Group focus</p><ul class="focus">${G.focus.map(f=>`<li>${esc(f)}</li>`).join('')}</ul></div>
+    <div class="cue"><p class="minihead">From the staff</p>${CUES[n].map(([w,c])=>`<div><b>${w}.</b> ${esc(c)}</div>`).join('')}</div>
+    <button class="btn" data-setpos="${n}">Show my jobs as ${n}</button></article>`;
+  }).join('');
+}
+function renderGameday(){
+  const r=p=>`<button class="chip" data-play="${p}">${esc(PLAYS.find(x=>x.id===p).name)}</button>`;
+  $('#gd').innerHTML = `
+  <div class="panel"><span class="minihead">This week we win with</span><div class="big3"><div>Rebound</div><div>Free throws</div><div>Pace</div></div><p class="lead">Control the possessions you can control. Extra shots off the glass, easy points at the line, and we set the speed of the game.</p></div>
+  <div class="panel"><span class="minihead">Quick calls</span>
+   <div class="lanes">
+    <div><b>vs man</b><span class="chips">${['fourout','horns','philly4','philly','lift'].map(r).join('')}</span></div>
+    <div><b>vs 2-3</b><span class="chips">${['horns','elbow','drag','tre','triangle'].map(r).join('')}</span></div>
+    <div><b>vs 3-2</b><span class="chips">${['fire','smoke','screen'].map(r).join('')}</span></div>
+    <div><b>BLOB man</b><span class="chips">${['corner','four','five'].map(r).join('')}</span></div>
+    <div><b>BLOB zone</b><span class="chips">${['zbox','z3','three2','split','texas'].map(r).join('')}</span></div>
+    <div><b>Sideline</b><span class="chips">${['sideline','sidename'].map(r).join('')}</span></div>
+    <div><b>Pressed</b><span class="chips">${['pressbreak','cross'].map(r).join('')}</span></div>
+   </div></div>
+  <div class="panel court"><span class="minihead">Sprint: every lane has a job</span>${fullcourt()}
+   <div class="lanes"><div><b>Bigs</b><span>Rebound, outlet, run your lane to the rim.</span></div><div><b>Guards</b><span>Get out in your lane and pass ahead. Passer picks a side: through to the opposite corner or back ball side.</span></div><div><b>Wings</b><span>Take the ball out and trail the play.</span></div></div></div>
+  <div class="panel"><span class="minihead">Team standard</span><ul class="focus"><li>Every time we attack, something good happens.</li><li>Talk. The voice in the huddle calls the mismatch.</li><li>Leave it on the floor.</li></ul></div>`;
+}
+function renderIndex(){
+  const q = ($('#q').value||'').trim().toLowerCase();
+  const html = SITS.map(s=>{
+    let list = bySit(s.id); if(q) list=list.filter(p=>(p.name+' '+p.steps.join(' ')).toLowerCase().includes(q));
+    if(!list.length) return '';
+    return `<section><span class="kicker">${s.phase} · ${s.name}</span><div class="chips">${list.map(p=>`<button class="chip" data-play="${p.id}">${esc(p.name)}</button>`).join('')}</div></section>`;
+  }).join('');
+  $('#index').innerHTML = html || `<p class="empty">No play matches “${esc(q)}”.</p>`;
+}
+
+/* sheet */
+const dlg = $('#sheet');
+function openPlay(id){
+  const p = PLAYS.find(x=>x.id===id); if(!p) return;
+  const sit = SITS.find(s=>s.id===p.sit);
+  const roleList = p.spots
+    ? p.spots.map(([l,t])=>`<div class="role"><span class="n" style="font-size:15px;font-family:var(--label);font-weight:700;text-transform:uppercase;line-height:1.1">${esc(l)}</span><span>${esc(t)}</span></div>`).join('')
+    : [1,2,3,4,5].filter(n=>p.roles&&p.roles[n]).map(n=>`<div class="role ${POSSEL===n?'me':''}"><span class="n">${n}</span><span><small>${POS[n].name}</small>${esc(p.roles[n])}</span></div>`).join('');
+  const hasImg = p.img || p.svg;
+  $('#sheetBody').innerHTML = `
+   <div class="sheet-top"><div><span class="kicker">${sit.phase} · ${sit.name}</span><h2 id="sheetTitle">${esc(p.name)}</h2><span class="tag">${esc(p.kind)}</span></div><button class="close" aria-label="Close">×</button></div>
+   <div class="media">
+     ${hasImg?`<div id="mImg">${p.img?`<img src="${p.img}" alt="${esc(p.name)} diagram">`:`<div class="court">${p.svg==='sprint'?fullcourt():SVG[p.svg]()}</div>`}</div>`:''}
+     ${p.vid?`<video id="mVid" controls playsinline preload="metadata" hidden></video>`:''}
+     ${p.vid?`<div class="seg">${hasImg?'<button class="btn" id="bClip">Watch the clip</button><button class="btn ghost" id="bDia" hidden>Show diagram</button>':'<button class="btn" id="bClip">Watch the clip</button>'}</div>`:''}
+   </div>
+   ${p.confirm?'<p class="note">Part of this slide was too small to read in the video. Watch the clip for the full action and we\'ll confirm it at practice.</p>':''}
+   <div class="cols">
+     <div><p class="minihead" style="margin-bottom:8px">How it runs</p><ol class="steps">${p.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>${p.note?`<p class="note" style="margin-top:12px">${esc(p.note)}</p>`:''}</div>
+     ${roleList?`<div><p class="minihead" style="margin-bottom:8px">${p.spots?'Jobs by spot':'Jobs by position'}</p><div class="roles">${roleList}</div></div>`:''}
+   </div>`;
+  dlg.showModal();
+  const v=$('#mVid'), bc=$('#bClip'), bd=$('#bDia'), mi=$('#mImg');
+  if(bc) bc.onclick=()=>{ if(!v.src){v.src=p.vid+'#t='+p.t;} v.hidden=false; if(mi) mi.hidden=true; bc.hidden=!!bd; if(bd) bd.hidden=false;
+    const go=()=>{try{v.currentTime=p.t}catch(e){} v.play().catch(()=>{})};
+    if(v.readyState>=1) go(); else v.addEventListener('loadedmetadata',go,{once:true}); };
+  if(bd) bd.onclick=()=>{v.pause(); v.hidden=true; mi.hidden=false; bd.hidden=true; bc.hidden=false; bc.textContent='Replay the clip'};
+  $('.close').onclick=()=>dlg.close();
+}
+dlg.addEventListener('close',()=>{const v=$('#mVid'); if(v){v.pause(); v.removeAttribute('src'); v.load();}});
+dlg.addEventListener('click',e=>{if(e.target===dlg) dlg.close()});
+
+/* events */
+function setView(v){
+  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.view===v));
+  document.querySelectorAll('.view').forEach(s=>s.hidden = s.id!=='view-'+v);
+  try{localStorage.setItem('mm-view',v)}catch(e){}
+  window.scrollTo({top:0});
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-view]'); if(t){setView(t.dataset.view);return;}
+  const c=e.target.closest('[data-play]'); if(c){openPlay(c.dataset.play);return;}
+  const ps=e.target.closest('[data-pos]'); if(ps){POSSEL=+ps.dataset.pos; try{localStorage.setItem('mm-pos',POSSEL)}catch(e){} renderPosbar(); renderSituations(); return;}
+  const sp=e.target.closest('[data-setpos]'); if(sp){POSSEL=+sp.dataset.setpos; try{localStorage.setItem('mm-pos',POSSEL)}catch(e){} renderPosbar(); renderSituations(); setView('situations'); return;}
+  const j=e.target.closest('[data-jump]'); if(j){e.preventDefault(); document.getElementById(j.dataset.jump)?.scrollIntoView({behavior:'smooth'});}
+});
+$('#q').addEventListener('input',()=>{ const v=document.querySelector('.tab[aria-selected="true"]').dataset.view; if(v!=='situations'&&v!=='all') setView('situations'); renderSituations(); renderIndex(); });
+
+renderPosbar(); renderSituations(); renderPositions(); renderGameday(); renderIndex();
+(function(){
+  const h=(location.hash||'').slice(1);
+  if(['positions','gameday','all'].includes(h)) setView(h);
+  else if(SITS.some(s=>s.id===h)) setTimeout(()=>document.getElementById(h)?.scrollIntoView(),50);
+  else { let v=null; try{v=localStorage.getItem('mm-view')}catch(e){} if(v&&v!=='situations') setView(v); }
+})();
+</script>
