@@ -163,6 +163,9 @@ dialog::backdrop{background:rgba(5,20,13,.6)}
 .media img.zoom{max-height:none;width:100%;cursor:zoom-out}
 .media video{width:100%}
 .media .court{max-width:560px;margin-inline:auto;width:100%}
+.media .court.vec{max-width:980px}
+.court.vec svg{width:100%;height:auto;display:block;border-radius:10px}
+.thumb svg{display:block}
 .media video{aspect-ratio:16/9;max-height:56vh}
 .seg{display:flex;gap:6px;flex-wrap:wrap}
 .cols{display:grid;gap:16px;grid-template-columns:1fr}
@@ -305,6 +308,83 @@ function fullcourt(){
   <text x="236" y="243" text-anchor="middle" font-family="Barlow Condensed,Arial" font-weight="600" font-size="13" fill="var(--pine)">Rebound → outlet → pass ahead. Bigs run the middle to the rim.</text>
   </svg>`;
 }
+
+/* vector play diagrams, drawn from the playbook cards. Basket at the bottom. */
+const HC = {w:300,h:250};
+function halfCourt(ox){
+  return `<g transform="translate(${ox},0)">
+   <rect x="2" y="2" width="296" height="246" rx="4" fill="#E6A15A"/>
+   <g fill="none" stroke="#fff" stroke-width="2.4">
+    <rect x="2" y="2" width="296" height="246" rx="4"/>
+    <rect x="100" y="128" width="100" height="118"/>
+    <path d="M100 128 A50 50 0 0 1 200 128"/><path d="M100 128 A50 50 0 0 0 200 128" stroke-dasharray="6 6"/>
+    <path d="M22 246 V186 A132 132 0 0 1 278 186 V246"/>
+    <line x1="134" y1="230" x2="166" y2="230" stroke-width="3"/>
+   </g>
+   <circle cx="150" cy="220" r="7" fill="none" stroke="#fff" stroke-width="2.4"/>
+  </g>`;
+}
+function fullCourtBg(){
+  return `<rect x="2" y="2" width="476" height="246" rx="4" fill="#E6A15A"/>
+  <g fill="none" stroke="#fff" stroke-width="2.4">
+   <rect x="2" y="2" width="476" height="246" rx="4"/><line x1="240" y1="2" x2="240" y2="248"/><circle cx="240" cy="125" r="26"/>
+   <rect x="2" y="85" width="86" height="80"/><rect x="392" y="85" width="86" height="80"/>
+   <path d="M2 22 H40 A105 105 0 0 1 40 228 H2"/><path d="M478 22 H440 A105 105 0 0 0 440 228 H478"/>
+  </g>
+  <circle cx="24" cy="125" r="6" fill="none" stroke="#fff" stroke-width="2.4"/><circle cx="456" cy="125" r="6" fill="none" stroke="#fff" stroke-width="2.4"/>
+  <circle cx="240" cy="125" r="13" fill="#0E6B45"/><circle cx="240" cy="125" r="6" fill="#fff" opacity=".85"/>`;
+}
+function mv(m,ox){
+  const cls = m[1]||'cut';
+  const dash = cls==='pass' ? ' stroke-dasharray="7 5"' : '';
+  const end = cls==='screen' ? 'url(#pbScr)' : 'url(#pbArr)';
+  return `<path d="${m[0]}" transform="translate(${ox},0)" fill="none" stroke="#141414" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"${dash} marker-end="${end}"/>`;
+}
+function pl(p,ox){
+  const [n,x,y,ball]=p;
+  return `<g transform="translate(${ox},0)"><circle cx="${x}" cy="${y}" r="12.5" fill="#fff" stroke="#141414" stroke-width="2.2"/><text x="${x}" y="${y+5.5}" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,Arial" font-weight="700" font-size="16" fill="#141414">${n}</text>${ball?`<circle cx="${x+13}" cy="${y-11}" r="6" fill="#D2561F" stroke="#7A2E0B" stroke-width="1.2"/>`:''}</g>`;
+}
+const DEFS = `<defs><marker id="pbArr" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M1 1 9 5 1 9z" fill="#141414"/></marker><marker id="pbScr" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M5 0 V10" stroke="#141414" stroke-width="2.6"/></marker></defs>`;
+function drawDiag(d){
+  if(d.full){
+    const H=250*d.panels.length+14*(d.panels.length-1);
+    return `<svg viewBox="0 0 512 ${H}" role="img" aria-label="Play diagram">${DEFS}${d.panels.map((pn,i)=>{const oy=i*264;return `<g transform="translate(0,${oy})">${fullCourtBg()}${(pn.m||[]).map(m=>mv(m,0)).join('')}${pn.p.map(p=>pl(p,0)).join('')}</g>`}).join('')}</svg>`;
+  }
+  const n=d.panels.length, W=300*n+14*(n-1);
+  return `<svg viewBox="0 0 ${W} 250" role="img" aria-label="Play diagram">${DEFS}${d.panels.map((pn,i)=>{const ox=i*314;return halfCourt(ox)+(pn.m||[]).map(m=>mv(m,ox)).join('')+pn.p.map(p=>pl(p,ox)).join('')}).join('')}</svg>`;
+}
+/* spots: top 150,40 | wings 35/265,112 | elbows 100/200,128 | blocks 100/200,222 | corners 20/280,232 */
+const DIAG = {
+  philly:{panels:[
+    {p:[["1",150,40,1],["2",35,112],["4",100,128],["5",200,128],["3",280,232]],
+     m:[["M33 126 C24 190 30 236 90 238 L262 236"],["M276 218 C290 150 262 100 205 98 L52 104"]]},
+    {p:[["1",150,40],["3",35,112,1],["4",100,128],["5",200,128],["2",280,232]],
+     m:[["M137 46 L52 102","pass"],["M141 52 C92 80 84 176 136 208"],["M113 128 L142 128","screen"],["M187 128 L158 128","screen"],["M150 202 L150 62"]]},
+    {p:[["1",150,40],["3",35,112,1],["4",100,128],["5",205,165],["2",280,232]],
+     m:[["M92 136 C74 150 62 140 60 126","screen"],["M160 52 L196 150","screen"],["M270 224 C248 206 222 172 196 118"],["M200 178 L176 214"],["M166 48 C200 44 232 60 250 84"]]}]},
+  philly4:{panels:[
+    {p:[["1",150,40,1],["2",35,112],["4",100,222],["5",200,222],["3",280,232]],
+     m:[["M141 52 L108 110","pass"],["M31 126 C22 190 30 238 92 239 L262 238"],["M100 208 L100 146"],["M200 208 L200 146"],["M282 218 L274 132"]]},
+    {p:[["1",150,40],["4",100,128,1],["5",200,128],["3",265,112],["2",280,232]],
+     m:[["M200 142 L200 206"]]}]},
+  philly5:{panels:[
+    {p:[["1",150,40,1],["2",35,112],["4",100,222],["5",200,222],["3",280,232]],
+     m:[["M138 48 L54 106","pass"],["M278 218 C288 140 250 94 175 92 L54 108"],["M100 208 L100 146"],["M200 208 L200 146"]],},
+    {p:[["1",150,40],["3",35,112,1],["4",100,128],["5",200,128],["2",280,232]],
+     m:[["M160 52 C185 74 196 96 196 112","screen"],["M196 142 C170 160 128 190 110 212"],["M96 116 L88 64"]]}]},
+  horns:{panels:[
+    {p:[["1",150,40,1],["4",100,128],["5",200,128],["2",20,232],["3",280,232]],
+     m:[["M196 116 L168 58","screen"],["M164 50 C196 58 222 78 236 100"],["M194 142 L162 206"],["M104 116 L118 60"]]}]},
+  cross:{full:true,panels:[
+    {p:[["3",488,52,1],["2",378,96],["1",366,188],["4",254,48],["5",244,222]],
+     m:[["M268 46 L372 44"],["M474 56 L396 50","pass"],["M378 110 L378 146","screen"],["M378 182 C412 150 404 94 340 74"]]}]},
+  pressbreak:{full:true,panels:[
+    {p:[["4",488,212,1],["2",372,106],["1",368,194],["3",310,150],["5",184,136]],
+     m:[["M384 104 L430 110"],["M368 208 L368 236"],["M474 214 L384 206","pass"]]},
+    {p:[["4",462,182],["2",420,70],["1",357,212,1],["3",304,126],["5",176,124]],
+     m:[["M421 84 L423 116"],["M448 180 L186 180"],["M300 112 C318 70 344 42 372 22"],["M190 124 L288 126"]]}]}
+};
+
 const SVG = {
   horns: ()=>court([["1",150,215],["4",100,120],["5",200,120],["2",20,20],["3",280,20]],[["M150 203 Q170 160 196 132"],["M200 132 Q185 90 158 44"],["M100 132 Q110 170 120 190","dash"]]),
   fourout: ()=>court([["1",150,218],["2",262,150],["3",38,150],["4",280,40],["5",112,52]],[["M150 206 L150 90"],["M112 64 Q140 80 146 96","dash"]]),
@@ -459,6 +539,7 @@ const esc = s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;
 const bySit = id => PLAYS.filter(p=>p.sit===id||(p.also||[]).includes(id));
 
 function thumb(p){
+  if(DIAG[p.id]) return drawDiag(DIAG[p.id]);
   if(p.img) return `<img src="${p.img}" alt="${esc(p.name)} diagram" loading="lazy">`;
   if(p.svg==='sprint') return fullcourt();
   if(p.svg) return SVG[p.svg]();
@@ -472,6 +553,7 @@ function jobFor(p,n){
   return 'Not written for your number. Watch the clip.';
 }
 function miniThumb(p){
+  if(DIAG[p.id]) return drawDiag(DIAG[p.id]);
   if(p.img) return `<img src="${p.img}" alt="" loading="lazy">`;
   if(p.svg==='sprint') return fullcourt();
   if(p.svg) return SVG[p.svg]();
@@ -549,11 +631,11 @@ function openPlay(id){
   const roleList = p.spots
     ? p.spots.map(([l,t])=>`<div class="role"><span class="n" style="font-size:15px;font-family:var(--label);font-weight:700;text-transform:uppercase;line-height:1.1">${esc(l)}</span><span>${esc(t)}</span></div>`).join('')
     : [1,2,3,4,5].filter(n=>p.roles&&p.roles[n]).map(n=>`<div class="role ${POSSEL===n?'me':''}"><span class="n">${n}</span><span><small>${POS[n].name}</small>${esc(p.roles[n])}</span></div>`).join('');
-  const hasImg = p.img || p.svg;
+  const hasImg = DIAG[p.id] || p.img || p.svg;
   $('#sheetBody').innerHTML = `
    <div class="sheet-top"><div><span class="kicker">${sit.phase} · ${sit.name}</span><h2 id="sheetTitle">${esc(p.name)}</h2><span class="tag">${esc(p.kind)}</span></div><button class="close" aria-label="Close">×</button></div>
    <div class="media">
-     ${hasImg?`<div id="mImg">${p.img?`<img src="${p.img}" alt="${esc(p.name)} diagram">`:`<div class="court">${p.svg==='sprint'?fullcourt():SVG[p.svg]()}</div>`}</div>`:''}
+     ${hasImg?`<div id="mImg">${DIAG[p.id]?`<div class="court vec">${drawDiag(DIAG[p.id])}</div>`:p.img?`<img src="${p.img}" alt="${esc(p.name)} diagram">`:`<div class="court">${p.svg==='sprint'?fullcourt():SVG[p.svg]()}</div>`}</div>`:''}
      ${p.vid?`<video id="mVid" controls playsinline preload="metadata" hidden></video>`:''}
      ${p.vid?`<div class="seg">${hasImg?'<button class="btn" id="bClip">Watch the clip</button><button class="btn ghost" id="bDia" hidden>Show diagram</button>':'<button class="btn" id="bClip">Watch the clip</button>'}</div>`:''}
    </div>
