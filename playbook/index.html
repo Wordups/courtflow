@@ -28,6 +28,15 @@
 
 *{box-sizing:border-box}
 [hidden]{display:none!important}
+html:not(.unlocked) body>:not(#gate){display:none!important}
+html.unlocked #gate{display:none}
+#gate{min-height:100vh;display:grid;place-items:center;padding:16px;background:var(--pine)}
+#gate form{width:100%;max-width:340px;background:var(--surface);border-radius:14px;padding:28px 22px;box-shadow:var(--shadow);text-align:center}
+#gate h1{font:400 34px/1 var(--display);text-transform:uppercase;color:var(--green-ink);margin:0 0 6px}
+#gate p{font:500 15px/1.4 var(--body);color:var(--ink-2);margin:0 0 18px}
+#gate input{width:100%;font:500 17px var(--body);padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--ink)}
+#gate button{width:100%;margin-top:12px;font:600 17px var(--label);text-transform:uppercase;letter-spacing:.04em;padding:12px;border:0;border-radius:10px;background:var(--green);color:var(--on-green);cursor:pointer}
+#gate .err{color:var(--warn);font:600 14px var(--body);margin:10px 0 0;min-height:1em}
 .chrome{position:sticky;top:env(safe-area-inset-top,0px);z-index:20}
 body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--body);margin:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
 img{image-rendering:auto}
@@ -186,6 +195,34 @@ footer{color:var(--ink-3);font-size:14px;padding-block:24px 40px;border-top:1px 
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 html{scroll-behavior:smooth}
 </style>
+
+<div id="gate">
+  <form id="gateForm" autocomplete="off">
+    <h1>Millers Playbook</h1>
+    <p>Team only. Enter the team password.</p>
+    <input id="gatePw" type="password" placeholder="Password" aria-label="Team password" autofocus>
+    <button type="submit">Open playbook</button>
+    <div class="err" id="gateErr" role="alert"></div>
+  </form>
+</div>
+<script>
+(function(){
+  var H='a0a994da9d6c6df09b286e39a73670d447195cbf9d262b41575e8027fdc2b398', K='mmPlaybookKey';
+  var root=document.documentElement;
+  try{ if(localStorage.getItem(K)===H) root.classList.add('unlocked'); }catch(e){}
+  function hash(s){ return crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)).then(function(b){
+    return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0')}).join(''); }); }
+  document.addEventListener('DOMContentLoaded',function(){
+    document.getElementById('gateForm').addEventListener('submit',function(ev){
+      ev.preventDefault();
+      hash(document.getElementById('gatePw').value.trim()).then(function(h){
+        if(h===H){ try{localStorage.setItem(K,H)}catch(e){} root.classList.add('unlocked'); window.scrollTo(0,0); }
+        else document.getElementById('gateErr').textContent='Wrong password. Ask Coach.';
+      });
+    });
+  });
+})();
+</script>
 
 <div class="chrome">
 <header class="top">
