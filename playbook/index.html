@@ -260,6 +260,11 @@ html{scroll-behavior:smooth}
   html.pp-printing .pp-notes{border-radius:0;break-inside:avoid}
   html.pp-printing .pp-notes textarea{min-height:56px;resize:none}
 }
+
+.pp-load{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px 12px;border:1.5px solid var(--green);border-radius:10px;background:var(--surface)}
+.pp-load label{font:600 14px var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--green-ink)}
+.pp-load select{flex:1 1 220px;min-width:0;font:500 16px var(--body);color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:40px}
+@media print{html.pp-printing .pp-load,html.pp-printing #pp-loadconfirm{display:none!important}}
 </style>
 
 <div id="gate">
@@ -346,6 +351,29 @@ html{scroll-behavior:smooth}
     <h1>Practice plan</h1>
     <p class="lead" style="margin-top:8px">Fill in the drills for each phase. It saves on your phone as you type. When it's done, copy it and post it in the practice plan channel.</p>
     <div class="pp">
+      <div class="pp-load">
+        <label for="pp-rot">Load from rotation</label>
+        <select id="pp-rot">
+          <option value="">Pick a practice...</option>
+          <option value="1">Practice 1: 4 Out 1 In + 5 Out</option>
+          <option value="2">Practice 2: Horns (man)</option>
+          <option value="3">Practice 3: Lift</option>
+          <option value="4">Practice 4: UA</option>
+          <option value="5">Practice 5: 41</option>
+          <option value="6">Practice 6: Philly 4</option>
+          <option value="7">Practice 7: Triangle (zone)</option>
+          <option value="8">Practice 8: Horns (zone)</option>
+          <option value="9">Practice 9: Man review 1</option>
+          <option value="10">Practice 10: Man review 2</option>
+          <option value="11">Practice 11: Zone review</option>
+          <option value="12">Practice 12: Game plan</option>
+        </select>
+      </div>
+      <div class="pp-confirm" id="pp-loadconfirm" hidden>
+        <span id="pp-loadmsg">Replace what's typed with this practice?</span>
+        <button class="primary" id="pp-loadyes" type="button">Replace it</button>
+        <button id="pp-loadno" type="button">Keep my plan</button>
+      </div>
       <div class="pp-head">
         <svg viewBox="-6 -6 212 162" role="img" aria-label="Millers logo"><polygon points="12,8 74,8 100,54 126,8 188,8 188,32 176,32 176,118 188,118 188,142 124,142 124,118 134,118 134,74 100,136 66,74 66,118 76,118 76,142 12,142 12,118 24,118 24,32 12,32" fill="#14452f" stroke="#111111" stroke-width="10"/><polygon points="12,8 74,8 100,54 126,8 188,8 188,32 176,32 176,118 188,118 188,142 124,142 124,118 134,118 134,74 100,136 66,74 66,118 76,118 76,142 12,142 12,118 24,118 24,32 12,32" fill="#1e6b43" stroke="#ffffff" stroke-width="3.5"/><rect x="2" y="60" width="196" height="30" fill="#111111" stroke="#111111" stroke-width="8"/><rect x="2" y="60" width="196" height="30" fill="#111111" stroke="#ffffff" stroke-width="3"/><text x="100" y="83" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="24" letter-spacing="1.5" fill="#ffffff">MILLERS</text></svg>
         <div class="pp-titles"><b>Milford Mill Girls Basketball</b><span>Practice plan</span></div>
@@ -846,7 +874,7 @@ $('#q').addEventListener('input',()=>{ const v=document.querySelector('.tab[aria
     });
   }
   TOP.forEach(function(id){var e=document.getElementById(id); if(e&&st.values[id]!=null) e.value=st.values[id];});
-  document.getElementById('view-practice').addEventListener('input',function(e){var el=e.target; if(!el.id||el.id==='pp-copytext') return; st.values[el.id]=el.value; save();});
+  document.getElementById('view-practice').addEventListener('input',function(e){var el=e.target; if(!el.id||el.id==='pp-copytext'||el.id==='pp-rot') return; st.values[el.id]=el.value; save();});
   function v(id){var x=st.values[id];return x==null?'':String(x).trim();}
   function asText(){
     var o=['MILFORD MILL GIRLS BASKETBALL | PRACTICE PLAN','Date: '+v('pp-date')+' | Start: '+v('pp-start')+' | Practice #: '+v('pp-num')];
@@ -870,6 +898,74 @@ $('#q').addEventListener('input',()=>{ const v=document.querySelector('.tab[aria
   document.getElementById('pp-clear').addEventListener('click',function(){cf.hidden=false;document.getElementById('pp-no').focus();});
   document.getElementById('pp-no').addEventListener('click',function(){cf.hidden=true;});
   document.getElementById('pp-yes').addEventListener('click',function(){st=blank();save();TOP.forEach(function(id){document.getElementById(id).value='';});render();cf.hidden=true;document.getElementById('pp-msg').textContent='Cleared.';});
+
+  /* rotation presets */
+  var WU=[["0:00","10","Dynamic warm-up","Ready by whistle, no walking"],["0:10","5","1/0 Finishing","Both hands, game speed"]];
+  var SK2=[["3 Man Relocation","Drive and kick, relocate, 0.5 rule"],["BDT Shooting","Closeout into 2/1, read the closeout"],["Drive & Space Shooting","Slot, wing, baseline"],["1/1 Sidelines","Creating space, eyes up"],["1/1 Russian","Finish through contact"],["1/1 Drop Pass","1/1 with a passer"]];
+  var TR={
+    sprint:[["0:25","8","2.0 Trips","All pitch aheads, ball beats the dribble"],["0:33","7","2/1 or 3/2 Trailer","Shot in 3 passes or less"],["0:40","5","5/3 Touch the Baseline","Sprint lanes, fill wide, rim runner"]],
+    pb:[["0:25","5","2.0 Trips","All pitch aheads"],["0:30","15","5/5 Press break vs 2-2-1","Middle flash, sideline outlet, attack after the trap"]],
+    press:[["0:25","5","2/1 or 3/2 Trailer","Shot in 3 passes or less"],["0:30","15","5/5 2-2-1 Press","Trap the first pass, rotate on the skip"]],
+    opp:[["0:25","5","2.0 Trips","All pitch aheads"],["0:30","15","5/5 Break vs opponent's press","Scout press, outlet spots"]]
+  };
+  var SSG=["4/4 Drive & Space","4/4 Motion Strong","4/4 Play Through the Flare"];
+  var TD=[["1:05","5","2/2 Breakdown","Hit, hold, pursue the ball"],["1:10","5","3/3 Closeout","Short choppy steps, high hand"],["1:15","5","5/5 Offense (Down & Back)","Tag up, stop ball, build the wall"],["1:20","5","5/5 Circle Up","Talk, match up before half court"]];
+  var D33=["3/3 No Screening","3/3 Ball Screen","3/3 Off Ball Screening"];
+  var D33S=["On ball, jam gaps","Show and recover, talk the screen","Chase or switch on the call"];
+  var DEF={man:["5/5 Man","Live. Ends on 3 stops in a row"],z23:["5/5 2-3 Zone","Slide on every pass, box out"],z32:["5/5 3-2 Zone","Point pressures, wings take away skips"],opp:["5/5 vs opponent's base","Scout sets, last 2 games"]};
+  var ROT=[null,
+    ["4 Out 1 In + 5 Out","Quick","BLOB Box (vs zone)","man","sprint"],
+    ["Horns (vs man)","5 Out","BLOB Corner (vs man)","man","sprint"],
+    ["Lift","Horns","SLOB 4 Stack","z23","pb"],
+    ["UA","Lift, Quick","BLOB 3 (vs zone)","z23","press"],
+    ["41","UA","BLOB 4 (vs man)","z32","sprint"],
+    ["Philly 4","41","2/3 OOB: Box, Line","z32","pb"],
+    ["Triangle (vs zone)","Philly 4","2/3 OOB: 3, Three 2","man","press"],
+    ["Horns (vs zone)","Triangle","2/3 OOB: Shots, Split","z23","sprint"],
+    ["Man review: 5 Out, Horns, Lift","Quick","SLOB post-up call","man","pb"],
+    ["Man review: UA, 41, Philly 4","Quick","All BLOB (man)","z32","press"],
+    ["Zone review: Triangle, Horns","Full 2/3 OOB series","All BLOB (zone)","z23","pb"],
+    ["Game plan: sets for next opponent","Late-game sets","End of game: up 3, down 2, last shot","opp","opp"]
+  ];
+  function preset(n){
+    var R=ROT[n], k=n-1;
+    var sk=SK2[k%SK2.length];
+    var inst=n>=9?R[0]:"INSTALL: "+R[0]+" (5/0)";
+    var instStd=n>=9?"Cold call each set, 2 clean reps each":"Walk, then game speed. 5 clean reps from a cold call";
+    return [
+      WU,
+      [["0:15","5","Olympic Shooting","Make 5 in :30 sec, every group"],["0:20","5",sk[0],sk[1]]],
+      TR[R[4]],
+      [["0:45","10",inst,instStd],["0:55","5","REVIEW: "+R[1]+" (5/5 dummy)","Shot or next option within 2 actions"],["1:00","5",SSG[k%3],"Max 2 dribbles, 0.5 rule live"]],
+      TD,
+      [["1:25","5","1/1 Do it All","Closeout, shut off, rebound"],["1:30","10",D33[k%3],D33S[k%3]],["1:40","10",DEF[R[3]][0],DEF[R[3]][1]]],
+      [["1:50","10",R[2],"Score or quality shot 3 of 5"]]
+    ];
+  }
+  function hasDrills(){for(var key in st.values){if(/-r\d+-/.test(key)&&String(st.values[key]).trim())return true;}return false;}
+  function applyPreset(n){
+    var keep={'pp-date':st.values['pp-date'],'pp-start':st.values['pp-start'],'pp-cauldron':st.values['pp-cauldron'],'pp-announce':st.values['pp-announce']};
+    var P=preset(n); st={rows:[],values:{}};
+    for(var kk in keep) if(keep[kk]!=null) st.values[kk]=keep[kk];
+    st.values['pp-num']=String(n);
+    st.values['pp-emphasis']=n===12?'Game plan for the next opponent':(n>=9?ROT[n][0]:'Install '+ROT[n][0]+'. Review '+ROT[n][1]+'.');
+    P.forEach(function(rows,pi){
+      st.rows[pi]=Math.max(rows.length,2);
+      rows.forEach(function(r,ri){F.forEach(function(f,fi){st.values['pp-p'+pi+'-r'+ri+'-'+f]=r[fi];});});
+    });
+    save();
+    TOP.forEach(function(id){var e=document.getElementById(id); if(e) e.value=st.values[id]!=null?st.values[id]:'';});
+    render();
+    document.getElementById('pp-msg').textContent='Loaded Practice '+n+'. Edit anything.';
+  }
+  var sel=document.getElementById('pp-rot'), lc=document.getElementById('pp-loadconfirm'), pending=0;
+  sel.addEventListener('change',function(){
+    var n=+sel.value; if(!n) return;
+    if(hasDrills()){pending=n;document.getElementById('pp-loadmsg').textContent='Replace what’s typed with Practice '+n+'?';lc.hidden=false;document.getElementById('pp-loadno').focus();}
+    else {applyPreset(n);sel.value='';}
+  });
+  document.getElementById('pp-loadyes').addEventListener('click',function(){lc.hidden=true;applyPreset(pending);sel.value='';});
+  document.getElementById('pp-loadno').addEventListener('click',function(){lc.hidden=true;sel.value='';});
   document.getElementById('pp-print').addEventListener('click',function(){
     if(document.activeElement) document.activeElement.blur(); var root=document.documentElement; root.classList.add('pp-printing');
     window.addEventListener('afterprint',function done(){root.classList.remove('pp-printing');window.removeEventListener('afterprint',done);});
