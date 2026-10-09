@@ -6,7 +6,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function isCoach() {
-      return request.auth != null && request.auth.token.email == 'coaches@millers.team';
+      return request.auth != null && request.auth.token.email == 'coaches@mma.team';
     }
 
     match /plans/{planId} {
