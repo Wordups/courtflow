@@ -232,6 +232,34 @@ html{scroll-behavior:smooth}
 .pp-msg{font:600 14px var(--body);color:var(--green-ink)}
 .pp-confirm{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--warn-bg);color:var(--ink)}
 .pp textarea.pp-copy{border:1px solid var(--line);border-radius:8px;min-height:140px;font:13px/1.4 ui-monospace,monospace}
+
+/* Practice plan: print / save as PDF (only when started from the Practice plan button) */
+@media print{
+  @page{size:letter;margin:.4in}
+  html.pp-printing{--bg:#fff;--surface:#fff;--surface-2:#ececec;--ink:#111;--ink-2:#333;--ink-3:#555;--line:#8a918d;--pine:#14452f;--green:#14452f;--green-ink:#14452f;color-scheme:light}
+  html.pp-printing body{background:#fff!important;color:#111;font-size:11px}
+  html.pp-printing .chrome,html.pp-printing footer,html.pp-printing #sheet,
+  html.pp-printing .view:not(#view-practice),
+  html.pp-printing #view-practice>.kicker,html.pp-printing #view-practice>h1,html.pp-printing #view-practice>.lead,
+  html.pp-printing .pp-bar,html.pp-printing .pp-confirm,html.pp-printing .pp-copy,html.pp-printing .pp .add button{display:none!important}
+  html.pp-printing #view-practice{display:block!important}
+  html.pp-printing main.wrap{padding:0!important;max-width:none!important}
+  html.pp-printing .pp{gap:8px;margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  html.pp-printing .pp-head{border:0;border-bottom:3px solid #14452f;border-radius:0;padding:0 0 8px;flex-wrap:nowrap}
+  html.pp-printing .pp-head svg{width:80px}
+  html.pp-printing .pp-titles b{font-size:22px}
+  html.pp-printing .pp-meta{flex:0 0 190px}
+  html.pp-printing .pp-info{grid-template-columns:minmax(0,1fr) minmax(0,2fr);border-radius:0}
+  html.pp-printing .pp-info label+label{border-left:1px solid var(--line);border-top:0}
+  html.pp-printing .pp-scroll{overflow:visible;border-radius:0}
+  html.pp-printing .pp table{min-width:0}
+  html.pp-printing .pp thead th{background:#14452f!important;color:#fff!important;padding:4px 6px;font-size:11px}
+  html.pp-printing .pp tr.ph td{background:#ececec!important}
+  html.pp-printing .pp tr.ph .nm{font-size:13px;padding:3px 6px}
+  html.pp-printing .pp input,html.pp-printing .pp textarea{font-size:10.5px;padding:2px 4px;color:#111}
+  html.pp-printing .pp-notes{border-radius:0;break-inside:avoid}
+  html.pp-printing .pp-notes textarea{min-height:56px;resize:none}
+}
 </style>
 
 <div id="gate">
@@ -345,7 +373,8 @@ html{scroll-behavior:smooth}
         <textarea id="pp-announce"></textarea>
       </div>
       <div class="pp-bar">
-        <button class="primary" id="pp-copybtn" type="button">Copy plan as text</button>
+        <button class="primary" id="pp-print" type="button">Print / Save as PDF</button>
+        <button id="pp-copybtn" type="button">Copy plan as text</button>
         <button id="pp-clear" type="button">Clear form</button>
         <span class="pp-msg" id="pp-msg" aria-live="polite"></span>
         <span class="st" id="pp-status">Saves on this device as you type</span>
@@ -843,6 +872,11 @@ $('#q').addEventListener('input',()=>{ const v=document.querySelector('.tab[aria
   document.getElementById('pp-clear').addEventListener('click',function(){cf.hidden=false;document.getElementById('pp-no').focus();});
   document.getElementById('pp-no').addEventListener('click',function(){cf.hidden=true;});
   document.getElementById('pp-yes').addEventListener('click',function(){st=blank();save();TOP.forEach(function(id){document.getElementById(id).value='';});render();cf.hidden=true;document.getElementById('pp-msg').textContent='Cleared.';});
+  document.getElementById('pp-print').addEventListener('click',function(){
+    if(document.activeElement) document.activeElement.blur(); var root=document.documentElement; root.classList.add('pp-printing');
+    window.addEventListener('afterprint',function done(){root.classList.remove('pp-printing');window.removeEventListener('afterprint',done);});
+    setTimeout(function(){window.print();},50);
+  });
   render();
 })();
 renderPosbar(); renderSituations(); renderPositions(); renderGameday(); renderIndex();
