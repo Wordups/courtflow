@@ -265,31 +265,108 @@ html{scroll-behavior:smooth}
 .pp-load label{font:600 14px var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--green-ink)}
 .pp-load select{flex:1 1 220px;min-width:0;font:500 16px var(--body);color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:40px}
 @media print{html.pp-printing .pp-load,html.pp-printing #pp-loadconfirm{display:none!important}}
+
+/* Logins: player vs coach */
+html:not(.role-coach) .coach-only{display:none!important}
+#gate .roles{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0 0 12px;padding:4px;border-radius:10px;background:var(--surface-2)}
+#gate .roles button{margin:0;padding:10px;border-radius:8px;background:transparent;color:var(--ink-2);font:600 16px var(--label)}
+#gate .roles button[aria-pressed="true"]{background:var(--green);color:var(--on-green)}
+.signout{flex:none;border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;border-radius:999px;padding:7px 12px;font:600 13px var(--label);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.rolechip{flex:none;font:600 12px var(--label);letter-spacing:.12em;text-transform:uppercase;color:#9FD6B9}
+@media (max-width:560px){.rolechip{display:none}}
+/* Saved plans + roster */
+.sp-list{display:grid;gap:10px;margin-top:16px}
+.sp-item{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
+.sp-item .t{flex:1 1 240px;min-width:0}
+.sp-item .t b{display:block;font:400 21px/1.1 var(--display);text-transform:uppercase}
+.sp-item .t span{display:block;color:var(--ink-2);font-size:14px}
+.sp-item .acts{display:flex;flex-wrap:wrap;gap:6px}
+.sp-btn{font:600 13px var(--label);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border:1.5px solid var(--green);background:var(--surface);color:var(--green-ink);padding:8px 12px;border-radius:999px;min-height:38px}
+.sp-btn.primary{background:var(--green);color:var(--on-green)}
+.sp-btn.danger{border-color:var(--warn);color:var(--warn)}
+.sp-empty{border:1px dashed var(--line);border-radius:12px;padding:18px;color:var(--ink-2);background:var(--surface)}
+.rs-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface);margin-top:16px}
+.rs table{width:100%;min-width:620px;border-collapse:collapse;table-layout:fixed}
+.rs th,.rs td{border:1px solid var(--line);padding:0}
+.rs thead th{background:var(--pine);color:#fff;text-align:left;padding:8px;font:600 14px var(--label);letter-spacing:.08em;text-transform:uppercase;border-color:var(--pine)}
+.rs input{font:500 15px var(--body);color:var(--ink);background:transparent;border:0;width:100%;min-width:0;padding:7px 8px}
+.rs input:focus{outline:2px solid var(--green);outline-offset:-2px;background:var(--surface-2)}
+.rs td.x{text-align:center}
+.rs .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.rs .msg{color:var(--ink-3);font-size:13px}
+.pp-review{border:1.5px solid var(--green);border-radius:10px;background:var(--surface);overflow:hidden;display:flex;flex-direction:column}
+.pp-review .band{background:var(--green);color:var(--on-green);font:600 14px var(--label);letter-spacing:.08em;text-transform:uppercase;padding:7px 10px}
+.pp-review .sub{font:600 13px var(--label);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);padding:8px 10px 0}
+.pp-review textarea{min-height:64px;resize:vertical;padding:6px 10px}
+.pp-review .rate{display:flex;align-items:center;gap:8px;padding:8px 10px;border-top:1px solid var(--line)}
+.pp-review select{font:500 15px var(--body);color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+@media print{html.pp-printing .pp-review{display:none!important}}
 </style>
 
 <div id="gate">
   <form id="gateForm" autocomplete="off">
     <h1>Millers Playbook</h1>
     <p>Team only. Enter the team password.</p>
-    <input id="gatePw" type="password" placeholder="Password" aria-label="Team password" autofocus>
-    <button type="submit">Open playbook</button>
+    <input id="gatePw" type="password" placeholder="Password" aria-label="Password" autofocus>
+    <button type="submit" id="gateGo">Open playbook</button>
     <div class="err" id="gateErr" role="alert"></div>
   </form>
 </div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* Firebase project for the playbook. Paste the web app's firebaseConfig here. */
+window.MM_FIREBASE = null;
+window.MM_ACCOUNTS = { player: 'players@millers.team', coach: 'coaches@millers.team' };
+</script>
 <script>
 (function(){
-  var H='a0a994da9d6c6df09b286e39a73670d447195cbf9d262b41575e8027fdc2b398', K='mmPlaybookKey';
   var root=document.documentElement;
-  try{ if(localStorage.getItem(K)===H) root.classList.add('unlocked'); }catch(e){}
-  function hash(s){ return crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)).then(function(b){
+  window.MM = { role:null, db:null, auth:null, ready:false };
+  function setRole(r){
+    MM.role=r; root.classList.remove('role-coach','role-player'); if(r) root.classList.add('role-'+r);
+    if(r) root.classList.add('unlocked'); else root.classList.remove('unlocked');
+    MM.ready=true; document.dispatchEvent(new CustomEvent('mm-auth',{detail:{role:r}}));
+  }
+  var fb = window.MM_FIREBASE && window.firebase;
+  if(fb){
+    try{
+      firebase.initializeApp(window.MM_FIREBASE);
+      MM.auth=firebase.auth(); MM.db=firebase.firestore();
+      MM.auth.onAuthStateChanged(function(u){
+        if(!u){ setRole(null); return; }
+        setRole(u.email===MM_ACCOUNTS.coach ? 'coach' : 'player');
+      });
+    }catch(e){ console.error(e); fb=false; }
+  }
+  /* Fallback until Firebase is set up: the old shared team password (everyone gets the full page). */
+  var H='a0a994da9d6c6df09b286e39a73670d447195cbf9d262b41575e8027fdc2b398', K='mmPlaybookKey';
+  if(!fb){ try{ if(localStorage.getItem(K)===H) setRole('coach'); }catch(e){} }
+  function hash(str){ return crypto.subtle.digest('SHA-256',new TextEncoder().encode(str)).then(function(b){
     return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0')}).join(''); }); }
   document.addEventListener('DOMContentLoaded',function(){
     document.getElementById('gateForm').addEventListener('submit',function(ev){
       ev.preventDefault();
-      hash(document.getElementById('gatePw').value.trim()).then(function(h){
-        if(h===H){ try{localStorage.setItem(K,H)}catch(e){} root.classList.add('unlocked'); window.scrollTo(0,0); }
-        else document.getElementById('gateErr').textContent='Wrong password. Ask Coach.';
-      });
+      var pw=document.getElementById('gatePw').value.trim(), err=document.getElementById('gateErr');
+      err.textContent='';
+      if(fb){
+        /* One password box: the coach password opens the coach view, the team password opens the playbook. */
+        var done=function(){ document.getElementById('gatePw').value=''; window.scrollTo(0,0); };
+        /* The team password (Millers2627) is recognized here, so players never hit the coach account. */
+        hash(pw).then(function(h){
+          return MM.auth.signInWithEmailAndPassword(h===H ? MM_ACCOUNTS.player : MM_ACCOUNTS.coach, pw);
+        }).then(done).catch(function(){ err.textContent='Wrong password. Ask Coach.'; });
+      } else {
+        hash(pw).then(function(h){
+          if(h===H){ try{localStorage.setItem(K,H)}catch(e){} setRole('coach'); window.scrollTo(0,0); }
+          else err.textContent='Wrong password. Ask Coach.';
+        });
+      }
+    });
+    var so=document.getElementById('signOut');
+    if(so) so.addEventListener('click',function(){
+      if(fb){ MM.auth.signOut(); } else { try{localStorage.removeItem(K)}catch(e){} setRole(null); }
     });
   });
 })();
@@ -300,6 +377,8 @@ html{scroll-behavior:smooth}
   <div class="wrap">
     <div class="mark"><b>Millers Playbook</b><span>Milford Mill · 26-27</span></div>
     <label class="search"><span hidden>Search plays</span><input id="q" type="search" placeholder="Find a play" autocomplete="off"></label>
+    <span class="rolechip coach-only">Coach view</span>
+    <button class="signout" id="signOut" type="button">Sign out</button>
   </div>
 </header>
 <nav class="tabs" aria-label="Sections">
@@ -308,7 +387,9 @@ html{scroll-behavior:smooth}
     <button class="tab" role="tab" data-view="positions" aria-selected="false">Positions</button>
     <button class="tab" role="tab" data-view="gameday" aria-selected="false">Game day</button>
     <button class="tab" role="tab" data-view="all" aria-selected="false">All plays</button>
-    <button class="tab" role="tab" data-view="practice" aria-selected="false">Practice plan</button>
+    <button class="tab coach-only" role="tab" data-view="practice" aria-selected="false">Practice plan</button>
+    <button class="tab coach-only" role="tab" data-view="saved" aria-selected="false">Saved plans</button>
+    <button class="tab coach-only" role="tab" data-view="roster" aria-selected="false">Roster</button>
   </div>
 </nav>
 <div class="posbar" aria-label="Show plays for one position">
@@ -346,7 +427,7 @@ html{scroll-behavior:smooth}
     <div class="index" id="index"></div>
   </section>
 
-  <section class="view" id="view-practice" hidden>
+  <section class="view coach-only" id="view-practice" hidden>
     <p class="kicker">Staff</p>
     <h1>Practice plan</h1>
     <p class="lead" style="margin-top:8px">Fill in the drills for each phase. It saves on your phone as you type. When it's done, copy it and post it in the practice plan channel.</p>
@@ -381,6 +462,7 @@ html{scroll-behavior:smooth}
           <label class="pp-line"><span>Date:</span><input id="pp-date" type="text" autocomplete="off"></label>
           <label class="pp-line"><span>Start:</span><input id="pp-start" type="text" autocomplete="off"></label>
           <label class="pp-line"><span>Practice #:</span><input id="pp-num" type="text" inputmode="numeric" autocomplete="off"></label>
+          <label class="pp-line"><span>Filled out by:</span><input id="pp-by" type="text" autocomplete="off"></label>
         </div>
       </div>
       <div class="pp-info">
@@ -399,8 +481,18 @@ html{scroll-behavior:smooth}
         <div class="band"><label for="pp-announce">Post practice announcements</label></div>
         <textarea id="pp-announce"></textarea>
       </div>
+      <div class="pp-review">
+        <div class="band">Post-practice review</div>
+        <label class="sub" for="pp-rev-worked">What worked</label>
+        <textarea id="pp-rev-worked"></textarea>
+        <label class="sub" for="pp-rev-change">What to change next time</label>
+        <textarea id="pp-rev-change"></textarea>
+        <div class="rate"><label class="sub" for="pp-rev-rating" style="padding:0">Rate this practice</label>
+          <select id="pp-rev-rating"><option value="">-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+      </div>
       <div class="pp-bar">
-        <button class="primary" id="pp-print" type="button">Print / Save as PDF</button>
+        <button class="primary" id="pp-save" type="button">Save plan</button>
+        <button id="pp-print" type="button">Print / Save as PDF</button>
         <button id="pp-copybtn" type="button">Copy plan as text</button>
         <button id="pp-clear" type="button">Clear form</button>
         <span class="pp-msg" id="pp-msg" aria-live="polite"></span>
@@ -415,6 +507,31 @@ html{scroll-behavior:smooth}
     </div>
   </section>
 
+
+  <section class="view coach-only" id="view-saved" hidden>
+    <p class="kicker">Staff</p>
+    <h1>Saved plans</h1>
+    <p class="lead" style="margin-top:8px">Every plan a coach saved, newest first. Open one to keep editing it, or copy it to start a new practice from it.</p>
+    <div class="sp-list" id="sp-list"><div class="sp-empty">Saved plans show up here after a coach taps Save plan.</div></div>
+  </section>
+
+  <section class="view coach-only rs" id="view-roster" hidden>
+    <p class="kicker">Staff</p>
+    <h1>Roster</h1>
+    <p class="lead" style="margin-top:8px">Coaches only. Changes save as you type.</p>
+    <div class="rs-wrap">
+      <table aria-label="Roster">
+        <colgroup><col style="width:9%"><col style="width:26%"><col style="width:17%"><col style="width:10%"><col style="width:30%"><col style="width:8%"></colgroup>
+        <thead><tr><th>#</th><th>Name</th><th>Position</th><th>Grade</th><th>Notes</th><th></th></tr></thead>
+        <tbody id="rs-body"></tbody>
+      </table>
+    </div>
+    <div class="bar">
+      <button class="sp-btn primary" id="rs-add" type="button">Add player</button>
+      <button class="sp-btn" id="rs-seed" type="button" hidden>Start from playbook names</button>
+      <span class="msg" id="rs-msg" aria-live="polite"></span>
+    </div>
+  </section>
   <footer>Milford Mill girls basketball · 26-27 playbook. Diagrams and clips come from the staff playbook videos. Team use only.</footer>
 </main>
 
@@ -836,6 +953,7 @@ dlg.addEventListener('click',e=>{if(e.target===dlg) dlg.close()});
 
 /* events */
 function setView(v){
+  if(['practice','saved','roster'].includes(v) && MM.role!=='coach' && MM.ready) v='situations';
   document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.view===v));
   document.querySelectorAll('.view').forEach(s=>s.hidden = s.id!=='view-'+v);
   const pb=document.querySelector('.posbar'); if(pb) pb.hidden = v==='practice';
@@ -856,7 +974,7 @@ $('#q').addEventListener('input',()=>{ const v=document.querySelector('.tab[aria
 (function(){
   var PH=[["WARM UP","0:00 - 0:15","15"],["SKILL DEVELOPMENT","0:15 - 0:25","10"],["TRANSITION","0:25 - 0:45","20"],["HALF COURT OFFENSE","0:45 - 1:05","20"],["TRANSITION DEFENSE","1:05 - 1:25","20"],["DEFENSE","1:25 - 1:50","25"],["SPECIALS","1:50 - 2:00","10"]];
   var KEY='mm-practice-plan-v1', F=['time','min','drill','standard','coach'];
-  var TOP=['pp-date','pp-start','pp-num','pp-emphasis','pp-cauldron','pp-announce'];
+  var TOP=['pp-date','pp-start','pp-num','pp-by','pp-rev-worked','pp-rev-change','pp-rev-rating','pp-emphasis','pp-cauldron','pp-announce'];
   function blank(){return {rows:PH.map(function(){return 3}),values:{}};}
   var st; try{st=JSON.parse(localStorage.getItem(KEY))}catch(e){} if(!st||!st.rows||!st.values) st=blank();
   function status(t){var e=document.getElementById('pp-status'); if(e) e.textContent=t;}
@@ -874,7 +992,8 @@ $('#q').addEventListener('input',()=>{ const v=document.querySelector('.tab[aria
     });
   }
   TOP.forEach(function(id){var e=document.getElementById(id); if(e&&st.values[id]!=null) e.value=st.values[id];});
-  document.getElementById('view-practice').addEventListener('input',function(e){var el=e.target; if(!el.id||el.id==='pp-copytext'||el.id==='pp-rot') return; st.values[el.id]=el.value; save();});
+  document.getElementById('view-practice').addEventListener('change',function(e){var el=e.target; if(el.id==='pp-rev-rating'){st.values[el.id]=el.value;save();}});
+  document.getElementById('view-practice').addEventListener('input',function(e){var el=e.target; if(!el.id||el.id==='pp-copytext'||el.id==='pp-rot') return; if(el.tagName==='SELECT'&&e.type==='input'&&el.id!=='pp-rev-rating') return; st.values[el.id]=el.value; save();});
   function v(id){var x=st.values[id];return x==null?'':String(x).trim();}
   function asText(){
     var o=['MILFORD MILL GIRLS BASKETBALL | PRACTICE PLAN','Date: '+v('pp-date')+' | Start: '+v('pp-start')+' | Practice #: '+v('pp-num')];
@@ -944,7 +1063,7 @@ $('#q').addEventListener('input',()=>{ const v=document.querySelector('.tab[aria
   }
   function hasDrills(){for(var key in st.values){if(/-r\d+-/.test(key)&&String(st.values[key]).trim())return true;}return false;}
   function applyPreset(n){
-    var keep={'pp-date':st.values['pp-date'],'pp-start':st.values['pp-start'],'pp-cauldron':st.values['pp-cauldron'],'pp-announce':st.values['pp-announce']};
+    var keep={'pp-by':st.values['pp-by'],'pp-date':st.values['pp-date'],'pp-start':st.values['pp-start'],'pp-cauldron':st.values['pp-cauldron'],'pp-announce':st.values['pp-announce']};
     var P=preset(n); st={rows:[],values:{}};
     for(var kk in keep) if(keep[kk]!=null) st.values[kk]=keep[kk];
     st.values['pp-num']=String(n);
@@ -966,6 +1085,30 @@ $('#q').addEventListener('input',()=>{ const v=document.querySelector('.tab[aria
   });
   document.getElementById('pp-loadyes').addEventListener('click',function(){lc.hidden=true;applyPreset(pending);sel.value='';});
   document.getElementById('pp-loadno').addEventListener('click',function(){lc.hidden=true;sel.value='';});
+
+  /* team save (Firestore) */
+  function teamMsg(t){ document.getElementById('pp-msg').textContent=t; }
+  document.getElementById('pp-save').addEventListener('click',function(){
+    if(!MM.db){ teamMsg('Team saving turns on once the coach login is set up. Your plan is saved on this device.'); return; }
+    if(!v('pp-by')){ teamMsg('Add your name in "Filled out by" first.'); document.getElementById('pp-by').focus(); return; }
+    var col=MM.db.collection('plans'), ref = st.docId ? col.doc(st.docId) : col.doc();
+    var data={ rows:st.rows, values:st.values, practiceNum:v('pp-num'), date:v('pp-date'), goals:v('pp-emphasis'),
+      by:v('pp-by'), rating:v('pp-rev-rating'), updatedAt:firebase.firestore.FieldValue.serverTimestamp() };
+    if(!st.docId) data.createdAt=firebase.firestore.FieldValue.serverTimestamp();
+    teamMsg('Saving...');
+    ref.set(data,{merge:true}).then(function(){ st.docId=ref.id; save(); teamMsg('Saved to Saved plans.'); document.dispatchEvent(new Event('mm-plans-changed')); })
+      .catch(function(e){ console.error(e); teamMsg('Could not save. Check your connection and that you are signed in as a coach.'); });
+  });
+  window.MMPlan = {
+    open:function(doc, copy){
+      var d=doc.data(); st={rows:(d.rows||[]).slice(), values:Object.assign({},d.values||{})};
+      if(copy){ ['pp-date','pp-start','pp-by','pp-rev-worked','pp-rev-change','pp-rev-rating','pp-cauldron','pp-announce'].forEach(function(k){delete st.values[k]}); }
+      else st.docId=doc.id;
+      PH.forEach(function(_,i){ if(st.rows[i]==null) st.rows[i]=3; });
+      save(); TOP.forEach(function(id){var e=document.getElementById(id); if(e) e.value=st.values[id]!=null?st.values[id]:'';}); render();
+      teamMsg(copy?'Copied into a new plan. Save it when it’s ready.':'Opened. Changes save over this plan when you tap Save plan.');
+    }
+  };
   document.getElementById('pp-print').addEventListener('click',function(){
     if(document.activeElement) document.activeElement.blur(); var root=document.documentElement; root.classList.add('pp-printing');
     window.addEventListener('afterprint',function done(){root.classList.remove('pp-printing');window.removeEventListener('afterprint',done);});
@@ -973,10 +1116,89 @@ $('#q').addEventListener('input',()=>{ const v=document.querySelector('.tab[aria
   });
   render();
 })();
+
+/* coach: saved plans + roster */
+(function(){
+  var listEl=document.getElementById('sp-list');
+  function esc2(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]});}
+  var docs={}, armed=null;
+  function loadPlans(){
+    if(!MM.db||MM.role!=='coach'){ return; }
+    listEl.innerHTML='<div class="sp-empty">Loading saved plans...</div>';
+    MM.db.collection('plans').orderBy('updatedAt','desc').limit(200).get().then(function(q){
+      docs={}; if(q.empty){ listEl.innerHTML='<div class="sp-empty">No saved plans yet. Fill out a practice plan and tap Save plan.</div>'; return; }
+      listEl.innerHTML=q.docs.map(function(d){ docs[d.id]=d; var x=d.data();
+        var when=x.updatedAt&&x.updatedAt.toDate?x.updatedAt.toDate().toLocaleDateString():'';
+        var title=(x.practiceNum?'Practice '+esc2(x.practiceNum):'Practice plan')+(x.date?' · '+esc2(x.date):'');
+        var meta=[x.by?'By '+esc2(x.by):'', x.rating?'Rated '+esc2(x.rating)+'/5':'', when?'Saved '+when:''].filter(Boolean).join(' · ');
+        return '<div class="sp-item"><div class="t"><b>'+title+'</b><span>'+(x.goals?esc2(x.goals):'No goals entered')+'</span><span>'+meta+'</span></div>'+
+          '<div class="acts"><button class="sp-btn primary" data-sp-open="'+d.id+'">Open</button><button class="sp-btn" data-sp-copy="'+d.id+'">Copy as new</button><button class="sp-btn danger" data-sp-del="'+d.id+'">Delete</button></div></div>';
+      }).join('');
+    }).catch(function(e){ console.error(e); listEl.innerHTML='<div class="sp-empty">Could not load saved plans. Check your connection.</div>'; });
+  }
+  listEl.addEventListener('click',function(e){
+    var o=e.target.closest('[data-sp-open]'), c=e.target.closest('[data-sp-copy]'), d=e.target.closest('[data-sp-del]');
+    if(o){ MMPlan.open(docs[o.dataset.spOpen],false); setView('practice'); }
+    else if(c){ MMPlan.open(docs[c.dataset.spCopy],true); setView('practice'); }
+    else if(d){
+      if(armed!==d.dataset.spDel){ armed=d.dataset.spDel; d.textContent='Tap again to delete'; return; }
+      MM.db.collection('plans').doc(armed).delete().then(function(){ armed=null; loadPlans(); });
+    }
+  });
+  document.addEventListener('mm-plans-changed',loadPlans);
+
+  /* roster */
+  var body=document.getElementById('rs-body'), msg=document.getElementById('rs-msg'), RF=['num','name','pos','grade','notes'], rows=[], rArmed=null, timers={};
+  function rmsg(t){msg.textContent=t;}
+  function drawRoster(){
+    body.innerHTML=rows.map(function(r){ return '<tr data-id="'+r.id+'">'+RF.map(function(f){
+      return '<td><input data-f="'+f+'" aria-label="'+f+'" value="'+esc2(r[f])+'"'+(f==='num'||f==='grade'?' inputmode="numeric"':'')+'></td>'; }).join('')+
+      '<td class="x"><button class="sp-btn danger" style="min-height:32px;padding:4px 8px" data-rs-del="'+r.id+'" aria-label="Remove '+esc2(r.name||'player')+'">×</button></td></tr>'; }).join('');
+    document.getElementById('rs-seed').hidden = rows.length>0;
+    if(!rows.length) body.innerHTML='<tr><td colspan="6" style="padding:12px;color:var(--ink-2)">No players yet. Add players, or start from the names in the playbook.</td></tr>';
+  }
+  function loadRoster(){
+    if(!MM.db||MM.role!=='coach') return;
+    MM.db.collection('roster').get().then(function(q){
+      rows=q.docs.map(function(d){return Object.assign({id:d.id},d.data())});
+      rows.sort(function(a,b){return (parseInt(a.num)||999)-(parseInt(b.num)||999) || String(a.name||'').localeCompare(String(b.name||''))});
+      drawRoster();
+    }).catch(function(e){ console.error(e); rmsg('Could not load the roster.'); });
+  }
+  body.addEventListener('input',function(e){
+    var inp=e.target.closest('input[data-f]'); if(!inp) return; var id=inp.closest('tr').dataset.id, f=inp.dataset.f;
+    var r=rows.find(function(x){return x.id===id}); if(r) r[f]=inp.value;
+    clearTimeout(timers[id]); rmsg('Saving...');
+    timers[id]=setTimeout(function(){ var data={}; RF.forEach(function(k){data[k]=r[k]||''});
+      MM.db.collection('roster').doc(id).set(data).then(function(){rmsg('Saved.')}).catch(function(){rmsg('Could not save that change.')}); },600);
+  });
+  body.addEventListener('click',function(e){
+    var d=e.target.closest('[data-rs-del]'); if(!d) return;
+    if(rArmed!==d.dataset.rsDel){ rArmed=d.dataset.rsDel; d.textContent='Remove?'; return; }
+    MM.db.collection('roster').doc(rArmed).delete().then(function(){ rArmed=null; loadRoster(); rmsg('Removed.'); });
+  });
+  document.getElementById('rs-add').addEventListener('click',function(){
+    if(!MM.db){ rmsg('The roster turns on once the coach login is set up.'); return; }
+    MM.db.collection('roster').add({num:'',name:'',pos:'',grade:'',notes:''}).then(function(){ loadRoster(); });
+  });
+  document.getElementById('rs-seed').addEventListener('click',function(){
+    if(!MM.db) return; var seen={}, batch=MM.db.batch();
+    Object.keys(POS).forEach(function(n){ (POS[n].who||[]).forEach(function(nm){
+      if(seen[nm]) return; seen[nm]=1; batch.set(MM.db.collection('roster').doc(),{num:'',name:nm,pos:String(n),grade:'',notes:''}); }); });
+    batch.commit().then(function(){ loadRoster(); rmsg('Added the names from the playbook. Fill in numbers and grades.'); });
+  });
+
+  var _sv=setView; setView=function(v){ _sv(v); if(v==='saved') loadPlans(); if(v==='roster') loadRoster(); };
+  document.addEventListener('mm-auth',function(e){
+    var cur=document.querySelector('.tab[aria-selected="true"]'); var v=cur?cur.dataset.view:'situations';
+    if(['practice','saved','roster'].includes(v) && e.detail.role!=='coach') setView('situations');
+    else if(v==='saved') loadPlans(); else if(v==='roster') loadRoster();
+  });
+})();
 renderPosbar(); renderSituations(); renderPositions(); renderGameday(); renderIndex();
 (function(){
   const h=(location.hash||'').slice(1);
-  if(['positions','gameday','all','practice'].includes(h)) setView(h);
+  if(['positions','gameday','all','practice','saved','roster'].includes(h)) setView(h);
   else if(SITS.some(s=>s.id===h)) setTimeout(()=>document.getElementById(h)?.scrollIntoView(),50);
   else { let v=null; try{v=localStorage.getItem('mm-view')}catch(e){} if(v&&v!=='situations') setView(v); }
 })();
