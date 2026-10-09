@@ -216,7 +216,7 @@ html{scroll-behavior:smooth}
 .pp th,.pp td{border:1px solid var(--line);padding:0;vertical-align:middle}
 .pp thead th{background:var(--pine);color:#fff;text-align:left;padding:8px;font:600 14px var(--label);letter-spacing:.08em;text-transform:uppercase;border-color:var(--pine)}
 .pp tr.ph td{background:var(--surface-2)}
-.pp tr.ph .nm{font:400 18px/1 var(--display);text-transform:uppercase;padding:6px 8px;letter-spacing:.02em}
+.pp tr.ph .nm input{font:400 18px/1 var(--display);text-transform:uppercase;padding:6px 8px;letter-spacing:.02em}
 .pp tr.ph input{font-weight:700}
 .pp .add{text-align:right}
 .pp button{font:600 14px var(--label);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border:1.5px solid var(--green);background:var(--surface);color:var(--green-ink);padding:9px 14px;border-radius:999px;min-height:40px}
@@ -255,7 +255,7 @@ html{scroll-behavior:smooth}
   html.pp-printing .pp table{min-width:0}
   html.pp-printing .pp thead th{background:#14452f!important;color:#fff!important;padding:4px 6px;font-size:11px}
   html.pp-printing .pp tr.ph td{background:#ececec!important}
-  html.pp-printing .pp tr.ph .nm{font-size:13px;padding:3px 6px}
+  html.pp-printing .pp tr.ph .nm input{font-size:13px;padding:3px 6px}
   html.pp-printing .pp input,html.pp-printing .pp textarea{font-size:10.5px;padding:2px 4px;color:#111}
   html.pp-printing .pp-notes{border-radius:0;break-inside:avoid}
   html.pp-printing .pp-notes textarea{min-height:56px;resize:none}
@@ -839,8 +839,8 @@ $('#q').addEventListener('input',()=>{ const v=document.querySelector('.tab[aria
     var tb=document.getElementById('pp-body'); tb.innerHTML='';
     PH.forEach(function(p,pi){
       var tr=document.createElement('tr'); tr.className='ph';
-      var a=document.createElement('td'); a.colSpan=2; var r=inp('pp-p'+pi+'-range',p[0]+' time'); if(st.values['pp-p'+pi+'-range']==null) r.value=p[1]+'  ('+p[2]+')'; a.appendChild(r); tr.appendChild(a);
-      var n=document.createElement('td'); n.colSpan=2; n.className='nm'; n.textContent=p[0]; tr.appendChild(n);
+      var a=document.createElement('td'); a.colSpan=2; var r=inp('pp-p'+pi+'-range','Phase '+(pi+1)+' time'); if(st.values['pp-p'+pi+'-range']==null) r.value=p[1]+'  ('+p[2]+')'; a.appendChild(r); tr.appendChild(a);
+      var n=document.createElement('td'); n.colSpan=2; n.className='nm'; var ni=inp('pp-p'+pi+'-name','Phase '+(pi+1)+' name'); if(st.values['pp-p'+pi+'-name']==null) ni.value=p[0]; n.appendChild(ni); tr.appendChild(n);
       var ad=document.createElement('td'); ad.className='add'; var b=document.createElement('button'); b.type='button'; b.className='link'; b.textContent='+ Add row'; b.setAttribute('aria-label','Add a row to '+p[0].toLowerCase());
       b.addEventListener('click',function(){st.rows[pi]++;save();render();}); ad.appendChild(b); tr.appendChild(ad); tb.appendChild(tr);
       for(var i=0;i<st.rows[pi];i++){var row=document.createElement('tr');F.forEach(function(f){var c=document.createElement('td');c.appendChild(inp('pp-p'+pi+'-r'+i+'-'+f,p[0]+' row '+(i+1)+' '+f));row.appendChild(c);});tb.appendChild(row);}
@@ -855,7 +855,7 @@ $('#q').addEventListener('input',()=>{ const v=document.querySelector('.tab[aria
     if(v('pp-players')) o.push('Players present: '+v('pp-players'));
     PH.forEach(function(p,pi){
       var rg=st.values['pp-p'+pi+'-range']!=null?v('pp-p'+pi+'-range'):p[1]+'  ('+p[2]+')';
-      o.push('');o.push(p[0]+' | '+rg);
+      var nmv=st.values['pp-p'+pi+'-name']!=null?v('pp-p'+pi+'-name'):p[0]; o.push('');o.push(nmv.toUpperCase()+' | '+rg);
       for(var i=0;i<st.rows[pi];i++){var k='pp-p'+pi+'-r'+i+'-',t=v(k+'time'),m=v(k+'min'),d=v(k+'drill'),s2=v(k+'standard'),c=v(k+'coach');
         if(!(t||m||d||s2||c)) continue; var line='- '+[t,m?m+' min':'',d].filter(Boolean).join('  '); if(s2) line+=': '+s2; if(c) line+=' ('+c+')'; o.push(line);}
     });
