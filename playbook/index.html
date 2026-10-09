@@ -194,6 +194,44 @@ footer{color:var(--ink-3);font-size:14px;padding-block:24px 40px;border-top:1px 
 }
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 html{scroll-behavior:smooth}
+
+/* Practice plan section */
+.pp{display:flex;flex-direction:column;gap:14px;margin-top:14px}
+.pp-head{display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.pp-head svg{width:96px;height:auto;flex:none}
+.pp-titles{flex:1 1 220px;min-width:0}
+.pp-titles b{display:block;font:400 26px/1.05 var(--display);text-transform:uppercase}
+.pp-titles span{font:600 13px var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.pp-meta{flex:1 1 200px;display:grid;gap:6px}
+.pp label.pp-line{display:flex;align-items:baseline;gap:6px;border-bottom:1px solid var(--line);font:600 14px var(--label);letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
+.pp input,.pp textarea{font:500 15px var(--body);color:var(--ink);background:transparent;border:0;width:100%;min-width:0;padding:5px 6px}
+.pp input:focus,.pp textarea:focus{outline:2px solid var(--green);outline-offset:-2px;background:var(--surface-2)}
+.pp-info{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:0;border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden}
+.pp-info label{display:flex;align-items:center;gap:6px;padding:2px 8px;font:600 14px var(--label);letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
+.pp-info label span,.pp label.pp-line span{white-space:nowrap}
+.pp-info label+label{border-left:1px solid var(--line)}
+@media (max-width:560px){.pp-info{grid-template-columns:minmax(0,1fr)}.pp-info label+label{border-left:0;border-top:1px solid var(--line)}}
+.pp-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.pp table{width:100%;min-width:640px;border-collapse:collapse;table-layout:fixed;font-variant-numeric:tabular-nums}
+.pp th,.pp td{border:1px solid var(--line);padding:0;vertical-align:middle}
+.pp thead th{background:var(--pine);color:#fff;text-align:left;padding:8px;font:600 14px var(--label);letter-spacing:.08em;text-transform:uppercase;border-color:var(--pine)}
+.pp tr.ph td{background:var(--surface-2)}
+.pp tr.ph .nm{font:400 18px/1 var(--display);text-transform:uppercase;padding:6px 8px;letter-spacing:.02em}
+.pp tr.ph input{font-weight:700}
+.pp .add{text-align:right}
+.pp button{font:600 14px var(--label);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border:1.5px solid var(--green);background:var(--surface);color:var(--green-ink);padding:9px 14px;border-radius:999px;min-height:40px}
+.pp button.primary{background:var(--green);color:var(--on-green);border-color:var(--green)}
+.pp button.link{border:0;background:none;min-height:30px;padding:4px 8px;text-decoration:underline;font-size:13px}
+.pp button:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.pp-notes{border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden;display:flex;flex-direction:column}
+.pp-notes .band{background:var(--surface-2);font:600 14px var(--label);letter-spacing:.08em;text-transform:uppercase;padding:7px 10px;border-bottom:1px solid var(--line)}
+.pp-notes textarea{min-height:76px;resize:vertical;padding:8px 10px}
+.pp-notes textarea+.band{border-top:1px solid var(--line)}
+.pp-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pp-bar .st{margin-left:auto;color:var(--ink-3);font-size:13px}
+.pp-msg{font:600 14px var(--body);color:var(--green-ink)}
+.pp-confirm{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--warn-bg);color:var(--ink)}
+.pp textarea.pp-copy{border:1px solid var(--line);border-radius:8px;min-height:140px;font:13px/1.4 ui-monospace,monospace}
 </style>
 
 <div id="gate">
@@ -237,6 +275,7 @@ html{scroll-behavior:smooth}
     <button class="tab" role="tab" data-view="positions" aria-selected="false">Positions</button>
     <button class="tab" role="tab" data-view="gameday" aria-selected="false">Game day</button>
     <button class="tab" role="tab" data-view="all" aria-selected="false">All plays</button>
+    <button class="tab" role="tab" data-view="practice" aria-selected="false">Practice plan</button>
   </div>
 </nav>
 <div class="posbar" aria-label="Show plays for one position">
@@ -272,6 +311,52 @@ html{scroll-behavior:smooth}
     <p class="kicker">Every call in the book</p>
     <h1>All plays</h1>
     <div class="index" id="index"></div>
+  </section>
+
+  <section class="view" id="view-practice" hidden>
+    <p class="kicker">Staff</p>
+    <h1>Practice plan</h1>
+    <p class="lead" style="margin-top:8px">Fill in the drills for each phase. It saves on your phone as you type. When it's done, copy it and post it in the practice plan channel.</p>
+    <div class="pp">
+      <div class="pp-head">
+        <svg viewBox="-6 -6 212 162" role="img" aria-label="Millers logo"><polygon points="12,8 74,8 100,54 126,8 188,8 188,32 176,32 176,118 188,118 188,142 124,142 124,118 134,118 134,74 100,136 66,74 66,118 76,118 76,142 12,142 12,118 24,118 24,32 12,32" fill="#14452f" stroke="#111111" stroke-width="10"/><polygon points="12,8 74,8 100,54 126,8 188,8 188,32 176,32 176,118 188,118 188,142 124,142 124,118 134,118 134,74 100,136 66,74 66,118 76,118 76,142 12,142 12,118 24,118 24,32 12,32" fill="#1e6b43" stroke="#ffffff" stroke-width="3.5"/><rect x="2" y="60" width="196" height="30" fill="#111111" stroke="#111111" stroke-width="8"/><rect x="2" y="60" width="196" height="30" fill="#111111" stroke="#ffffff" stroke-width="3"/><text x="100" y="83" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="24" letter-spacing="1.5" fill="#ffffff">MILLERS</text></svg>
+        <div class="pp-titles"><b>Milford Mill Girls Basketball</b><span>Practice plan</span></div>
+        <div class="pp-meta">
+          <label class="pp-line"><span>Date:</span><input id="pp-date" type="text" autocomplete="off"></label>
+          <label class="pp-line"><span>Start:</span><input id="pp-start" type="text" autocomplete="off"></label>
+          <label class="pp-line"><span>Practice #:</span><input id="pp-num" type="text" inputmode="numeric" autocomplete="off"></label>
+        </div>
+      </div>
+      <div class="pp-info">
+        <label><span>Players present:</span><input id="pp-players" type="text" autocomplete="off"></label>
+        <label><span>Emphasis:</span><input id="pp-emphasis" type="text" autocomplete="off"></label>
+      </div>
+      <div class="pp-scroll">
+        <table aria-label="Practice timeline">
+          <colgroup><col style="width:14%"><col style="width:7%"><col style="width:30%"><col style="width:33%"><col style="width:16%"></colgroup>
+          <thead><tr><th>Time</th><th>Min</th><th>Drill</th><th>Standard / coaching points</th><th>Coach</th></tr></thead>
+          <tbody id="pp-body"></tbody>
+        </table>
+      </div>
+      <div class="pp-notes">
+        <div class="band"><label for="pp-cauldron">Competition Cauldron</label></div>
+        <textarea id="pp-cauldron"></textarea>
+        <div class="band"><label for="pp-announce">Post practice announcements</label></div>
+        <textarea id="pp-announce"></textarea>
+      </div>
+      <div class="pp-bar">
+        <button class="primary" id="pp-copybtn" type="button">Copy plan as text</button>
+        <button id="pp-clear" type="button">Clear form</button>
+        <span class="pp-msg" id="pp-msg" aria-live="polite"></span>
+        <span class="st" id="pp-status">Saves on this device as you type</span>
+      </div>
+      <div class="pp-confirm" id="pp-confirm" hidden>
+        <span>Clear every field and start a blank plan?</span>
+        <button class="primary" id="pp-yes" type="button">Clear it</button>
+        <button id="pp-no" type="button">Keep my plan</button>
+      </div>
+      <textarea class="pp-copy" id="pp-copytext" readonly hidden aria-label="Plan as text"></textarea>
+    </div>
   </section>
 
   <footer>Milford Mill girls basketball · 26-27 playbook. Diagrams and clips come from the staff playbook videos. Team use only.</footer>
@@ -697,6 +782,7 @@ dlg.addEventListener('click',e=>{if(e.target===dlg) dlg.close()});
 function setView(v){
   document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.view===v));
   document.querySelectorAll('.view').forEach(s=>s.hidden = s.id!=='view-'+v);
+  const pb=document.querySelector('.posbar'); if(pb) pb.hidden = v==='practice';
   try{localStorage.setItem('mm-view',v)}catch(e){}
   window.scrollTo({top:0});
 }
@@ -709,10 +795,60 @@ document.addEventListener('click',e=>{
 });
 $('#q').addEventListener('input',()=>{ const v=document.querySelector('.tab[aria-selected="true"]').dataset.view; if(v!=='situations'&&v!=='all') setView('situations'); renderSituations(); renderIndex(); });
 
+
+/* practice plan */
+(function(){
+  var PH=[["WARM UP","0:00 - 0:15","15"],["SKILL DEVELOPMENT","0:15 - 0:25","10"],["TRANSITION","0:25 - 0:45","20"],["HALF COURT OFFENSE","0:45 - 1:05","20"],["TRANSITION DEFENSE","1:05 - 1:25","20"],["DEFENSE","1:25 - 1:50","25"],["SPECIALS","1:50 - 2:00","10"]];
+  var KEY='mm-practice-plan-v1', F=['time','min','drill','standard','coach'];
+  var TOP=['pp-date','pp-start','pp-num','pp-players','pp-emphasis','pp-cauldron','pp-announce'];
+  function blank(){return {rows:PH.map(function(){return 3}),values:{}};}
+  var st; try{st=JSON.parse(localStorage.getItem(KEY))}catch(e){} if(!st||!st.rows||!st.values) st=blank();
+  function status(t){var e=document.getElementById('pp-status'); if(e) e.textContent=t;}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(st));status('Saved on this device')}catch(e){status('Not saving on this device. Copy the plan before you leave.')}}
+  function inp(id,label){var el=document.createElement('input');el.type='text';el.id=id;el.autocomplete='off';el.setAttribute('aria-label',label);el.value=st.values[id]!=null?st.values[id]:'';return el;}
+  function render(){
+    var tb=document.getElementById('pp-body'); tb.innerHTML='';
+    PH.forEach(function(p,pi){
+      var tr=document.createElement('tr'); tr.className='ph';
+      var a=document.createElement('td'); a.colSpan=2; var r=inp('pp-p'+pi+'-range',p[0]+' time'); if(st.values['pp-p'+pi+'-range']==null) r.value=p[1]+'  ('+p[2]+')'; a.appendChild(r); tr.appendChild(a);
+      var n=document.createElement('td'); n.colSpan=2; n.className='nm'; n.textContent=p[0]; tr.appendChild(n);
+      var ad=document.createElement('td'); ad.className='add'; var b=document.createElement('button'); b.type='button'; b.className='link'; b.textContent='+ Add row'; b.setAttribute('aria-label','Add a row to '+p[0].toLowerCase());
+      b.addEventListener('click',function(){st.rows[pi]++;save();render();}); ad.appendChild(b); tr.appendChild(ad); tb.appendChild(tr);
+      for(var i=0;i<st.rows[pi];i++){var row=document.createElement('tr');F.forEach(function(f){var c=document.createElement('td');c.appendChild(inp('pp-p'+pi+'-r'+i+'-'+f,p[0]+' row '+(i+1)+' '+f));row.appendChild(c);});tb.appendChild(row);}
+    });
+  }
+  TOP.forEach(function(id){var e=document.getElementById(id); if(e&&st.values[id]!=null) e.value=st.values[id];});
+  document.getElementById('view-practice').addEventListener('input',function(e){var el=e.target; if(!el.id||el.id==='pp-copytext') return; st.values[el.id]=el.value; save();});
+  function v(id){var x=st.values[id];return x==null?'':String(x).trim();}
+  function asText(){
+    var o=['MILFORD MILL GIRLS BASKETBALL | PRACTICE PLAN','Date: '+v('pp-date')+' | Start: '+v('pp-start')+' | Practice #: '+v('pp-num')];
+    if(v('pp-emphasis')) o.push('Emphasis: '+v('pp-emphasis'));
+    if(v('pp-players')) o.push('Players present: '+v('pp-players'));
+    PH.forEach(function(p,pi){
+      var rg=st.values['pp-p'+pi+'-range']!=null?v('pp-p'+pi+'-range'):p[1]+'  ('+p[2]+')';
+      o.push('');o.push(p[0]+' | '+rg);
+      for(var i=0;i<st.rows[pi];i++){var k='pp-p'+pi+'-r'+i+'-',t=v(k+'time'),m=v(k+'min'),d=v(k+'drill'),s2=v(k+'standard'),c=v(k+'coach');
+        if(!(t||m||d||s2||c)) continue; var line='- '+[t,m?m+' min':'',d].filter(Boolean).join('  '); if(s2) line+=': '+s2; if(c) line+=' ('+c+')'; o.push(line);}
+    });
+    if(v('pp-cauldron')){o.push('');o.push('Competition Cauldron: '+v('pp-cauldron'));}
+    if(v('pp-announce')){o.push('');o.push('Announcements: '+v('pp-announce'));}
+    return o.join('\n');
+  }
+  document.getElementById('pp-copybtn').addEventListener('click',function(){
+    var t=asText(),msg=document.getElementById('pp-msg'),box=document.getElementById('pp-copytext');
+    function fb(){box.hidden=false;box.value=t;box.focus();box.select();msg.textContent='Select all and copy from the box below.';}
+    try{navigator.clipboard.writeText(t).then(function(){box.hidden=true;msg.textContent='Copied. Paste it in Discord.';},fb);}catch(e){fb();}
+  });
+  var cf=document.getElementById('pp-confirm');
+  document.getElementById('pp-clear').addEventListener('click',function(){cf.hidden=false;document.getElementById('pp-no').focus();});
+  document.getElementById('pp-no').addEventListener('click',function(){cf.hidden=true;});
+  document.getElementById('pp-yes').addEventListener('click',function(){st=blank();save();TOP.forEach(function(id){document.getElementById(id).value='';});render();cf.hidden=true;document.getElementById('pp-msg').textContent='Cleared.';});
+  render();
+})();
 renderPosbar(); renderSituations(); renderPositions(); renderGameday(); renderIndex();
 (function(){
   const h=(location.hash||'').slice(1);
-  if(['positions','gameday','all'].includes(h)) setView(h);
+  if(['positions','gameday','all','practice'].includes(h)) setView(h);
   else if(SITS.some(s=>s.id===h)) setTimeout(()=>document.getElementById(h)?.scrollIntoView(),50);
   else { let v=null; try{v=localStorage.getItem('mm-view')}catch(e){} if(v&&v!=='situations') setView(v); }
 })();
