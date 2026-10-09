@@ -206,7 +206,7 @@ html{scroll-behavior:smooth}
 .pp label.pp-line{display:flex;align-items:baseline;gap:6px;border-bottom:1px solid var(--line);font:600 14px var(--label);letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
 .pp input,.pp textarea{font:500 15px var(--body);color:var(--ink);background:transparent;border:0;width:100%;min-width:0;padding:5px 6px}
 .pp input:focus,.pp textarea:focus{outline:2px solid var(--green);outline-offset:-2px;background:var(--surface-2)}
-.pp-info{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:0;border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden}
+.pp-info{display:grid;grid-template-columns:minmax(0,1fr);gap:0;border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden}
 .pp-info label{display:flex;align-items:center;gap:6px;padding:2px 8px;font:600 14px var(--label);letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
 .pp-info label span,.pp label.pp-line span{white-space:nowrap}
 .pp-info label+label{border-left:1px solid var(--line)}
@@ -249,7 +249,7 @@ html{scroll-behavior:smooth}
   html.pp-printing .pp-head svg{width:80px}
   html.pp-printing .pp-titles b{font-size:22px}
   html.pp-printing .pp-meta{flex:0 0 190px}
-  html.pp-printing .pp-info{grid-template-columns:minmax(0,1fr) minmax(0,2fr);border-radius:0}
+  html.pp-printing .pp-info{border-radius:0}
   html.pp-printing .pp-info label+label{border-left:1px solid var(--line);border-top:0}
   html.pp-printing .pp-scroll{overflow:visible;border-radius:0}
   html.pp-printing .pp table{min-width:0}
@@ -356,8 +356,7 @@ html{scroll-behavior:smooth}
         </div>
       </div>
       <div class="pp-info">
-        <label><span>Players present:</span><input id="pp-players" type="text" autocomplete="off"></label>
-        <label><span>Emphasis:</span><input id="pp-emphasis" type="text" autocomplete="off"></label>
+        <label><span>Today's goals:</span><input id="pp-emphasis" type="text" autocomplete="off"></label>
       </div>
       <div class="pp-scroll">
         <table aria-label="Practice timeline">
@@ -829,7 +828,7 @@ $('#q').addEventListener('input',()=>{ const v=document.querySelector('.tab[aria
 (function(){
   var PH=[["WARM UP","0:00 - 0:15","15"],["SKILL DEVELOPMENT","0:15 - 0:25","10"],["TRANSITION","0:25 - 0:45","20"],["HALF COURT OFFENSE","0:45 - 1:05","20"],["TRANSITION DEFENSE","1:05 - 1:25","20"],["DEFENSE","1:25 - 1:50","25"],["SPECIALS","1:50 - 2:00","10"]];
   var KEY='mm-practice-plan-v1', F=['time','min','drill','standard','coach'];
-  var TOP=['pp-date','pp-start','pp-num','pp-players','pp-emphasis','pp-cauldron','pp-announce'];
+  var TOP=['pp-date','pp-start','pp-num','pp-emphasis','pp-cauldron','pp-announce'];
   function blank(){return {rows:PH.map(function(){return 3}),values:{}};}
   var st; try{st=JSON.parse(localStorage.getItem(KEY))}catch(e){} if(!st||!st.rows||!st.values) st=blank();
   function status(t){var e=document.getElementById('pp-status'); if(e) e.textContent=t;}
@@ -851,8 +850,7 @@ $('#q').addEventListener('input',()=>{ const v=document.querySelector('.tab[aria
   function v(id){var x=st.values[id];return x==null?'':String(x).trim();}
   function asText(){
     var o=['MILFORD MILL GIRLS BASKETBALL | PRACTICE PLAN','Date: '+v('pp-date')+' | Start: '+v('pp-start')+' | Practice #: '+v('pp-num')];
-    if(v('pp-emphasis')) o.push('Emphasis: '+v('pp-emphasis'));
-    if(v('pp-players')) o.push('Players present: '+v('pp-players'));
+    if(v('pp-emphasis')) o.push("Today's goals: "+v('pp-emphasis'));
     PH.forEach(function(p,pi){
       var rg=st.values['pp-p'+pi+'-range']!=null?v('pp-p'+pi+'-range'):p[1]+'  ('+p[2]+')';
       var nmv=st.values['pp-p'+pi+'-name']!=null?v('pp-p'+pi+'-name'):p[0]; o.push('');o.push(nmv.toUpperCase()+' | '+rg);
