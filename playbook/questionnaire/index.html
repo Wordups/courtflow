@@ -1,0 +1,291 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Millers Player Questionnaire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Extra+Condensed:wght@600;800&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one narrow column, a sticky section rail, each section a "possession" card stacked down the page */
+:root{
+  --bg:#f3f5f2; --surface:#ffffff; --ink:#111712; --muted:#5d6b61; --line:#d7ded8;
+  --green:#0f5a32; --green-ink:#ffffff; --chip:#e8efe9; --chip-on:#0f5a32; --chip-on-ink:#ffffff;
+  --warn:#a5331f;
+  --display:"Saira Extra Condensed","Arial Narrow",Impact,sans-serif;
+  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0c110e; --surface:#151c17; --ink:#eef3ef; --muted:#9aa89e; --line:#27322b;
+  --green:#3fae6e; --green-ink:#06130b; --chip:#1d2620; --chip-on:#3fae6e; --chip-on-ink:#06130b; --warn:#ff8a73; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0c110e; --surface:#151c17; --ink:#eef3ef; --muted:#9aa89e; --line:#27322b;
+  --green:#3fae6e; --green-ink:#06130b; --chip:#1d2620; --chip-on:#3fae6e; --chip-on-ink:#06130b; --warn:#ff8a73; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:680px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+header.hero{padding-block:36px 20px;display:grid;gap:10px}
+.eyebrow{font-family:var(--display);font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--green);font-size:15px}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(44px,11vw,72px);line-height:.92;margin:0;text-transform:uppercase;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:56ch}
+.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.rail a{flex:0 0 auto;font-family:var(--display);font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:15px;color:var(--muted);text-decoration:none;padding:4px 10px;border-radius:999px;border:1px solid var(--line);display:flex;gap:6px;align-items:center}
+.rail a .n{font-variant-numeric:tabular-nums;color:var(--ink)}
+.rail a.done{border-color:var(--green);color:var(--green)}
+section.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-top:22px;overflow:hidden;scroll-margin-top:64px}
+.card-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.card-head h2{font-family:var(--display);font-weight:800;font-size:30px;text-transform:uppercase;margin:0;letter-spacing:.01em}
+.card-head .count{font-family:var(--display);font-weight:600;color:var(--muted);letter-spacing:.06em;font-variant-numeric:tabular-nums}
+.qs{display:grid;gap:22px;padding:18px}
+.q{display:grid;gap:8px;min-width:0}
+.q label.t,.q .t{font-weight:600;display:flex;gap:10px}
+.q .num{font-family:var(--display);font-weight:800;color:var(--green);min-width:24px;font-size:18px;line-height:1.35;font-variant-numeric:tabular-nums}
+.q .hint{color:var(--muted);font-size:14px;margin-left:34px;margin-top:-4px}
+.q input[type=text],.q textarea{margin-left:34px;width:calc(100% - 34px);font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
+.q textarea{min-height:84px;resize:vertical}
+.q input:focus-visible,.q textarea:focus-visible,.chip:focus-visible,button:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+.chips{margin-left:34px;display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-size:15px;font-weight:500;border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:999px;padding:7px 14px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--chip-on);color:var(--chip-on-ink);border-color:var(--chip-on)}
+.req{color:var(--warn);font-weight:600}
+.finish{margin-top:28px;display:grid;gap:12px}
+.btn{font-family:var(--display);font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:22px;border:0;border-radius:12px;padding:14px 18px;background:var(--green);color:var(--green-ink);cursor:pointer;width:100%}
+.btn.ghost{background:transparent;color:var(--green);border:2px solid var(--green);font-size:18px;padding:10px 14px}
+.err{color:var(--warn);font-weight:600;margin:0}
+.out{background:var(--surface);border:2px solid var(--green);border-radius:14px;padding:18px;display:grid;gap:14px;margin-top:22px}
+.out[hidden]{display:none}
+.out h2{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:32px;margin:0}
+.steps{margin:0;padding-left:20px;display:grid;gap:6px}
+.part{display:grid;gap:8px}
+.part textarea{width:100%;font:13px/1.45 ui-monospace,Menlo,Consolas,monospace;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;min-height:140px}
+.part .row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.part .lbl{font-family:var(--display);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.copied{color:var(--green);font-weight:600}
+footer{color:var(--muted);font-size:13px;margin-top:28px}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+</style>
+</head><body>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Milford Mill Girls Varsity · 2026-27</div>
+    <h1>Get to know you</h1>
+    <p class="lede">33 questions. There are no wrong answers. Be honest, especially in the Team and Coaching sections. When you finish, tap Send and your answers go straight to Coach B. Only your coaches see them.</p>
+  </header>
+
+  <nav class="rail" id="rail" aria-label="Sections"></nav>
+  <form id="form" novalidate></form>
+
+  <div class="finish">
+    <p class="err" id="err" hidden></p>
+    <button class="btn" id="finish" type="button">Send to Coach B</button>
+  </div>
+
+  <div class="out" id="sent" hidden>
+    <h2>Sent. You're all set.</h2>
+    <p style="margin:0">Coach B has your answers. Thanks for being honest.</p>
+    <button class="btn ghost" id="edit2" type="button">Change something and send again</button>
+  </div>
+
+  <div class="out" id="out" hidden>
+    <h2>It didn't send. Use Discord instead.</h2>
+    <p style="margin:0" id="why">Your phone couldn't reach the server. Your answers are saved here.</p>
+    <ol class="steps">
+      <li>Tap <b>Copy</b> below.</li>
+      <li>Open Discord and go to <b>your</b> player room (the channel with your name).</li>
+      <li>Paste and send. If there's more than one part, send each part in order.</li>
+    </ol>
+    <div id="parts"></div>
+    <button class="btn ghost" id="edit" type="button">Go back and edit</button>
+  </div>
+
+  <footer>Your answers save on this phone while you work, so you can come back and finish later.</footer>
+</div>
+
+<script>
+const SECTIONS = [
+  {id:"basics", name:"The Basics", qs:[
+    {k:"name", q:"Full name, and what you want to be called", t:"text", req:true},
+    {k:"grade", q:"Grade", t:"one", opts:["9th","10th","11th","12th"]},
+    {k:"pos", q:"Position(s)", t:"many", opts:["PG","SG","SF","PF","C"]},
+    {k:"jersey", q:"Jersey number you want, and why", t:"text"},
+    {k:"size", q:"Jersey size", t:"one", opts:["YM","YL","XS","S","M","L","XL","2XL"]},
+    {k:"color", q:"Favorite color", t:"text"},
+    {k:"movie", q:"Favorite movie or show", t:"text"},
+    {k:"food", q:"Favorite food, and your go-to pregame meal", t:"text"},
+    {k:"song", q:"Go-to pregame song or artist", t:"text"},
+    {k:"secret", q:"One thing most people don't know about you", t:"long"}
+  ]},
+  {id:"game", name:"Your Game", qs:[
+    {k:"comp", q:"Who's your NCAA or WNBA comparison, and why?", t:"long"},
+    {k:"watch", q:"Favorite player to watch right now", t:"text"},
+    {k:"best", q:"What's the best part of your game?", t:"long"},
+    {k:"improve", q:"The one skill you most want to improve this season", t:"long"},
+    {k:"spot", q:"Where are you most comfortable on the floor?", t:"many", opts:["Ball in my hands","Corner 3","Wing","Mid-range","Post / paint","In transition"]},
+    {k:"known", q:"What do you want to be known for on this team?", t:"many", opts:["Shooter","Defender","Rebounder","Energy","Leader","Playmaker","Scorer"], other:true},
+    {k:"days", q:"Days a week you work on your game outside of practice", t:"one", opts:["0","1","2","3","4","5","6","7"]}
+  ]},
+  {id:"mind", name:"Mindset", qs:[
+    {k:"motive", q:"What's your motivation? Who or what do you play for?", t:"long"},
+    {k:"expect", q:"What are your expectations for yourself this season?", t:"long"},
+    {k:"future", q:"Where do you see basketball taking you after high school?", t:"long"},
+    {k:"grow", q:"What do you want to be when you grow up?", t:"long", hint:"Outside of hooping. Or hooping. Dream big."},
+    {k:"bounce", q:"How do you respond after a bad game or a mistake?", t:"long"},
+    {k:"proud", q:"Describe a moment on the court you're proud of", t:"long"}
+  ]},
+  {id:"team", name:"Team", qs:[
+    {k:"better", q:"What can you do to make your team better?", t:"long"},
+    {k:"mate", q:"What does a great teammate look like to you?", t:"long"},
+    {k:"goal", q:"One goal you have for us as a team this season", t:"long"},
+    {k:"role", q:"What role are you willing to accept to help us win?", t:"long"},
+    {k:"lead", q:"Your leadership style", t:"one", opts:["By my voice","By example","Both","Still figuring it out"]}
+  ]},
+  {id:"coach", name:"Coaching You", qs:[
+    {k:"fb", q:"How do you like to get feedback?", t:"many", opts:["In the moment","After practice","One on one","In front of the group"]},
+    {k:"push", q:"What motivates you more?", t:"one", opts:["Being pushed hard","Being encouraged","A mix of both"]},
+    {k:"learn", q:"How do you learn best?", t:"many", opts:["Watching it","Hearing it","Doing it"]},
+    {k:"sched", q:"Other sports, a job, or activities we should plan around?", t:"long"},
+    {k:"else", q:"Anything else you want your coaches to know?", t:"long", hint:"Optional. Only you and your coaches will see this."}
+  ]}
+];
+const KEY="mma-gtky-draft-v1";
+let state={};
+try{state=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){state={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}updateRail()}
+
+const form=document.getElementById("form"), rail=document.getElementById("rail");
+let n=0;
+SECTIONS.forEach((s,si)=>{
+  const sec=document.createElement("section"); sec.className="card"; sec.id=s.id;
+  const start=n+1, end=n+s.qs.length;
+  sec.innerHTML=`<div class="card-head"><h2>${s.name}</h2><span class="count">Page ${si+1} of ${SECTIONS.length} · Q${start}–${end}</span></div><div class="qs"></div>`;
+  const qs=sec.querySelector(".qs");
+  s.qs.forEach(q=>{
+    n++; q.n=n;
+    const d=document.createElement("div"); d.className="q";
+    const id="f-"+q.k;
+    const reqMark=q.req?' <span class="req">*</span>':'';
+    if(q.t==="text"||q.t==="long"){
+      d.innerHTML=`<label class="t" for="${id}"><span class="num">${n}</span><span>${q.q}${reqMark}</span></label>`+(q.hint?`<div class="hint">${q.hint}</div>`:"");
+      const el=document.createElement(q.t==="text"?"input":"textarea");
+      if(q.t==="text")el.type="text";
+      el.id=id; el.value=state[q.k]||""; el.autocomplete="off";
+      el.addEventListener("input",()=>{state[q.k]=el.value;save()});
+      d.appendChild(el);
+    }else{
+      d.innerHTML=`<div class="t" id="${id}-l"><span class="num">${n}</span><span>${q.q}${q.t==="many"?' <span class="hint" style="margin:0">(pick any)</span>':''}</span></div>`;
+      const wrap=document.createElement("div"); wrap.className="chips"; wrap.setAttribute("role","group"); wrap.setAttribute("aria-labelledby",id+"-l");
+      const cur=()=>Array.isArray(state[q.k])?state[q.k]:(state[q.k]?[state[q.k]]:[]);
+      q.opts.forEach((o,i)=>{
+        const b=document.createElement("button"); b.type="button"; b.className="chip"; b.id=`${id}-${i}`; b.textContent=o;
+        b.setAttribute("aria-pressed",cur().includes(o)?"true":"false");
+        b.addEventListener("click",()=>{
+          if(q.t==="one"){state[q.k]=state[q.k]===o?"":o; wrap.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c.textContent===state[q.k]?"true":"false"))}
+          else{let a=cur(); a=a.includes(o)?a.filter(x=>x!==o):a.concat(o); state[q.k]=a; b.setAttribute("aria-pressed",a.includes(o)?"true":"false")}
+          save();
+        });
+        wrap.appendChild(b);
+      });
+      d.appendChild(wrap);
+      if(q.other){
+        const el=document.createElement("input"); el.type="text"; el.id=id+"-other"; el.placeholder="Something else? Type it here"; el.value=state[q.k+"_other"]||"";
+        el.setAttribute("aria-label",q.q+" (other)");
+        el.addEventListener("input",()=>{state[q.k+"_other"]=el.value;save()});
+        d.appendChild(el);
+      }
+    }
+    qs.appendChild(d);
+  });
+  form.appendChild(sec);
+  const a=document.createElement("a"); a.href="#"+s.id; a.dataset.sec=s.id;
+  a.innerHTML=`${s.name} <span class="n"></span>`; rail.appendChild(a);
+});
+
+function answer(q){
+  let v=state[q.k];
+  if(Array.isArray(v))v=v.join(", ");
+  v=(v||"").trim();
+  if(q.other&&(state[q.k+"_other"]||"").trim()) v=(v?v+", ":"")+state[q.k+"_other"].trim();
+  return v;
+}
+function updateRail(){
+  SECTIONS.forEach(s=>{
+    const done=s.qs.filter(q=>answer(q)).length;
+    const a=rail.querySelector(`[data-sec="${s.id}"]`);
+    a.querySelector(".n").textContent=`${done}/${s.qs.length}`;
+    a.classList.toggle("done",done===s.qs.length);
+  });
+}
+updateRail();
+
+function buildParts(){
+  const name=answer(SECTIONS[0].qs[0]);
+  const blocks=[];
+  SECTIONS.forEach(s=>{
+    let b=`__**${s.name.toUpperCase()}**__\n`;
+    s.qs.forEach(q=>{ if(q.k==="name")return; b+=`**${q.n}. ${q.q}**\n${answer(q)||"(skipped)"}\n`; });
+    blocks.push(b);
+  });
+  const header=`🏀 **GET TO KNOW ME: ${name}**\n`;
+  const LIMIT=1900, parts=[]; let cur=header;
+  blocks.forEach(b=>{
+    if((cur+"\n"+b).length>LIMIT && cur!==header){parts.push(cur.trim()); cur="";}
+    if(b.length>LIMIT){ // very long section: split by line
+      b.split("\n").forEach(line=>{ if((cur+line+"\n").length>LIMIT){parts.push(cur.trim());cur="";} cur+=line+"\n"; });
+    } else cur+=(cur?"\n":"")+b;
+  });
+  if(cur.trim())parts.push(cur.trim());
+  if(parts.length>1) return parts.map((p,i)=>`(Part ${i+1} of ${parts.length})\n`+p);
+  return parts;
+}
+
+const out=document.getElementById("out"), partsEl=document.getElementById("parts"), err=document.getElementById("err"), sent=document.getElementById("sent"), finishBtn=document.getElementById("finish");
+// Email delivery (FormSubmit) and visit counting (GoatCounter)
+const MAIL_TO="word.brian1@gmail.com";
+function track(name){try{window.goatcounter&&window.goatcounter.count&&window.goatcounter.count({path:name,title:name,event:true})}catch(e){}}
+let started=false;
+form.addEventListener("input",()=>{if(!started){started=true;track("form-started")}});
+form.addEventListener("click",e=>{if(!started&&e.target.closest(".chip")){started=true;track("form-started")}});
+function payload(){
+  const name=answer(SECTIONS[0].qs[0]);
+  const d={_subject:"Get to Know You: "+name,_template:"table",_captcha:"false"};
+  SECTIONS.forEach(s=>s.qs.forEach(q=>{d[`${String(q.n).padStart(2,"0")}. ${q.q}`]=answer(q)||"(skipped)"}));
+  return d;
+}
+finishBtn.addEventListener("click",async()=>{
+  if(!answer(SECTIONS[0].qs[0])){err.textContent="Add your name in question 1 first, so your coaches know whose answers these are."; err.hidden=false; document.getElementById("f-name").focus(); return;}
+  err.hidden=true; finishBtn.disabled=true; finishBtn.textContent="Sending...";
+  let ok=false;
+  try{
+    const r=await fetch("https://formsubmit.co/ajax/"+MAIL_TO,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(payload())});
+    const j=await r.json().catch(()=>({}));
+    ok=r.ok&&String(j.success)==="true";
+  }catch(e){ok=false}
+  finishBtn.disabled=false; finishBtn.textContent="Send to Coach B";
+  if(ok){track("form-submitted"); out.hidden=true; sent.hidden=false; sent.scrollIntoView({block:"start"}); return;}
+  track("form-send-failed");
+  showCopy();
+});
+document.getElementById("edit2").addEventListener("click",()=>{sent.hidden=true; document.getElementById("basics").scrollIntoView({block:"start"});});
+function showCopy(){
+  const parts=buildParts(); partsEl.innerHTML="";
+  parts.forEach((p,i)=>{
+    const w=document.createElement("div"); w.className="part";
+    const lbl=parts.length>1?`Part ${i+1} of ${parts.length}`:"Your answers";
+    w.innerHTML=`<div class="row"><span class="lbl">${lbl}</span><span class="copied" hidden>Copied. Paste it in Discord.</span></div>`;
+    const ta=document.createElement("textarea"); ta.id="part-"+i; ta.readOnly=true; ta.value=p; ta.setAttribute("aria-label",lbl);
+    const btn=document.createElement("button"); btn.type="button"; btn.className="btn"; btn.id="copy-"+i;
+    btn.textContent=parts.length>1?`Copy part ${i+1}`:"Copy my answers";
+    const ok=w.querySelector(".copied");
+    btn.addEventListener("click",()=>{
+      const done=()=>{ok.hidden=false;};
+      const fallback=()=>{ta.focus();ta.select();try{document.execCommand("copy");done()}catch(e){ok.textContent="Text is selected. Press and hold to copy.";ok.hidden=false}};
+      try{navigator.clipboard.writeText(p).then(done,fallback)}catch(e){fallback()}
+    });
+    w.appendChild(ta); w.appendChild(btn); partsEl.appendChild(w);
+  });
+  sent.hidden=true; out.hidden=false; out.scrollIntoView({block:"start"});
+}
+document.getElementById("edit").addEventListener("click",()=>{out.hidden=true; document.getElementById("basics").scrollIntoView({block:"start"});});
+</script>
+<script data-goatcounter="https://mma-millers.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body></html>
